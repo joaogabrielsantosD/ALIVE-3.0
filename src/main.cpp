@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <mcp2515_can.h>
+#include <CircularBuffer.hpp>
+#include <Ticker.h>
 
 #define CAN_2515
 const int SPI_CS_PIN = 5;
@@ -11,7 +13,7 @@ mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 //#define MAX_DATA_SIZE 8
 #endif
 
-#define CAN_ID_PID  0x18DB33F1
+#define CAN_ID  0x18DB33F1
 
 boolean flagCANInit = true; //se false indica que o modulo CAN não foi inicializado com sucesso
 
@@ -19,15 +21,34 @@ unsigned int idMsgCANRec = 0; //essa variavel armazena o id da msg CAN q enviou 
 
 boolean flagRecv = false; //se true indica q uma msg foi recebida via CAN
 
+
+/* Interrupt services routine */
 void canSender();
 void canReceiver();
 void set_mask_filt();
+
+/* CicularBuffer Defs: */
+
+const int bufferSize = 10;
+CircularBuffer<char, bufferSize> state_buffer;
+char current_state = 'IDLE_ST';
+
+void PIDs_1hz();
+void PIDs_10hz();
+void PIDs_20hz();
+
+Ticker ticker_1Hz(PIDs_1hz, 1000, 1); //1 time, every second
+Ticker ticker_10Hz(PIDs_10hz, 1000, 10);
+Ticker ticker_20Hz(PIDs_20hz, 1000, 20);
+
 
 
 void setup()
 {    
   Serial.begin(9600);
   Serial.println("INICIANDO ALIVE.");
+   
+  /* Inicia a can: */
 
   unsigned long tcanStart = 0, cantimeOut = 0;
   tcanStart = millis();
@@ -57,6 +78,10 @@ void setup()
   set_mask_filt();
   //pinMode(CAN_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canReceiver, FALLING);
+
+  ticker_1Hz.start();
+  ticker_10Hz.start();
+  ticker_20Hz.start();
 }
 
 void loop() {
@@ -67,17 +92,19 @@ void loop() {
       delay(1000);
   }
   
-
+  ticker_1Hz.update();
+  ticker_10Hz.update();
+  ticker_20Hz.update();
 }
 
-void canSender(){
+void canSender(){ 
   unsigned char messageId_obd2 = 0x18DB33F1;
-  uint32_t identifier = 1;
+  //uint32_t identifier = 1;
   unsigned char messageData[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
-  CAN.sendMsgBuf(CAN_ID_PID, 1, 8, messageData);
+  CAN.sendMsgBuf(CAN_ID, 1, 8, messageData);
 
      Serial.print("Send to CAN: id ");
-      Serial.print(CAN_ID_PID, HEX);
+      Serial.print(CAN_ID, HEX);
       Serial.print("  ");
       //Serial.print(messageId_obd2, HEX);
       //Serial.print(")HEX");
@@ -155,5 +182,15 @@ void set_mask_filt() {
     CAN.init_Filt(3, 1, 0x18DAF110);
     CAN.init_Filt(4, 1, 0x18DAF110);
     CAN.init_Filt(5, 1, 0x18DAF110);
+}
+
+void PIDs_1hz(){
+
+}
+void PIDs_10hz(){
+
+}
+void PIDs_20hz(){
+
 }
 
