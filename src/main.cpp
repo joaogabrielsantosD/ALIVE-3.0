@@ -3,6 +3,7 @@
 #include <mcp2515_can.h>
 #include <CircularBuffer.hpp>
 #include <Ticker.h>
+#include "CAN_PIDs.h"
 
 #define CAN_2515
 const int SPI_CS_PIN = 5;
@@ -26,22 +27,36 @@ boolean flagRecv = false; //se true indica q uma msg foi recebida via CAN
 void canSender();
 void canReceiver();
 void set_mask_filt();
+void CircularBuffer_state();
 
 /* CicularBuffer Defs: */
 
+/*
 const int bufferSize = 10;
 CircularBuffer<char, bufferSize> state_buffer;
 char current_state = 'IDLE_ST';
+*/
+
+typedef enum {IDLE_ST, DistanceTraveled_ST, EngineRPM_ST, VehicleSpeed_ST, FuelLevel_ST,EngineCoolant_ST} state_t;
+
+/* ESP Tools */
+
+CircularBuffer<state_t, BUFFER_SIZE> state_buffer;
+state_t current_state = IDLE_ST;
+Ticker ticker1Hz; 
+
+
 
 void PIDs_1hz();
 void PIDs_10hz();
 void PIDs_20hz();
 
-Ticker ticker_1Hz(PIDs_1hz, 1000, 1); //1 time, every second
-Ticker ticker_10Hz(PIDs_10hz, 1000, 10);
-Ticker ticker_20Hz(PIDs_20hz, 1000, 20);
+//Ticker ticker_1Hz(PIDs_1hz, 1000, 1); //1 time, every second
+//Ticker ticker_10Hz(PIDs_10hz, 1000, 10);
+//Ticker ticker_20Hz(PIDs_20hz, 1000, 20);
 
-
+/* Debug Variables */
+bool buffer_full = false;
 
 void setup()
 {    
@@ -78,13 +93,17 @@ void setup()
   set_mask_filt();
   //pinMode(CAN_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canReceiver, FALLING);
-
+/*
   ticker_1Hz.start();
   ticker_10Hz.start();
   ticker_20Hz.start();
+*/
+  
+  ticker1Hz.attach(1, PIDs_1hz);
 }
 
 void loop() {
+  /*
   if (flagCANInit == true){
       canSender();
       delay(1000);
@@ -95,12 +114,15 @@ void loop() {
   ticker_1Hz.update();
   ticker_10Hz.update();
   ticker_20Hz.update();
+  */
 }
-
+/*
 void canSender(){ 
   unsigned char messageId_obd2 = 0x18DB33F1;
   //uint32_t identifier = 1;
-  unsigned char messageData[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
+  unsigned char pid = 0x0C;
+  //unsigned char messageData[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
+  //unsigned char messageData[8] = {0x02, 0x01, pid, 0x00, 0x00, 0x00, 0x00, 0x00};
   CAN.sendMsgBuf(CAN_ID, 1, 8, messageData);
 
      Serial.print("Send to CAN: id ");
@@ -120,6 +142,7 @@ void canSender(){
       Serial.println();
 
 }
+*/
 
 void canReceiver()
 {
@@ -166,6 +189,7 @@ void canReceiver()
 
 void set_mask_filt() {
 
+
     /*
         set mask, set both the mask to 0x3ff
     */
@@ -184,7 +208,78 @@ void set_mask_filt() {
     CAN.init_Filt(5, 1, 0x18DAF110);
 }
 
+void CircularBuffer_state(){
+  if(state_buffer.isFull())
+  {
+    buffer_full = true;
+    current_state = state_buffer.pop();
+
+  } else {
+      buffer_full = false;
+      if(!state_buffer.isEmpty())
+        current_state = state_buffer.pop();
+      else
+        current_state = IDLE_ST;
+  }
+
+  switch(current_state) {
+
+    case IDLE_ST:
+      //Serial.println("i");
+      break;
+    
+    case DistanceTraveled_ST:{   
+
+      unsigned char messageData[8] = {0x02, 0x01, DistanceTraveled_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+      if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK){  
+
+        Serial.print("Send to CAN: id ");
+        Serial.print(CAN_ID, HEX);
+        Serial.print("  ");    
+        
+        for (int i = 0; i < 8; i++){
+      
+            Serial.print((messageData[i]),HEX); 
+            Serial.print("\t");
+        }
+        
+        Serial.println();
+      }
+    
+      break;
+    }
+
+    case EngineRPM_ST:{
+
+      unsigned char messageData[8] = {0x02, 0x01, EngineRPM_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+      if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
+
+          Serial.print("Send to CAN: id ");
+          Serial.print(CAN_ID, HEX);
+          Serial.print("  ");    
+          
+          for (int i = 0; i < 8; i++){
+        
+              Serial.print((messageData[i]),HEX); 
+              Serial.print("\t");
+          }
+          
+          Serial.println();
+        }
+        
+        break;
+    }
+    case VehicleSpeed_ST:{
+      
+      break;
+    }
+  }
+}
 void PIDs_1hz(){
+  state_buffer.push(DistanceTraveled_ST);
+  state_buffer.push(EngineRPM_ST);
 
 }
 void PIDs_10hz(){
