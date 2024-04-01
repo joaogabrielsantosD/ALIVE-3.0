@@ -24,10 +24,13 @@ boolean flagRecv = false; //se true indica q uma msg foi recebida via CAN
 
 
 /* Interrupt services routine */
-void canSender();
-void canReceiver();
+//void canSender();
+//void canReceiver();
 void set_mask_filt();
 void CircularBuffer_state();
+void MsgRecCAN();
+void trataMsgRecCAN();
+
 
 /* CicularBuffer Defs: */
 
@@ -92,7 +95,7 @@ void setup()
 
   set_mask_filt();
   //pinMode(CAN_INT_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canReceiver, FALLING);
+  attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), MsgRecCAN, FALLING);
 /*
   ticker_1Hz.start();
   ticker_10Hz.start();
@@ -103,50 +106,24 @@ void setup()
 }
 
 void loop() {
-  /*
-  if (flagCANInit == true){
-      canSender();
+
+   if (flagCANInit == true){
+      CircularBuffer_state();
       delay(1000);
-      canReceiver();
-      delay(1000);
+      //canReceiver();
+      //delay(1000);
   }
-  
-  ticker_1Hz.update();
-  ticker_10Hz.update();
-  ticker_20Hz.update();
-  */
+
+  if (flagRecv == true){
+    trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
+  } 
+
 }
+
 /*
-void canSender(){ 
-  unsigned char messageId_obd2 = 0x18DB33F1;
-  //uint32_t identifier = 1;
-  unsigned char pid = 0x0C;
-  //unsigned char messageData[8] = {0x02, 0x01, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00};
-  //unsigned char messageData[8] = {0x02, 0x01, pid, 0x00, 0x00, 0x00, 0x00, 0x00};
-  CAN.sendMsgBuf(CAN_ID, 1, 8, messageData);
-
-     Serial.print("Send to CAN: id ");
-      Serial.print(CAN_ID, HEX);
-      Serial.print("  ");
-      //Serial.print(messageId_obd2, HEX);
-      //Serial.print(")HEX");
-     // Serial.print("\t");
-     // print the data
-      
-      for (int i = 0; i < 8; i++){
-    
-          Serial.print((messageData[i]),HEX); 
-          Serial.print("\t");
-      }
-      
-      Serial.println();
-
-}
-*/
-
 void canReceiver()
 {
-  
+ Serial.println("Entrou can receive"); 
   while(CAN.checkReceive() == CAN_MSGAVAIL)
   {
     //Serial.println("ok!");
@@ -186,7 +163,7 @@ void canReceiver()
   }
       
 }
-
+*/
 void set_mask_filt() {
 
 
@@ -209,6 +186,7 @@ void set_mask_filt() {
 }
 
 void CircularBuffer_state(){
+  //Serial.println("Entrou no CircularBuffer");
   if(state_buffer.isFull())
   {
     buffer_full = true;
@@ -223,11 +201,11 @@ void CircularBuffer_state(){
   }
 
   switch(current_state) {
-
+     // Serial.println("Entrou no Switchcase");
     case IDLE_ST:
       //Serial.println("i");
       break;
-    
+    /*
     case DistanceTraveled_ST:{   
 
       unsigned char messageData[8] = {0x02, 0x01, DistanceTraveled_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -249,7 +227,7 @@ void CircularBuffer_state(){
     
       break;
     }
-
+    */
     case EngineRPM_ST:{
 
       unsigned char messageData[8] = {0x02, 0x01, EngineRPM_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -277,10 +255,60 @@ void CircularBuffer_state(){
     }
   }
 }
-void PIDs_1hz(){
-  state_buffer.push(DistanceTraveled_ST);
-  state_buffer.push(EngineRPM_ST);
 
+
+void MsgRecCAN(){
+    flagRecv = true; //flag que indica que uma msg foi recebida via CAN
+    //Serial.println("teste direc");
+}
+
+void trataMsgRecCAN(){
+   flagRecv = false; // clear flag
+
+
+  
+  while(CAN.checkReceive() == CAN_MSGAVAIL)
+  {
+    //Serial.println("ok!");
+    unsigned char messageData[8];
+    uint32_t messageId;
+    unsigned char len = 0; //armazena o tamanho da msg CAN (qtd de dados recebidos)
+
+    // Reads message and ID
+    CAN.readMsgBuf(&len, messageData); 
+    messageId = CAN.getCanId();
+
+      Serial.print("Recieve by CAN: id ");
+
+      //Serial.print(messageId);
+      //Serial.print(" (");
+      Serial.print(messageId, HEX);
+      //Serial.print(")HEX");
+      Serial.print("\t");
+      // print the data
+      
+      for (int i = 0; i < len; i++){
+    
+          Serial.print((messageData[i]),HEX); 
+          Serial.print("\t");
+      }
+      
+      Serial.println();
+      if (messageData[2] == 12) {
+        float RPM1;
+        float RPM2;
+        RPM1 = messageData[3] ;
+        RPM2 = messageData[4] ;
+        float ENGINE_RPM = ((RPM1*256)+RPM2)/4;
+        Serial.print("ENGINE_RPM:   ");
+        Serial.println(ENGINE_RPM);
+    }
+  }
+}
+void PIDs_1hz(){
+  //state_buffer.push(DistanceTraveled_ST);
+  state_buffer.push(EngineRPM_ST);
+  //Serial.println("Funcionando ticker");
 }
 void PIDs_10hz(){
 
