@@ -34,19 +34,25 @@ void trataMsgRecCAN();
 
 /* CicularBuffer Defs: */
 
-/*
-const int bufferSize = 10;
-CircularBuffer<char, bufferSize> state_buffer;
-char current_state = 'IDLE_ST';
-*/
 
 typedef enum {IDLE_ST, DistanceTraveled_ST, EngineRPM_ST, VehicleSpeed_ST, FuelLevel_ST,EngineCoolant_ST} state_t;
 
-/* ESP Tools */
 
+
+/* ESP Tools */
+/*
 CircularBuffer<state_t, BUFFER_SIZE> state_buffer;
 state_t current_state = IDLE_ST;
-Ticker ticker1Hz; 
+*/
+
+CircularBuffer<int, BUFFER_SIZE> state_buffer;
+int current_state = IDLE_ST;
+
+
+
+Ticker ticker1Hz;
+Ticker ticker10Hz;
+Ticker ticker20Hz; 
 
 
 
@@ -96,20 +102,18 @@ void setup()
   set_mask_filt();
   //pinMode(CAN_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), MsgRecCAN, FALLING);
-/*
-  ticker_1Hz.start();
-  ticker_10Hz.start();
-  ticker_20Hz.start();
-*/
+
   
   ticker1Hz.attach(1, PIDs_1hz);
+  ticker10Hz.attach(2, PIDs_10hz);
+  ticker20Hz.attach(20, PIDs_20hz);
 }
 
 void loop() {
 
    if (flagCANInit == true){
       CircularBuffer_state();
-      delay(1000);
+      //delay(1000);
       //canReceiver();
       //delay(1000);
   }
@@ -120,50 +124,6 @@ void loop() {
 
 }
 
-/*
-void canReceiver()
-{
- Serial.println("Entrou can receive"); 
-  while(CAN.checkReceive() == CAN_MSGAVAIL)
-  {
-    //Serial.println("ok!");
-    unsigned char messageData[8];
-    uint32_t messageId;
-    unsigned char len = 0; //armazena o tamanho da msg CAN (qtd de dados recebidos)
-
-    // Reads message and ID
-    CAN.readMsgBuf(&len, messageData); 
-    messageId = CAN.getCanId();
-
-      Serial.print("Recieve by CAN: id ");
-
-      //Serial.print(messageId);
-      //Serial.print(" (");
-      Serial.print(messageId, HEX);
-      //Serial.print(")HEX");
-      Serial.print("\t");
-      // print the data
-      
-      for (int i = 0; i < len; i++){
-    
-          Serial.print((messageData[i]),HEX); 
-          Serial.print("\t");
-      }
-      
-      Serial.println();
-      if (messageData[2] == 12) {
-        float RPM1;
-        float RPM2;
-        RPM1 = messageData[3] ;
-        RPM2 = messageData[4] ;
-        float ENGINE_RPM = ((RPM1*256)+RPM2)/4;
-        Serial.print("ENGINE_RPM:   ");
-        Serial.println(ENGINE_RPM);
-    }
-  }
-      
-}
-*/
 void set_mask_filt() {
 
 
@@ -195,22 +155,23 @@ void CircularBuffer_state(){
   } else {
       buffer_full = false;
       if(!state_buffer.isEmpty())
-        current_state = state_buffer.pop();
+        current_state = state_buffer.pop();        
       else
         current_state = IDLE_ST;
   }
-
+    //Serial.println(current_state);
   switch(current_state) {
-     // Serial.println("Entrou no Switchcase");
+     
+     //Serial.println("Entrou no Switchcase");
     case IDLE_ST:
       //Serial.println("i");
       break;
-    /*
+    
     case DistanceTraveled_ST:{   
-
+        //Serial.println("Entrou no um");
       unsigned char messageData[8] = {0x02, 0x01, DistanceTraveled_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-      if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK){  
+        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK){  
 
         Serial.print("Send to CAN: id ");
         Serial.print(CAN_ID, HEX);
@@ -227,29 +188,91 @@ void CircularBuffer_state(){
     
       break;
     }
-    */
     case EngineRPM_ST:{
-
+      //Serial.println("Entrou no 2");
       unsigned char messageData[8] = {0x02, 0x01, EngineRPM_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-      if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
+        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
 
-          Serial.print("Send to CAN: id ");
-          Serial.print(CAN_ID, HEX);
-          Serial.print("  ");    
+            Serial.print("Send to CAN: id ");
+            Serial.print(CAN_ID, HEX);
+            Serial.print("  ");    
+            
+            for (int i = 0; i < 8; i++){
           
-          for (int i = 0; i < 8; i++){
-        
-              Serial.print((messageData[i]),HEX); 
-              Serial.print("\t");
+                Serial.print((messageData[i]),HEX); 
+                Serial.print("\t");
+            }
+            
+            Serial.println();
           }
           
-          Serial.println();
-        }
-        
         break;
     }
     case VehicleSpeed_ST:{
+      //Serial.println("Entrou no 3");
+
+      unsigned char messageData[8] = {0x02, 0x01, VehicleSpeed_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
+
+            Serial.print("Send to CAN: id ");
+            Serial.print(CAN_ID, HEX);
+            Serial.print("  ");    
+            
+            for (int i = 0; i < 8; i++){
+          
+                Serial.print((messageData[i]),HEX); 
+                Serial.print("\t");
+            }
+            
+            Serial.println();
+          }
+          
+      
+      break;
+    }
+    case FuelLevel_ST:{
+         // Serial.println("Entrou no 4");
+      unsigned char messageData[8] = {0x02, 0x01, FuelLevel_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
+
+            Serial.print("Send to CAN: id ");
+            Serial.print(CAN_ID, HEX);
+            Serial.print("  ");    
+            
+            for (int i = 0; i < 8; i++){
+          
+                Serial.print((messageData[i]),HEX); 
+                Serial.print("\t");
+            }
+            
+            Serial.println();
+          }
+          
+      
+      break;
+    }
+    case EngineCoolant_ST:{
+        //Serial.println("Entrou no 5");
+      unsigned char messageData[8] = {0x02, 0x01, EngineCoolant_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
+
+            Serial.print("Send to CAN: id ");
+            Serial.print(CAN_ID, HEX);
+            Serial.print("  ");    
+            
+            for (int i = 0; i < 8; i++){
+          
+                Serial.print((messageData[i]),HEX); 
+                Serial.print("\t");
+            }
+            
+            Serial.println();
+          }
+          
       
       break;
     }
@@ -265,8 +288,6 @@ void MsgRecCAN(){
 void trataMsgRecCAN(){
    flagRecv = false; // clear flag
 
-
-  
   while(CAN.checkReceive() == CAN_MSGAVAIL)
   {
     //Serial.println("ok!");
@@ -294,6 +315,18 @@ void trataMsgRecCAN(){
       }
       
       Serial.println();
+
+      if (messageData[2] == 49) {
+        float A;
+        float B;
+        A = messageData[3] ;
+        B = messageData[4] ;
+        float Distance_Traveled = ((A*256)+B);
+        Serial.print("Distance_Traveled:   ");
+        Serial.println(Distance_Traveled);
+      }
+
+
       if (messageData[2] == 12) {
         float RPM1;
         float RPM2;
@@ -302,18 +335,75 @@ void trataMsgRecCAN(){
         float ENGINE_RPM = ((RPM1*256)+RPM2)/4;
         Serial.print("ENGINE_RPM:   ");
         Serial.println(ENGINE_RPM);
-    }
+      }
+
+      if (messageData[2] == 13) {
+        float A;
+        A = messageData[3];        
+        float Vehicle_Speed = A;
+        Serial.print("Vehicle_Speed:   ");
+        Serial.println(Vehicle_Speed);
+      }
+
+      if (messageData[2] == 47) {
+        float A;
+        A = messageData[3];        
+        float FuelLevel = (100*A)/255;
+        Serial.print("FuelLevel:   ");
+        Serial.println(FuelLevel);
+      }
+
+      if (messageData[2] == 5) {
+        float A;
+        A = messageData[3];        
+        float EngineCollant = A-40;
+        Serial.print("EngineCollant:   ");
+        Serial.println(EngineCollant);
+      }
+
   }
 }
+
 void PIDs_1hz(){
-  //state_buffer.push(DistanceTraveled_ST);
+  /*
+  Serial.println(state_buffer.push(DistanceTraveled_ST));
+  //vTaskDelay(1);
+  //state_buffer.push(EngineRPM_ST);
+  Serial.println(state_buffer.push(EngineRPM_ST));
+  
+  Serial.println("-----");
+  */
+ 
+  state_buffer.push(DistanceTraveled_ST);
+  //vTaskDelay(1);
+  //state_buffer.push(EngineRPM_ST);
   state_buffer.push(EngineRPM_ST);
-  //Serial.println("Funcionando ticker");
-}
-void PIDs_10hz(){
+  //Serial.print(state_buffer.size());
+
+  //Serial.println("-----");
+  
+/*
+ state_buffer.push(1);
+ //Serial.println();
+ //delay(10);
+ state_buffer.push(2);
+ //Serial.println();
+*/
 
 }
+
+void PIDs_10hz(){
+  
+  state_buffer.push(VehicleSpeed_ST);
+  state_buffer.push(FuelLevel_ST);
+ 
+  state_buffer.push(EngineCoolant_ST);
+
+}
+
+
 void PIDs_20hz(){
 
 }
+
 
