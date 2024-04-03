@@ -47,14 +47,14 @@ state_t current_state = IDLE_ST;
 
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_state = IDLE_ST;
-
+bool t = false;
 
 
 Ticker ticker1Hz;
 Ticker ticker10Hz;
 Ticker ticker20Hz; 
 
-
+uint32_t initialTime = 0;
 
 void PIDs_1hz();
 void PIDs_10hz();
@@ -66,6 +66,8 @@ void PIDs_20hz();
 
 /* Debug Variables */
 bool buffer_full = false;
+
+
 
 void setup()
 {    
@@ -110,16 +112,24 @@ void setup()
 }
 
 void loop() {
-
    if (flagCANInit == true){
       CircularBuffer_state();
-      //delay(1000);
-      //canReceiver();
-      //delay(1000);
-  }
 
+      initialTime = millis();
+      
+      while(flagRecv == false && current_state!= IDLE_ST)
+      {
+        if(millis() - initialTime >= 5000)
+        {
+          break;
+        }
+      }
+      
+  }
+  
   if (flagRecv == true){
     trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
+  
   } 
 
 }
@@ -146,12 +156,11 @@ void set_mask_filt() {
 }
 
 void CircularBuffer_state(){
-  //Serial.println("Entrou no CircularBuffer");
+ // Serial.println("Entrou no CircularBuffer");
   if(state_buffer.isFull())
   {
     buffer_full = true;
     current_state = state_buffer.pop();
-
   } else {
       buffer_full = false;
       if(!state_buffer.isEmpty())
@@ -160,6 +169,15 @@ void CircularBuffer_state(){
         current_state = IDLE_ST;
   }
     //Serial.println(current_state);
+
+    /*
+  if(!t)
+  {
+    while(state_buffer.first() == 0) { state_buffer.pop(); }
+    current_state = state_buffer.pop();
+    
+  }
+    */
   switch(current_state) {
      
      //Serial.println("Entrou no Switchcase");
@@ -171,21 +189,29 @@ void CircularBuffer_state(){
         //Serial.println("Entrou no um");
       unsigned char messageData[8] = {0x02, 0x01, DistanceTraveled_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK){  
-
-        Serial.print("Send to CAN: id ");
-        Serial.print(CAN_ID, HEX);
-        Serial.print("  ");    
-        
-        for (int i = 0; i < 8; i++){
+      if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK){  
+          //tempoinicial2 = millis();
+      Serial.print("Send to CAN: id ");
+      Serial.print(CAN_ID, HEX);
+      Serial.print("  ");    
       
-            Serial.print((messageData[i]),HEX); 
-            Serial.print("\t");
-        }
-        
-        Serial.println();
-      }
+      for (int i = 0; i < 8; i++){
     
+          Serial.print((messageData[i]),HEX); 
+          Serial.print("\t");
+      }
+      /*
+      if(!t)
+      {
+        current_state = IDLE_ST;
+        t = true;
+      }
+      */
+      Serial.println();
+        
+        
+      }
+      
       break;
     }
     case EngineRPM_ST:{
@@ -193,7 +219,8 @@ void CircularBuffer_state(){
       unsigned char messageData[8] = {0x02, 0x01, EngineRPM_PID, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         if(CAN.sendMsgBuf(CAN_ID, 1, 8, messageData) == CAN_OK) {  
-
+          
+          
             Serial.print("Send to CAN: id ");
             Serial.print(CAN_ID, HEX);
             Serial.print("  ");    
@@ -205,6 +232,8 @@ void CircularBuffer_state(){
             }
             
             Serial.println();
+
+          
           }
           
         break;
@@ -282,6 +311,8 @@ void CircularBuffer_state(){
 
 void MsgRecCAN(){
     flagRecv = true; //flag que indica que uma msg foi recebida via CAN
+
+    //current_state = (!state_buffer.isEmpty() || state_buffer.isFull() ? state_buffer.pop() : IDLE_ST);
     //Serial.println("teste direc");
 }
 
@@ -365,38 +396,18 @@ void trataMsgRecCAN(){
 }
 
 void PIDs_1hz(){
-  /*
-  Serial.println(state_buffer.push(DistanceTraveled_ST));
-  //vTaskDelay(1);
-  //state_buffer.push(EngineRPM_ST);
-  Serial.println(state_buffer.push(EngineRPM_ST));
-  
-  Serial.println("-----");
-  */
  
   state_buffer.push(DistanceTraveled_ST);
-  //vTaskDelay(1);
-  //state_buffer.push(EngineRPM_ST);
-  state_buffer.push(EngineRPM_ST);
-  //Serial.print(state_buffer.size());
-
-  //Serial.println("-----");
   
-/*
- state_buffer.push(1);
- //Serial.println();
- //delay(10);
- state_buffer.push(2);
- //Serial.println();
-*/
+  state_buffer.push(EngineRPM_ST);
+  
 
 }
 
 void PIDs_10hz(){
   
   state_buffer.push(VehicleSpeed_ST);
-  state_buffer.push(FuelLevel_ST);
- 
+  state_buffer.push(FuelLevel_ST); 
   state_buffer.push(EngineCoolant_ST);
 
 }
