@@ -2,7 +2,7 @@
 
 #define CAN_ID                  0x18DB33F1
 
-#define PIDsupported                                     0x00    
+#define PIDsupported1                                    0x00    
 #define MonitorStatus                                    0x01    
 #define FreezeDTC                                        0x02
 #define FuelSystem                                       0x03
@@ -98,7 +98,7 @@
 #define FuelInjectionTiming                              0x5D   
 #define EngineFuelRate                                   0x5E       
 #define EmissionRequirements                             0x5F
-#define PIDsupported3                                    0X60   
+#define PIDsupported4                                    0X60   
 #define DriverDemandEngine                               0X61       
 #define ActualEngine_PercentTorque                       0X62               
 #define EngineReferenceTorque                            0X63           
@@ -110,7 +110,7 @@
 #define CommandedEGR_ERROR                               0X69       
 #define CommandedDiesel                                  0X6A   
 #define ExhaustGas                                       0X6B
-#define CommandedThrottleActuator                        0X6C               
+#define CommandedThrottleActuator2                       0X6C               
 #define FuelPressureControlSystem                        0X6D               
 #define InjectionPressureControl                         0X6E               
 #define TurboChargerCompressor                           0X6F                           

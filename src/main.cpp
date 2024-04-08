@@ -11,8 +11,8 @@ state_t state;
 uint32_t initialTime = 0;
 
 /* State Machine Functions */
-void logCAN(void *pvParameters);
-void BLElog(void *pvParameters);
+//void logCAN(void *pvParameters);
+//void BLElog(void *pvParameters);
 
 void setup()
 {    
@@ -33,17 +33,12 @@ void setup()
 
   setup_ticker();
 
-  xTaskCreatePinnedToCore(logCAN, "CANloggingStateMachine", 10000, NULL, 5, NULL, 0);
-  xTaskCreatePinnedToCore(BLElog, "BluetoothStateMachine", 10000, NULL, 5, NULL, 1);
+  //xTaskCreatePinnedToCore(logCAN, "CANloggingStateMachine", 10000, NULL, 5, NULL, 0);
+ // xTaskCreatePinnedToCore(BLElog, "BluetoothStateMachine", 10000, NULL, 5, NULL, 1);
 }
 
-void loop() {/* Dont write here */}
-
-void logCAN(void *pvParameters)
-{
-  while(1)
-  {
-    if(flagCANInit)
+void loop() {
+  if(flagCANInit)
     {
      state = CircularBuffer_state();
 
@@ -62,10 +57,17 @@ void logCAN(void *pvParameters)
       trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
     }
 
-    vTaskDelay(1);
-  }
 }
 
+//void logCAN(void *pvParameters)
+//{
+//  while(1)
+//  {
+//    
+//    vTaskDelay(1);
+//  }
+//}
+/*
 void BLElog(void *pvParameters)
 {
   while(1)
@@ -74,3 +76,5 @@ void BLElog(void *pvParameters)
     vTaskDelay(100);
   }
 }
+
+*/

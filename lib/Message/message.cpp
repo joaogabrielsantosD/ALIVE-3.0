@@ -1,7 +1,5 @@
 #include "message.h"
 
-BLEmsg_t BLEmsg;
-
 void TratamentoDaMsg(unsigned char* info_can, int length)
 {
    for(int i = 0; i < length; i++)
@@ -15,8 +13,8 @@ void TratamentoDaMsg(unsigned char* info_can, int length)
    {
       float A;
       float B;
-      A = info_can[3];
-      B = info_can[4];
+      A = info_can[3] ;
+      B = info_can[4] ;
       float Distance_Traveled = ((A*256)+B);
       Serial.print("Distance_Traveled:   ");
       Serial.println(Distance_Traveled);
@@ -61,4 +59,3 @@ void TratamentoDaMsg(unsigned char* info_can, int length)
       Serial.println(EngineCollant);
    }
 }
-

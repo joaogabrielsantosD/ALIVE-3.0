@@ -4,11 +4,12 @@
 #include <Arduino.h>
 #include "CAN_PIDs.h"
 
-void TratamentoDaMsg(unsigned char* info_can, int length);
-
 typedef struct 
 {
     float teste;
 } BLEmsg_t;
+
+void TratamentoDaMsg(unsigned char* info_can, int length);
+//void CheckMsg(unsigned char* data);
 
 #endif
