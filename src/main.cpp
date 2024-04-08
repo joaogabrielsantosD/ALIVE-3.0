@@ -32,49 +32,26 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
 
   setup_ticker();
-
-  //xTaskCreatePinnedToCore(logCAN, "CANloggingStateMachine", 10000, NULL, 5, NULL, 0);
- // xTaskCreatePinnedToCore(BLElog, "BluetoothStateMachine", 10000, NULL, 5, NULL, 1);
 }
 
-void loop() {
+void loop()
+{
   if(flagCANInit)
-    {
-     state = CircularBuffer_state();
+  {
+    state = CircularBuffer_state();
 
-      initialTime = millis();    
-      while(!checkReceive() && state!=IDLE_ST)
+    initialTime = millis();    
+    while(!checkReceive() && state!=IDLE_ST)
+    {
+      if(millis() - initialTime >= 5000)
       {
-        if(millis() - initialTime >= 5000)
-        {
-          break;
-        }
+        break;
       }
     }
+  }
 
-    if(checkReceive())
-    {
-      trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
-    }
-
-}
-
-//void logCAN(void *pvParameters)
-//{
-//  while(1)
-//  {
-//    
-//    vTaskDelay(1);
-//  }
-//}
-/*
-void BLElog(void *pvParameters)
-{
-  while(1)
+  if(checkReceive())
   {
-
-    vTaskDelay(100);
+    trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
   }
 }
-
-*/
