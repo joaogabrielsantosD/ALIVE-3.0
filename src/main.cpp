@@ -72,9 +72,12 @@ void logCAN(void *arg)
 
 void BLElog(void *arg)
 {
+  BLEmsg_t ble = defaultmsg();
+
   for(;;)
   {
-    Serial.println("BLE state\n");
+    // Receive the message to send 
+    ble = requestMsg();
     vTaskDelay(1000);
   }
 }
