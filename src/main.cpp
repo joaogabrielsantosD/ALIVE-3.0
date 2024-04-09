@@ -40,7 +40,11 @@ void setup()
   setupWDT();
 }
 
-void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
+void loop()
+{ 
+  reset_rtc_wdt(); /* Reset the wathdog timer */ 
+
+}
 
 void logCAN(void *arg)
 { 
