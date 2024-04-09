@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "wdt.h"
+#include "BLE.h"
 #include "can_defs.h"
 #include "StateMachine.h"
 #include "message.h"
@@ -32,6 +33,8 @@ void setup()
   //pinMode(CAN_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
 
+  setup_BLE();
+
   setup_ticker();
 
   xTaskCreatePinnedToCore(logCAN, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
@@ -40,11 +43,7 @@ void setup()
   setupWDT();
 }
 
-void loop()
-{ 
-  reset_rtc_wdt(); /* Reset the wathdog timer */ 
-
-}
+void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void logCAN(void *arg)
 { 
@@ -61,7 +60,7 @@ void logCAN(void *arg)
         {
           break;
         }
-        vTaskDelay(5);
+        vTaskDelay(1);
       }
     }
 
@@ -76,9 +75,14 @@ void logCAN(void *arg)
 
 void BLElog(void *arg)
 {
+  BLEmsg_t ble = defaultmsg();
+
   for(;;)
   {
-    Serial.println("BLE state\n");
-    vTaskDelay(1000);
+    ble = requestMsg();
+
+    BLE_Sender(&ble, sizeof(ble) > MAX_BLE_LENGTH ? sizeof(ble) : MAX_BLE_LENGTH);
+
+    vTaskDelay(MAX_BLE_DELAY+10);
   }
 }

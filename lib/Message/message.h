@@ -6,10 +6,13 @@
 
 typedef struct 
 {
-    float teste;
+    float EngineCollant, Engine_rpm, vehicle_speed, fuellevel, Distance_travel;
 } BLEmsg_t;
 
 void TratamentoDaMsg(unsigned char* info_can, int length);
-//void CheckMsg(unsigned char* data);
+BLEmsg_t defaultmsg();
+BLEmsg_t requestMsg();
+
+// IBS GM ONIX 020 021 022 023
 
 #endif

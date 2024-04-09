@@ -10,7 +10,7 @@
 bool can_setup()
 {
     /* Inicia a can: */
-    bool flag = false;
+    bool init_flag = false;
     unsigned long tcanStart = 0, cantimeOut = 0;
     tcanStart = millis();
     cantimeOut = 1000; // (1 second)
@@ -22,13 +22,13 @@ bool can_setup()
         if(CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
         {
             Serial.println("CAN init ok!!!");
-            flag = true; // Marks the flag that indicates correct CAN initialization
+            init_flag = true; // Marks the flag that indicates correct CAN initialization
             break; // get out of the loop
         }
-        flag = false; // Mark the flag that indicates there was a problem initializing the CAN
+        init_flag = false; // Mark the flag that indicates there was a problem initializing the CAN
     }
 
-    return flag;
+    return init_flag;
 }
 
 void set_mask_filt() 
@@ -70,13 +70,13 @@ bool trataMsgRecCAN()
         CAN.readMsgBuf(&len, messageData); 
         messageId = CAN.getCanId();
 
-        Serial.print("Recieve by CAN: id ");
+        //Serial.print("Recieve by CAN: id ");
 
         //Serial.print(messageId);
         //Serial.print(" (");
-        Serial.print(messageId, HEX);
+        //Serial.print(messageId, HEX);
         //Serial.print(")HEX");
-        Serial.print("\t");
+        //Serial.print("\t");
         // print the data
 
         TratamentoDaMsg(messageData, len);

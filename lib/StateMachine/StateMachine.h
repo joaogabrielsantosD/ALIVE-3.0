@@ -10,5 +10,6 @@ typedef enum {IDLE_ST, DistanceTraveled_ST, EngineRPM_ST, VehicleSpeed_ST, FuelL
 
 state_t CircularBuffer_state(void);
 bool insert(state_t ST);
+void debug_print(unsigned char* message);
 
 #endif
