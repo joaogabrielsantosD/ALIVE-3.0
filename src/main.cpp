@@ -1,5 +1,5 @@
 #include <Arduino.h>
-//#include <Ticker.h>
+#include "wdt.h"
 #include "can_defs.h"
 #include "StateMachine.h"
 #include "message.h"
@@ -9,10 +9,11 @@
 boolean flagCANInit = true;   //se false indica que o modulo CAN não foi inicializado com sucesso
 state_t state;
 uint32_t initialTime = 0;
+TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 /* State Machine Functions */
-//void logCAN(void *pvParameters);
-//void BLElog(void *pvParameters);
+void logCAN(void *arg);
+void BLElog(void *arg);
 
 void setup()
 {    
@@ -32,26 +33,48 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
 
   setup_ticker();
+
+  xTaskCreatePinnedToCore(logCAN, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
+  xTaskCreatePinnedToCore(BLElog, "BLEstatemachine", 2048, NULL, 4, &BLEtask, 1);
+
+  setupWDT();
 }
 
-void loop()
-{
-  if(flagCANInit)
-  {
-    state = CircularBuffer_state();
+void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
-    initialTime = millis();    
-    while(!checkReceive() && state!=IDLE_ST)
+void logCAN(void *arg)
+{ 
+  while(1)
+  {
+    if(flagCANInit)
     {
-      if(millis() - initialTime >= 5000)
+      state = CircularBuffer_state();
+
+      initialTime = millis();    
+      while(!checkReceive() && state!=IDLE_ST)
       {
-        break;
+        if(millis() - initialTime >= 4000)
+        {
+          break;
+        }
+        vTaskDelay(5);
       }
+    }
+
+    if(checkReceive())
+    {
+      trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
     }
   }
 
-  if(checkReceive())
+  vTaskDelay(1);
+}
+
+void BLElog(void *arg)
+{
+  for(;;)
   {
-    trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
+    Serial.println("BLE state\n");
+    vTaskDelay(1000);
   }
 }
