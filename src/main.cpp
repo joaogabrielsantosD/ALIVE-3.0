@@ -13,8 +13,8 @@ uint32_t initialTime = 0;
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 /* State Machine Functions */
-void logCAN(void *arg);
-void BLElog(void *arg);
+void logCAN(void* arg);
+void BLElog(void* arg);
 
 void setup()
 {    
@@ -45,7 +45,7 @@ void setup()
 
 void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
-void logCAN(void *arg)
+void logCAN(void* arg)
 { 
   while(1)
   {
@@ -73,7 +73,7 @@ void logCAN(void *arg)
   vTaskDelay(1);
 }
 
-void BLElog(void *arg)
+void BLElog(void* arg)
 {
   BLEmsg_t ble = defaultmsg();
 

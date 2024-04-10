@@ -25,7 +25,7 @@ void BLE_Sender(void* T, int len);
 class CharacteristicCallbacks: public BLECharacteristicCallbacks 
 {
     public:
-        void onWrite(BLECharacteristic *characteristic); 
+        void onWrite(BLECharacteristic* characteristic); 
 };
 
 //callback para receber os eventos de conexão de dispositivos
