@@ -15,7 +15,6 @@ bool can_setup()
     tcanStart = millis();
     cantimeOut = 1000; // (1 second)
     // wait for the CAN shield to initialize
-
     Serial.println("Connecting CAN...");
     while((millis() - tcanStart) < cantimeOut) // wait timeout
     { 

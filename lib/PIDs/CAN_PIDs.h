@@ -1,5 +1,4 @@
 #define BUFFER_SIZE             50
-
 #define CAN_ID                  0x18DB33F1
 
 #define PIDsupported1                                    0x00    
