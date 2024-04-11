@@ -2,56 +2,93 @@
 
 uint8_t BLEdata[sizeof(BLEmsg_t)];
 bool deviceConnected = false;
-BLECharacteristic* characteristicTX; //através desse objeto iremos enviar dados para o client
+bool oldDeviceConnected = false;
+BLEServer* pServer = NULL;
+BLECharacteristic* pCharacteristic = NULL;
+BLEDescriptor* pDescr;
+BLE2902* pBLE2902;
 
 void setup_BLE()
 {
     memset(&BLEdata, 0x00, sizeof(BLEdata));
 
     // Create the BLE Device
-    BLEDevice::init("Dongle OBDII"); // nome do dispositivo bluetooth
+    BLEDevice::init("Dongle OBD");
 
     // Create the BLE Server
-    BLEServer* server = BLEDevice::createServer(); //cria um BLE server 
-
-    server->setCallbacks(new ServerCallbacks()); //seta o callback do server
+    pServer = BLEDevice::createServer();
+    pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService* service = server->createService(SERVICE_UUID);
+    BLEService* pService = pServer->createService(SERVICE_UUID);    
 
-    // Create a BLE Characteristic para envio de dados
-    BLECharacteristic* characteristic = service->createCharacteristic(CHARACTERISTIC_UUID_TX, BLECharacteristic::PROPERTY_NOTIFY);
+    // Create a BLE Characteristic
+    pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID,   \
+    BLECharacteristic::PROPERTY_NOTIFY |                                    \
+    BLECharacteristic::PROPERTY_READ   |                                    \
+    BLECharacteristic::PROPERTY_WRITE                                       \
+    );                   
+    
+    // Create a BLE Descriptor
+    pDescr = new BLEDescriptor((uint16_t)0x2901);
+    pDescr->setValue("Byte array from OBD");
+    pCharacteristic->addDescriptor(pDescr);    
 
-    //characteristicTX->addDescriptor(new BLE2902());
-
- /* -------------------------------------------------------------------------------------------------------------------------------*/
-
-    // Create a BLE Characteristic para recebimento de dados
-    //BLECharacteristic *CHARACTERISTIC = service->createCharacteristic(CHARACTERISTIC_UUID_RX, BLECharacteristic::PROPERTY_WRITE);
-
-    //CHARACTERISTIC->setCallbacks(new CharacteristicCallbacks());
+    pBLE2902 = new BLE2902();
+    pBLE2902->setNotifications(true);
+    pCharacteristic->addDescriptor(pBLE2902);
+    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
 
     // Start the service
-    service->start();
+    pService->start();
 
-    // Start advertising (descoberta do ESP32)
-    server->getAdvertising()->start();
+    // Start advertising
+    BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
+    pAdvertising->addServiceUUID(SERVICE_UUID);
+    pAdvertising->setScanResponse(false);
+    pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+    BLEDevice::startAdvertising();
+    Serial.println("Waiting a client connection to notify...");
+}
+
+void BLE_connected(BLEmsg_t Q)
+{   
+    if(deviceConnected)
+    {
+        BLE_Sender(&Q, sizeof(Q) < MAX_BLE_LENGTH ? sizeof(Q) : MAX_BLE_LENGTH);   
+    }
+
+    // disconnecting
+    if(!deviceConnected && oldDeviceConnected)
+    {
+        pServer->startAdvertising(); // restart advertising
+        Serial.println("start advertising");
+        oldDeviceConnected = deviceConnected;
+    }
+
+    // connecting   
+    if(deviceConnected && !oldDeviceConnected)
+    {
+        oldDeviceConnected = deviceConnected;
+    }
 }
 
 void BLE_Sender(void* T, int len)
 {
     memcpy(&BLEdata, (uint8_t *)T, len);
-    characteristicTX->setValue(BLEdata, len);   // seta o valor que a caracteristica notificará (enviar) 
-    characteristicTX->notify();                 // Envia o valor para o smartphone
+    pCharacteristic->setValue(BLEdata, len);   // seta o valor que a caracteristica notificará (enviar) 
+    pCharacteristic->notify();                 // Envia o valor para o smartphone
 }
 
 void ServerCallbacks::onConnect(BLEServer* pServer)
 {
+    Serial.println("Client connected");
     deviceConnected = true;
 }
 
 void ServerCallbacks::onDisconnect(BLEServer* pServer)
 {
+    Serial.println("Disconnected");
     deviceConnected = false;
 } 
 
@@ -62,7 +99,7 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
     //verifica se existe dados (tamanho maior que zero)
     if(rxValue.length() > 0) 
     {
-        for (int i = 0; i < rxValue.length(); i++) 
+        for(int i = 0; i < rxValue.length(); i++) 
         {
             Serial.print(rxValue[i]);
         }

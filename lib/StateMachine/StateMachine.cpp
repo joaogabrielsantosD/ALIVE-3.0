@@ -29,8 +29,7 @@ state_t CircularBuffer_state()
     
     case DistanceTraveled_ST:
     {   
-      //Serial.println("Distance");
-      messageData[2] = EngineCoolant_PID;
+      messageData[2] = DistanceTraveled_PID;
       
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
       
@@ -39,7 +38,6 @@ state_t CircularBuffer_state()
 
     case EngineRPM_ST:
     {
-      //Serial.println("Entrou no 2");
       messageData[2] = EngineRPM_PID;      
         
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
@@ -49,8 +47,6 @@ state_t CircularBuffer_state()
 
     case VehicleSpeed_ST:
     {
-      //Serial.println("Entrou no 3");
-
       messageData[2] = VehicleSpeed_PID;
 
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
@@ -60,7 +56,6 @@ state_t CircularBuffer_state()
 
     case FuelLevel_ST:
     {
-      // Serial.println("Entrou no 4");
       messageData[2] = FuelLevel_PID; 
              
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
@@ -70,8 +65,7 @@ state_t CircularBuffer_state()
 
     case EngineCoolant_ST:
     {
-      //Serial.println("Entrou no 5");
-      messageData[2] = DistanceTraveled_PID;
+      messageData[2] = EngineCoolant_PID;
 
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
       

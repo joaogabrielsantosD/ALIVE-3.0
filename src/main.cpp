@@ -7,14 +7,14 @@
 #include "tickerISR.h"
 #include "CAN_PIDs.h"
 
-boolean flagCANInit = true;   //se false indica que o modulo CAN não foi inicializado com sucesso
-state_t state;
+boolean flagCANInit = false;   //se false indica que o modulo CAN não foi inicializado com sucesso
+state_t state = IDLE_ST;
 uint32_t initialTime = 0;
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 /* State Machine Functions */
-void logCAN(void *arg);
-void BLElog(void *arg);
+void logCAN(void* arg);
+void BLElog(void* arg);
 
 void setup()
 {    
@@ -38,14 +38,14 @@ void setup()
   setup_ticker();
 
   xTaskCreatePinnedToCore(logCAN, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
-  xTaskCreatePinnedToCore(BLElog, "BLEstatemachine", 2048, NULL, 4, &BLEtask, 1);
+  xTaskCreatePinnedToCore(BLElog, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
 
   setupWDT();
 }
 
 void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
-void logCAN(void *arg)
+void logCAN(void* arg)
 { 
   while(1)
   {
@@ -64,7 +64,7 @@ void logCAN(void *arg)
       }
     }
 
-    if(checkReceive())
+    if(checkReceive() && flagCANInit)
     {
       trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
     }
@@ -73,15 +73,15 @@ void logCAN(void *arg)
   vTaskDelay(1);
 }
 
-void BLElog(void *arg)
+void BLElog(void* arg)
 {
   BLEmsg_t ble = defaultmsg();
 
   for(;;)
-  {
+  { 
     ble = requestMsg();
 
-    BLE_Sender(&ble, sizeof(ble) > MAX_BLE_LENGTH ? sizeof(ble) : MAX_BLE_LENGTH);
+    BLE_connected(ble);
 
     vTaskDelay(MAX_BLE_DELAY+10);
   }

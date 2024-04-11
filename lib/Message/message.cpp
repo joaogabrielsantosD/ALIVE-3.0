@@ -1,7 +1,6 @@
 #include "message.h"
 
 bool debug_mode = false;
-
 BLEmsg_t BLEmsg = defaultmsg();
 
 void TratamentoDaMsg(unsigned char* info_can, int length)
@@ -10,7 +9,7 @@ void TratamentoDaMsg(unsigned char* info_can, int length)
    {
       for(int i = 0; i < length; i++)
       {
-         Serial.print((info_can[i]),HEX); 
+         Serial.print((info_can[i]), HEX); 
          Serial.print("\t");
       }
       Serial.println();
