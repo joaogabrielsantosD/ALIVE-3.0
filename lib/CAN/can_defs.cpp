@@ -9,7 +9,7 @@
 
 bool can_setup()
 {
-    /* Inicia a can: */
+    /* Start the can: */
     bool init_flag = false;
     unsigned long tcanStart = 0, cantimeOut = 0;
     tcanStart = millis();
@@ -60,10 +60,9 @@ bool trataMsgRecCAN()
     receive_message = false;
     while(CAN.checkReceive() == CAN_MSGAVAIL)
     {
-        //Serial.println("ok!");
         unsigned char messageData[8];
         uint32_t messageId;
-        unsigned char len = 0; //armazena o tamanho da msg CAN (qtd de dados recebidos)
+        unsigned char len = 0; // Stores the size of the CAN message (quantity of data received)
 
         // Reads message and ID
         CAN.readMsgBuf(&len, messageData); 
@@ -92,5 +91,5 @@ bool checkReceive()
 /* CAN interrupt */
 void canISR()
 {
-   receive_message = true; //flag que indica que uma msg foi recebida via CAN
+   receive_message = true; // Flag that indicates that a message was received via CAN
 }
