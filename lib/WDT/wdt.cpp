@@ -13,5 +13,5 @@ void setupWDT()
 void reset_rtc_wdt()
 {
   esp_task_wdt_reset(); // 
-  rtc_wdt_feed();       // Alimenta/reseta o RTC WDT
+  rtc_wdt_feed();       // Powers/resets the RTC WDT
 }
