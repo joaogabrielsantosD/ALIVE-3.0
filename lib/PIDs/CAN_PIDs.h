@@ -146,13 +146,6 @@
 #define FuelLevel_PID           0x2F
 #define DistanceTraveled_PID    0x31 
 
-
-#include <CircularBuffer.hpp>
-#include <mcp2515_can.h>
-
 #define CAN_2515
-//#define CAN_ID  0x18DB33F1
 #define SPI_CS_PIN   5
-#define CAN_INT_PIN  27 // Pino usado para gerar a interrupção pelo modulo MCP2515
-
-//typedef void (*function)();
+#define CAN_INT_PIN  27 // Pin used to generate the interrupt by the MCP2515 module
