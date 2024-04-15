@@ -7,7 +7,7 @@
 #include "tickerISR.h"
 #include "CAN_PIDs.h"
 
-boolean flagCANInit = false;   //se false indica que o modulo CAN não foi inicializado com sucesso
+boolean flagCANInit = false;   // If false indicates that the CAN module was not initialized successfully
 state_t state = IDLE_ST;
 uint32_t initialTime = 0;
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
@@ -56,10 +56,7 @@ void logCAN(void* arg)
       initialTime = millis();    
       while(!checkReceive() && state!=IDLE_ST)
       {
-        if(millis() - initialTime >= 4000)
-        {
-          break;
-        }
+        if(millis() - initialTime >= 4000) break;
         vTaskDelay(1);
       }
     }
@@ -79,10 +76,14 @@ void BLElog(void* arg)
 
   for(;;)
   { 
-    ble = requestMsg();
+    while(BLE_connected())
+    {
+      ble = requestMsg();
+      BLE_Sender(&ble, sizeof(ble));
 
-    BLE_connected(ble);
+      vTaskDelay(MAX_BLE_DELAY+10);
+    }
 
-    vTaskDelay(MAX_BLE_DELAY+10);
+    vTaskDelay(1);
   }
 }
