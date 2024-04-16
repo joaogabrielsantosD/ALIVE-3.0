@@ -1,17 +1,13 @@
 #include "BLE.h"
 
-uint8_t BLEdata[sizeof(BLEmsg_t)];
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 BLEServer* pServer = NULL;
+BLEService* pService = NULL;
 BLECharacteristic* pCharacteristic = NULL;
-BLEDescriptor* pDescr;
-BLE2902* pBLE2902;
 
 void setup_BLE()
 {
-    memset(&BLEdata, 0x00, sizeof(BLEdata));
-
     // Create the BLE Device
     BLEDevice::init("Dongle OBD");
 
@@ -20,42 +16,50 @@ void setup_BLE()
     pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService* pService = pServer->createService(SERVICE_UUID);    
+    BLEService *pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
-    pCharacteristic = pService->createCharacteristic(CHARACTERISTIC_UUID,   \
-    BLECharacteristic::PROPERTY_NOTIFY |                                    \
-    BLECharacteristic::PROPERTY_READ   |                                    \
-    BLECharacteristic::PROPERTY_WRITE                                       \
-    );                   
-    
-    // Create a BLE Descriptor
-    pDescr = new BLEDescriptor((uint16_t)0x2901);
-    pDescr->setValue("Byte array from OBD");
-    pCharacteristic->addDescriptor(pDescr);    
+    pCharacteristic = pService->createCharacteristic(                                    \
+                                                    CHARACTERISTIC_UUID,                 \
+                                                    BLECharacteristic::PROPERTY_WRITE |  \
+                                                    BLECharacteristic::PROPERTY_NOTIFY   \
+                                                    );
 
-    pBLE2902 = new BLE2902();
-    pBLE2902->setNotifications(true);
-    pCharacteristic->addDescriptor(pBLE2902);
-    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+  //// Create a BLE Descriptor  
+  //pDescr_1 = new BLEDescriptor((uint16_t)0x2901);
+  //pDescr_1->setValue("A very interesting variable");
+  //pCharacteristic_1->addDescriptor(pDescr_1);
 
-    // Start the service
-    pService->start();
+  //// Add the BLE2902 Descriptor because we are using "PROPERTY_NOTIFY"
+  //pBLE2902_1 = new BLE2902();
+  //pBLE2902_1->setNotifications(true);                 
+  //pCharacteristic_1->addDescriptor(pBLE2902_1);
 
-    // Start advertising
-    BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(SERVICE_UUID);
-    pAdvertising->setScanResponse(false);
-    pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
-    BLEDevice::startAdvertising();
-    Serial.println("Waiting a client connection to notify...");
+  //pBLE2902_2 = new BLE2902();
+  //pBLE2902_2->setNotifications(true);
+  //pCharacteristic_2->addDescriptor(pBLE2902_2);
+
+  // add callback functions here:
+  pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+  
+  // Start the service
+  pCharacteristic->setValue(" ");
+  pService->start();
+
+  // Start advertising
+  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true);
+  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  BLEDevice::startAdvertising();
+  Serial.println("Waiting a client connection to notify...");
 }
 
-void BLE_connected(BLEmsg_t Q)
-{   
+int BLE_connected()
+{
     if(deviceConnected)
     {
-        BLE_Sender(&Q, sizeof(Q) < MAX_BLE_LENGTH ? sizeof(Q) : MAX_BLE_LENGTH);   
+        oldDeviceConnected = true;   
     }
 
     // disconnecting
@@ -71,13 +75,17 @@ void BLE_connected(BLEmsg_t Q)
     {
         oldDeviceConnected = deviceConnected;
     }
+
+    return !(deviceConnected ^ 0x01);
 }
 
-void BLE_Sender(void* T, int len)
+void BLE_Sender(void* T, uint32_t len)
 {
-    memcpy(&BLEdata, (uint8_t *)T, len);
-    pCharacteristic->setValue(BLEdata, len);   // seta o valor que a caracteristica notificará (enviar) 
-    pCharacteristic->notify();                 // Envia o valor para o smartphone
+    uint8_t msg[len];
+    memcpy(&msg, (uint8_t*)T, len);
+    //for(int i = 0; i < len; i++) Serial.println(msg[i]);
+    pCharacteristic->setValue(msg, len); 
+    pCharacteristic->notify();  
 }
 
 void ServerCallbacks::onConnect(BLEServer* pServer)
@@ -94,15 +102,18 @@ void ServerCallbacks::onDisconnect(BLEServer* pServer)
 
 void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
 {
-    //retorna ponteiro para o registrador contendo o valor atual da caracteristica
-    std::string rxValue = characteristic->getValue(); 
-    //verifica se existe dados (tamanho maior que zero)
-    if(rxValue.length() > 0) 
-    {
-        for(int i = 0; i < rxValue.length(); i++) 
-        {
-            Serial.print(rxValue[i]);
-        }
-        Serial.println();
-    }
+    std::string pChar2_value_stdstr = characteristic->getValue();
+    String pChar2_value_string = String(pChar2_value_stdstr.c_str());
+    Serial.println(pChar2_value_string);
+    ////retorna ponteiro para o registrador contendo o valor atual da caracteristica
+    //std::string rxValue = characteristic->getValue(); 
+    ////verifica se existe dados (tamanho maior que zero)
+    //if(rxValue.length() > 0) 
+    //{
+    //    for(int i = 0; i < rxValue.length(); i++) 
+    //    {
+    //        Serial.print(rxValue[i]);
+    //    }
+    //    Serial.println();
+    //}
 }

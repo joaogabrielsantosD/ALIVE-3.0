@@ -15,10 +15,9 @@ void TratamentoDaMsg(unsigned char* info_can, int length)
       Serial.println();
    }
    
-   if (info_can[2] == 5) 
+   if(info_can[2] == 5) 
    {
       float A = info_can[3];        
-      //float EngineCollant = A-40;
       BLEmsg.EngineCollant = A-40;
       if(debug_mode) Serial.printf("EngineCollant:   %f", BLEmsg.EngineCollant);
    }
@@ -26,8 +25,6 @@ void TratamentoDaMsg(unsigned char* info_can, int length)
    if(info_can[2] == 12) 
    {
       float RPM1 = info_can[3], RPM2 = info_can[4];
-      //RPM1 = info_can[3];
-      //RPM2 = info_can[4];
       BLEmsg.Engine_rpm = ((RPM1*256)+RPM2)/4;
       if(debug_mode) Serial.printf("ENGINE_RPM:   %f", BLEmsg.Engine_rpm);
    }

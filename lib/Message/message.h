@@ -13,6 +13,4 @@ void TratamentoDaMsg(unsigned char* info_can, int length);
 BLEmsg_t defaultmsg();
 BLEmsg_t requestMsg();
 
-// IBS GM ONIX 020 021 022 023
-
 #endif

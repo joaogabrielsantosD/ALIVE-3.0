@@ -1,8 +1,8 @@
 #include "tickerISR.h"
 
-Ticker ticker1Hz;
-Ticker ticker10Hz;
-Ticker ticker20Hz;
+Ticker ticker1Hz,
+       ticker10Hz,
+       ticker20Hz;
 
 void setup_ticker()
 {
