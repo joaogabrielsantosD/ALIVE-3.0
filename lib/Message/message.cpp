@@ -3,7 +3,7 @@
 bool debug_mode = false;
 BLEmsg_t BLEmsg = defaultmsg();
 
-void TratamentoDaMsg(unsigned char* info_can, int length)
+void MsgRec_Treatment(unsigned char* info_can, int length)
 {
    if(debug_mode)
    {

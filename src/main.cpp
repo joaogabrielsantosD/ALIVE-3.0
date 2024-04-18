@@ -47,6 +47,8 @@ void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void logCAN(void* arg)
 { 
+  //if(flagCANInit) setup_ticker();
+
   while(1)
   {
     if(flagCANInit)
@@ -63,7 +65,7 @@ void logCAN(void* arg)
 
     if(checkReceive() && flagCANInit)
     {
-      trataMsgRecCAN(); //rotina q trata qndo uma msg chega via can
+      MsgRec_CANroutine(); // Routine that handles when a message arrives via can
     }
   }
 
@@ -81,7 +83,7 @@ void BLElog(void* arg)
       ble = requestMsg();
       BLE_Sender(&ble, sizeof(ble));
 
-      vTaskDelay(MAX_BLE_DELAY+10);
+      vTaskDelay(MAX_BLE_DELAY);
     }
 
     vTaskDelay(1);

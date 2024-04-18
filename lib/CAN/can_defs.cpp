@@ -55,7 +55,7 @@ bool send_msg(unsigned char* msg)
     return CAN.sendMsgBuf(CAN_ID, 1, 8, msg)==CAN_OK ? true : false;
 }
 
-bool trataMsgRecCAN()
+bool MsgRec_CANroutine()
 {
     receive_message = false;
     while(CAN.checkReceive() == CAN_MSGAVAIL)
@@ -77,7 +77,12 @@ bool trataMsgRecCAN()
         //Serial.print("\t");
         // print the data
 
-        TratamentoDaMsg(messageData, len);
+        if(messageData[3]==0x00 || messageData[3] == 0x20 || messageData[3] == 0x40 || messageData[3] == 0x60)
+        {
+            Serial.printf("[0x%2x]\t[0x%2x]\t[0x%2x]\t[0x%2x]\r\n\r\n",messageData[4], messageData[5], messageData[6], messageData[7]);
+        }
+
+        MsgRec_Treatment(messageData, len);
     }
 
     return receive_message;

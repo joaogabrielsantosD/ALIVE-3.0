@@ -10,7 +10,7 @@
 bool can_setup(void);
 void set_mask_filt(void); 
 bool send_msg(unsigned char* msg);
-bool trataMsgRecCAN(void);
+bool MsgRec_CANroutine(void);
 bool checkReceive(void);
 void canISR(void);
 
