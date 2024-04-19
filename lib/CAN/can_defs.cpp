@@ -77,11 +77,6 @@ bool MsgRec_CANroutine()
         //Serial.print("\t");
         // print the data
 
-        //if(messageData[3]==0x00 || messageData[3] == 0x20 || messageData[3] == 0x40 || messageData[3] == 0x60)
-        //{
-        //    Serial.printf("[0x%2x]\t[0x%2x]\t[0x%2x]\t[0x%2x]\r\n\r\n",messageData[4], messageData[5], messageData[6], messageData[7]);
-        //}
-
         MsgRec_Treatment(messageData, len);
     }
 
