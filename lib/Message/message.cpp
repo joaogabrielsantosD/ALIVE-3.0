@@ -1,6 +1,6 @@
 #include "message.h"
 
-bool debug_mode = true;
+bool debug_mode = false;
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)

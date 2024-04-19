@@ -47,6 +47,8 @@ void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void logCAN(void* arg)
 { 
+  //if(flagCANInit) setup_ticker();
+
   while(1)
   {
     if(flagCANInit)
