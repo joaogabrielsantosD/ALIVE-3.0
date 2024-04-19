@@ -20,6 +20,8 @@ void setup()
 {    
   Serial.begin(9600);
   Serial.println("INICIANDO ALIVE.");
+  
+  pinMode(LED_BUILTIN, OUTPUT);
 
   // if there was an error in the CAN it shows
   flagCANInit = can_setup();
@@ -30,7 +32,6 @@ void setup()
   }
 
   set_mask_filt();
-  //pinMode(CAN_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
 
   setup_BLE();
@@ -46,9 +47,7 @@ void setup()
 void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void logCAN(void* arg)
-{ 
-  //if(flagCANInit) setup_ticker();
-
+{
   while(1)
   {
     if(flagCANInit)
@@ -83,9 +82,11 @@ void BLElog(void* arg)
       ble = requestMsg();
       BLE_Sender(&ble, sizeof(ble));
 
+      digitalWrite(LED_BUILTIN, HIGH);
       vTaskDelay(MAX_BLE_DELAY);
     }
 
+    digitalWrite(LED_BUILTIN, LOW);
     vTaskDelay(1);
   }
 }

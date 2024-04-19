@@ -33,13 +33,12 @@ bool checkPID()
       {
         Data[2] = PIDsupported1;
         
-        while(checkReceive() == false)
+        while(!checkReceive())
         {
           if(send_msg(Data) && true) debug_print(Data);
           vTaskDelay(1000);          
         }
         MsgRec_CANroutine();
-        
         check_receive_pid = true;
       }
 
@@ -47,12 +46,7 @@ bool checkPID()
       {
         Data[2] = PIDsupported2;
         if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -61,12 +55,7 @@ bool checkPID()
       {
         Data[2] = PIDsupported3;
         if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -75,12 +64,7 @@ bool checkPID()
       {
         Data[2] = PIDsupported4;
         if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }

@@ -102,9 +102,9 @@ void ServerCallbacks::onDisconnect(BLEServer* pServer)
 
 void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
 {
-    std::string pChar2_value_stdstr = characteristic->getValue();
-    String pChar2_value_string = String(pChar2_value_stdstr.c_str());
-    Serial.println(pChar2_value_string);
+    //std::string pChar2_value_stdstr = characteristic->getValue();
+    //String pChar2_value_string = String(pChar2_value_stdstr.c_str());
+    //Serial.println(pChar2_value_string);
     ////retorna ponteiro para o registrador contendo o valor atual da caracteristica
     //std::string rxValue = characteristic->getValue(); 
     ////verifica se existe dados (tamanho maior que zero)

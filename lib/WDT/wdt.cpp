@@ -1,6 +1,6 @@
 #include "wdt.h"
 
-
+// example from: https://www.youtube.com/watch?v=yOwg1EMby2g&t=240s
 void setupWDT()
 {
   rtc_wdt_protect_off(); // Disable RTC WDT write protection
