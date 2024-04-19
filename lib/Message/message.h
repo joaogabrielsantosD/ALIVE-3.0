@@ -9,7 +9,7 @@ typedef struct
     float EngineCollant, Engine_rpm, vehicle_speed, fuellevel, Distance_travel;
 } BLEmsg_t;
 
-void TratamentoDaMsg(unsigned char* info_can, int length);
+void MsgRec_Treatment(unsigned char* info_can, int length);
 BLEmsg_t defaultmsg();
 BLEmsg_t requestMsg();
 

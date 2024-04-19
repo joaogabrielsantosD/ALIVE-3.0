@@ -1,9 +1,9 @@
 #include "message.h"
 
-bool debug_mode = false;
+bool debug_mode = true;
 BLEmsg_t BLEmsg = defaultmsg();
 
-void TratamentoDaMsg(unsigned char* info_can, int length)
+void MsgRec_Treatment(unsigned char* info_can, int length)
 {
    if(debug_mode)
    {
