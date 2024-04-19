@@ -16,7 +16,7 @@ void setup_BLE()
     pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+    BLEService* pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic(                                    \
@@ -25,12 +25,12 @@ void setup_BLE()
                                                     BLECharacteristic::PROPERTY_NOTIFY   \
                                                     );
 
-  //// Create a BLE Descriptor  
+  // Create a BLE Descriptor  
   //pDescr_1 = new BLEDescriptor((uint16_t)0x2901);
   //pDescr_1->setValue("A very interesting variable");
   //pCharacteristic_1->addDescriptor(pDescr_1);
 
-  //// Add the BLE2902 Descriptor because we are using "PROPERTY_NOTIFY"
+  // Add the BLE2902 Descriptor because we are using "PROPERTY_NOTIFY"
   //pBLE2902_1 = new BLE2902();
   //pBLE2902_1->setNotifications(true);                 
   //pCharacteristic_1->addDescriptor(pBLE2902_1);

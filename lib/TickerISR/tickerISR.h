@@ -7,7 +7,7 @@
 #include "CAN_PIDs.h"
 
 void setup_ticker(void);
-bool checkPID();
+bool checkPID(void);
 void PIDs_1hz(void);
 void PIDs_10hz(void);
 void PIDs_20hz(void);
