@@ -147,5 +147,5 @@
 #define DistanceTraveled_PID    0x31 
 
 #define CAN_2515
-#define SPI_CS_PIN   5
+#define SPI_CS_PIN   4//5
 #define CAN_INT_PIN  27 // Pin used to generate the interrupt by the MCP2515 module

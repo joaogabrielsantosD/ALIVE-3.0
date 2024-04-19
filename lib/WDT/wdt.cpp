@@ -1,5 +1,6 @@
 #include "wdt.h"
 
+
 void setupWDT()
 {
   rtc_wdt_protect_off(); // Disable RTC WDT write protection

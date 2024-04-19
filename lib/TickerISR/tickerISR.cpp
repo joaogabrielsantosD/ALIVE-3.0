@@ -28,7 +28,7 @@ bool checkPID()
     check_receive_pid = false;
     
     while(!check_receive_pid)
-    { Serial.println("entrou while");
+    {
       if(i==1)
       {
         Data[2] = PIDsupported1;
@@ -36,9 +36,7 @@ bool checkPID()
         while(checkReceive() == false)
         {
           if(send_msg(Data) && true) debug_print(Data);
-          vTaskDelay(1000);
-          Serial.println("entrou check receive");        
-          
+          vTaskDelay(1000);          
         }
         MsgRec_CANroutine();
         
