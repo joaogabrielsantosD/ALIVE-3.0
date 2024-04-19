@@ -40,7 +40,7 @@ void setup_BLE()
   //pCharacteristic_2->addDescriptor(pBLE2902_2);
 
   // add callback functions here:
-  pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+  //pCharacteristic->setCallbacks(new CharacteristicCallbacks());
   
   // Start the service
   pCharacteristic->setValue(" ");
@@ -100,7 +100,7 @@ void ServerCallbacks::onDisconnect(BLEServer* pServer)
     deviceConnected = false;
 } 
 
-void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
+/*void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
 {
     std::string pChar2_value_stdstr = characteristic->getValue();
     String pChar2_value_string = String(pChar2_value_stdstr.c_str());
@@ -116,4 +116,4 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
     //    }
     //    Serial.println();
     //}
-}
+}*/

@@ -18,7 +18,7 @@ void setup_ticker()
 
 bool checkPID()
 {
-  // Flag to check if you received the PID support message
+  // Flag para verificar se recebeu a mensagem de PID support
   bool check_receive_pid = false;
   unsigned char Data[8] = {0x04, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -28,17 +28,18 @@ bool checkPID()
     check_receive_pid = false;
     
     while(!check_receive_pid)
-    {
+    { 
       if(i==1)
       {
         Data[2] = PIDsupported1;
         
-        while(!checkReceive())
+        while(checkReceive() == false)
         {
           if(send_msg(Data) && true) debug_print(Data);
           vTaskDelay(1000);          
         }
         MsgRec_CANroutine();
+        
         check_receive_pid = true;
       }
 
@@ -46,7 +47,12 @@ bool checkPID()
       {
         Data[2] = PIDsupported2;
         if(send_msg(Data) && true) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        int tt = millis();
+        while(!checkReceive())
+        {
+          //if(millis() - tt >= 2000) return false;
+          vTaskDelay(1);
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -55,7 +61,12 @@ bool checkPID()
       {
         Data[2] = PIDsupported3;
         if(send_msg(Data) && true) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        int tt = millis();
+        while(!checkReceive())
+        {
+          //if(millis() - tt >= 2000) return false;
+          vTaskDelay(1);
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -64,7 +75,12 @@ bool checkPID()
       {
         Data[2] = PIDsupported4;
         if(send_msg(Data) && true) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        int tt = millis();
+        while(!checkReceive())
+        {
+          //if(millis() - tt >= 2000) return false;
+          vTaskDelay(1);
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
