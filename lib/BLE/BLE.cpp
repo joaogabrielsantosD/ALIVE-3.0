@@ -1,7 +1,6 @@
 #include "BLE.h"
 
-bool deviceConnected = false;
-bool oldDeviceConnected = false;
+bool deviceConnected = false, oldDeviceConnected = false;
 BLEServer* pServer = NULL;
 BLEService* pService = NULL;
 BLECharacteristic* pCharacteristic = NULL;
@@ -16,12 +15,12 @@ void setup_BLE()
     pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+    BLEService* pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic(                                    \
                                                     CHARACTERISTIC_UUID,                 \
-                                                    BLECharacteristic::PROPERTY_WRITE |  \
+                                                    BLECharacteristic::PROPERTY_WRITE  | \
                                                     BLECharacteristic::PROPERTY_NOTIFY   \
                                                     );
 
@@ -40,7 +39,7 @@ void setup_BLE()
   //pCharacteristic_2->addDescriptor(pBLE2902_2);
 
   // add callback functions here:
-  //pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+  pCharacteristic->setCallbacks(new CharacteristicCallbacks());
   
   // Start the service
   pCharacteristic->setValue(" ");
@@ -81,6 +80,7 @@ int BLE_connected()
 
 void BLE_Sender(void* T, uint32_t len)
 {
+    Serial.println("Enviando mensagme por BLE");
     uint8_t msg[len];
     memcpy(&msg, (uint8_t*)T, len);
     //for(int i = 0; i < len; i++) Serial.println(msg[i]);
@@ -100,20 +100,9 @@ void ServerCallbacks::onDisconnect(BLEServer* pServer)
     deviceConnected = false;
 } 
 
-/*void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
+void CharacteristicCallbacks::onWrite(BLECharacteristic* characteristic)
 {
-    //std::string pChar2_value_stdstr = characteristic->getValue();
-    //String pChar2_value_string = String(pChar2_value_stdstr.c_str());
-    //Serial.println(pChar2_value_string);
-    ////retorna ponteiro para o registrador contendo o valor atual da caracteristica
-    //std::string rxValue = characteristic->getValue(); 
-    ////verifica se existe dados (tamanho maior que zero)
-    //if(rxValue.length() > 0) 
-    //{
-    //    for(int i = 0; i < rxValue.length(); i++) 
-    //    {
-    //        Serial.print(rxValue[i]);
-    //    }
-    //    Serial.println();
-    //}
-}*/
+    std::string pChar2_value_stdstr = characteristic->getValue();
+    String pChar2_value_string = String(pChar2_value_stdstr.c_str());
+    Serial.println(pChar2_value_string);
+}

@@ -12,13 +12,13 @@ void setup_ticker()
   } while(checkPID());
   
   ticker1Hz.attach(1.0, PIDs_1hz);
-  ticker10Hz.attach(2.0, PIDs_10hz);
-  ticker20Hz.attach(3.0, PIDs_20hz);
+  //ticker10Hz.attach(2.0, PIDs_10hz);
+  //ticker20Hz.attach(3.0, PIDs_20hz);
 }
 
 bool checkPID()
 {
-  // Flag para verificar se recebeu a mensagem de PID support
+  // Flag to check if you received the PID support message
   bool check_receive_pid = false;
   unsigned char Data[8] = {0x04, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
