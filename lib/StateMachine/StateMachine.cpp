@@ -1,6 +1,6 @@
 #include "StateMachine.h"
 
-bool DebugMode = true;
+bool DebugMode = false;
 CircularBuffer<state_t, BUFFER_SIZE> state_buffer;
 state_t current_state = IDLE_ST;
 

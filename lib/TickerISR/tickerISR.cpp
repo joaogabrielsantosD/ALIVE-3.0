@@ -1,5 +1,6 @@
 #include "tickerISR.h"
 
+bool Print_in_serial = false;
 Ticker ticker1Hz,
        ticker10Hz,
        ticker20Hz;
@@ -12,7 +13,7 @@ void setup_ticker()
   } while(checkPID());
   
   ticker1Hz.attach(1.0, PIDs_1hz);
-  //ticker10Hz.attach(2.0, PIDs_10hz);
+  ticker10Hz.attach(2.0, PIDs_10hz);
   //ticker20Hz.attach(3.0, PIDs_20hz);
 }
 
@@ -35,7 +36,7 @@ bool checkPID()
         
         while(!checkReceive())
         {
-          if(send_msg(Data) && true) debug_print(Data);
+          if(send_msg(Data) && Print_in_serial) debug_print(Data);
           vTaskDelay(1000);          
         }
         MsgRec_CANroutine();
@@ -45,7 +46,7 @@ bool checkPID()
       if(i==2)
       {
         Data[2] = PIDsupported2;
-        if(send_msg(Data) && true) debug_print(Data);
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -54,7 +55,7 @@ bool checkPID()
       if(i==3)
       {
         Data[2] = PIDsupported3;
-        if(send_msg(Data) && true) debug_print(Data);
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -63,7 +64,7 @@ bool checkPID()
       if(i==4)
       {
         Data[2] = PIDsupported4;
-        if(send_msg(Data) && true) debug_print(Data);
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;

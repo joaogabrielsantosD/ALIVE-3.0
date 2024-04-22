@@ -8,6 +8,7 @@
 #include "CAN_PIDs.h"
 
 boolean flagCANInit = false;   // If false indicates that the CAN module was not initialized successfully
+boolean led_flag = false;
 state_t state = IDLE_ST;
 uint32_t initialTime = 0;
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
@@ -64,7 +65,8 @@ void logCAN(void* arg)
 
     if(checkReceive() && flagCANInit)
     {
-      MsgRec_CANroutine(); // Routine that handles when a message arrives via can
+      // Routine that handles when a message arrives via can
+      MsgRec_CANroutine(); 
     }
   }
 
@@ -82,7 +84,8 @@ void BLElog(void* arg)
       ble = requestMsg();
       BLE_Sender(&ble, sizeof(ble));
 
-      digitalWrite(LED_BUILTIN, HIGH);
+      led_flag = !led_flag;
+      digitalWrite(LED_BUILTIN, led_flag);
       vTaskDelay(MAX_BLE_DELAY);
     }
 

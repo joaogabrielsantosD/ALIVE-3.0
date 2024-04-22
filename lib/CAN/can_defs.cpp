@@ -9,7 +9,7 @@
 
 bool can_setup()
 {
-    /* Start the can: */
+    /* Start the can */
     bool init_flag = false;
     unsigned long tcanStart = 0, cantimeOut = 0;
     tcanStart = millis();
@@ -32,15 +32,11 @@ bool can_setup()
 
 void set_mask_filt() 
 {
-  /*
-      set mask, set both the mask to 0x3ff
-  */
+  // set mask, set both the mask to 0x3ff
   CAN.init_Mask(0, 1, 0x1FFFFFFF);
   CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
-  /*
-      set filter, we can receive id from 0x04 ~ 0x09
-  */
+  // set filter, we can receive id from 0x04 ~ 0x09
   CAN.init_Filt(0, 1, 0x18DAF110);
   CAN.init_Filt(1, 1, 0x18DAF110);
 

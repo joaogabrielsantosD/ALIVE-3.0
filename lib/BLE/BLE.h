@@ -10,7 +10,7 @@
 #define CHARACTERISTIC_UUID   "50e6cbc6-5aff-4423-974c-0e27959453c3"
 
 #define MAX_BLE_LENGTH ESP_GATT_MAX_ATTR_LEN
-#define MAX_BLE_DELAY  45*2
+#define MAX_BLE_DELAY  90
 
 void setup_BLE(void);
 int BLE_connected(void);
@@ -26,10 +26,10 @@ class ServerCallbacks: public BLEServerCallbacks
 };
 
 // Callback for feature events
-class CharacteristicCallbacks: public BLECharacteristicCallbacks 
+/*class CharacteristicCallbacks: public BLECharacteristicCallbacks 
 {
     public:
         void onWrite(BLECharacteristic* characteristic); 
-};
+};*/
 
 #endif
