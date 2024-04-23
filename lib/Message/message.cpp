@@ -2,6 +2,7 @@
 
 bool debug_mode = false;
 uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint8_t bin[128];
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
@@ -66,6 +67,13 @@ void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
   PID_enable_bit[position+1] = bit_data[5];
   PID_enable_bit[position+2] = bit_data[6];
   PID_enable_bit[position+3] = bit_data[7];  
+}
+
+bool Check_bin_for_state(int pid_order)
+{
+   if(bin[pid_order]==0x01) return true;
+
+   else return false;
 }
 
 BLEmsg_t defaultmsg()
