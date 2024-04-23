@@ -1,7 +1,7 @@
 #include "message.h"
 
-bool debug_mode = true;
-//uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+bool debug_mode = false;
+uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
@@ -16,9 +16,12 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       Serial.println();
    }
 
-   if(info_can[3]==0x00 && info_can[2]==0x41)
+   if(info_can[0]==0x10)
    {
-      Serial.println("PID 1!");
+      if(info_can[3]==PIDsupported1) Storage_PIDenable_bit(info_can, PID_to_index_1);
+      if(info_can[3]==PIDsupported2) Storage_PIDenable_bit(info_can, PID_to_index_2);
+      if(info_can[3]==PIDsupported3) Storage_PIDenable_bit(info_can, PID_to_index_3);
+      if(info_can[3]==PIDsupported4) Storage_PIDenable_bit(info_can, PID_to_index_4);
    }
 
    else if(info_can[2] == 5) 
@@ -55,6 +58,14 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       BLEmsg.Distance_travel = ((A*256)+B);
       if(debug_mode) Serial.printf("Distance_Traveled:   %f\r\n", BLEmsg.Distance_travel);
    }
+}
+
+void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
+{
+  PID_enable_bit[position]   = bit_data[4];
+  PID_enable_bit[position+1] = bit_data[5];
+  PID_enable_bit[position+2] = bit_data[6];
+  PID_enable_bit[position+3] = bit_data[7];  
 }
 
 BLEmsg_t defaultmsg()
