@@ -9,7 +9,7 @@
 
 bool can_setup()
 {
-    /* Start the can: */
+    /* Start the can */
     bool init_flag = false;
     unsigned long tcanStart = 0, cantimeOut = 0;
     tcanStart = millis();
@@ -32,15 +32,11 @@ bool can_setup()
 
 void set_mask_filt() 
 {
-  /*
-      set mask, set both the mask to 0x3ff
-  */
+  // set mask, set both the mask to 0x3ff
   CAN.init_Mask(0, 1, 0x1FFFFFFF);
   CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
-  /*
-      set filter, we can receive id from 0x04 ~ 0x09
-  */
+  // set filter, we can receive id from 0x04 ~ 0x09
   CAN.init_Filt(0, 1, 0x18DAF110);
   CAN.init_Filt(1, 1, 0x18DAF110);
 
@@ -76,11 +72,6 @@ bool MsgRec_CANroutine()
         //Serial.print(")HEX");
         //Serial.print("\t");
         // print the data
-
-        if(messageData[3]==0x00 || messageData[3] == 0x20 || messageData[3] == 0x40 || messageData[3] == 0x60)
-        {
-            Serial.printf("[0x%2x]\t[0x%2x]\t[0x%2x]\t[0x%2x]\r\n\r\n",messageData[4], messageData[5], messageData[6], messageData[7]);
-        }
 
         MsgRec_Treatment(messageData, len);
     }

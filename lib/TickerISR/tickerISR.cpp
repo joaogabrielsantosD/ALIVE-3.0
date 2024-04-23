@@ -1,5 +1,6 @@
 #include "tickerISR.h"
 
+bool Print_in_serial = false;
 Ticker ticker1Hz,
        ticker10Hz,
        ticker20Hz;
@@ -13,12 +14,12 @@ void setup_ticker()
   
   ticker1Hz.attach(1.0, PIDs_1hz);
   ticker10Hz.attach(2.0, PIDs_10hz);
-  ticker20Hz.attach(3.0, PIDs_20hz);
+  //ticker20Hz.attach(3.0, PIDs_20hz);
 }
 
 bool checkPID()
 {
-  // Flag para verificar se recebeu a mensagem de PID support
+  // Flag to check if you received the PID support message
   bool check_receive_pid = false;
   unsigned char Data[8] = {0x04, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -33,26 +34,20 @@ bool checkPID()
       {
         Data[2] = PIDsupported1;
         
-        while(checkReceive() == false)
+        while(!checkReceive())
         {
-          if(send_msg(Data) && true) debug_print(Data);
+          if(send_msg(Data) && Print_in_serial) debug_print(Data);
           vTaskDelay(1000);          
         }
         MsgRec_CANroutine();
-        
         check_receive_pid = true;
       }
 
       if(i==2)
       {
         Data[2] = PIDsupported2;
-        if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -60,13 +55,8 @@ bool checkPID()
       if(i==3)
       {
         Data[2] = PIDsupported3;
-        if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -74,13 +64,8 @@ bool checkPID()
       if(i==4)
       {
         Data[2] = PIDsupported4;
-        if(send_msg(Data) && true) debug_print(Data);
-        int tt = millis();
-        while(!checkReceive())
-        {
-          //if(millis() - tt >= 2000) return false;
-          vTaskDelay(1);
-        }
+        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        while(!checkReceive()) vTaskDelay(1);
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
