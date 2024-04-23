@@ -2,6 +2,7 @@
 
 bool debug_mode = false;
 uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint8_t bin[128];
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
@@ -106,6 +107,13 @@ void Convert_Dec2Bin(uint8_t* PID_Enables)
    for(int j = l - 1; j >= 0; j--)
    Serial.printf("%d", PID_Enables_bin[j]);
    Serial.printf("\n");
+}
+
+bool Check_bin_for_state(int pid_order)
+{
+   if(bin[pid_order]==0x01) return true;
+
+   else return false;
 }
 
 BLEmsg_t defaultmsg()
