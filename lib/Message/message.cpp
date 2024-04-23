@@ -65,7 +65,47 @@ void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
   PID_enable_bit[position]   = bit_data[4];
   PID_enable_bit[position+1] = bit_data[5];
   PID_enable_bit[position+2] = bit_data[6];
-  PID_enable_bit[position+3] = bit_data[7];  
+  PID_enable_bit[position+3] = bit_data[7];
+
+  Convert_Dec2Bin(PID_enable_bit);
+
+}
+
+void Convert_Dec2Bin(uint8_t* PID_Enables)
+{
+   
+	int PID_Enables_bin[128];	
+	/*
+		Para converter um número decimal em binário basta dividir
+		sucessivamente o número decimal por 2 guardando o resto
+		da divisão.
+		Exemplo: 8
+		resto de 8 por 2 = 0
+		8 / 2 = 4
+		resto de 4 por 2 = 0
+		4 / 2 = 2
+		resto de 2 por 2 = 0
+		2 / 2 = 1
+		resto de 1 por 2 = 1
+		1 / 2 = 0
+		FIM
+		Por último é só pegar do último resto pro primeiro
+		8 em binário é 1000
+	*/
+
+   for(int i = 0, sizeof(PID_Enables), i++)
+   {  
+      uint8_t Aux = PID_Enables[i]; 
+         while(Aux > 0)
+         {  PID_Enables_bin[k] = Aux % 2;
+            k++;
+            Aux = Aux / 2;
+         }   
+   } 
+   int l = 0;
+   for(int j = l - 1; j >= 0; j--)
+   Serial.printf("%d", PID_Enables_bin[j]);
+   Serial.printf("\n");
 }
 
 BLEmsg_t defaultmsg()
