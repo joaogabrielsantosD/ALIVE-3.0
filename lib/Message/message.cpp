@@ -16,7 +16,7 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       }
       Serial.println();
    }
-
+   /*
    if(info_can[0]==0x10)
    {
       if(info_can[3]==PIDsupported1) Storage_PIDenable_bit(info_can, PID_to_index_1);
@@ -24,8 +24,8 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       if(info_can[3]==PIDsupported3) Storage_PIDenable_bit(info_can, PID_to_index_3);
       if(info_can[3]==PIDsupported4) Storage_PIDenable_bit(info_can, PID_to_index_4);
    }
-
-   else if(info_can[2] == 5) 
+   */ 
+   if(info_can[2] == 5) 
    {
       float A = info_can[3];        
       BLEmsg.EngineCollant = A-40;
