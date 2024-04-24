@@ -16,8 +16,9 @@ typedef struct
 
 void MsgRec_Treatment(unsigned char* info_can, int length);
 void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position);
+void Convert_Dec2Bin(void);
 int Check_bin_for_state(int pid_order);
-BLEmsg_t defaultmsg();
-BLEmsg_t requestMsg();
+BLEmsg_t defaultmsg(void);
+BLEmsg_t requestMsg(void);
 
 #endif

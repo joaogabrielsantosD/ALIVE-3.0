@@ -78,7 +78,7 @@ state_t CircularBuffer_state()
 
 bool insert(state_t ST)
 {
-  return (Check_bin_for_state((int)ST) ? state_buffer.push(ST) : 0);
+  return state_buffer.push(ST);
 }
 
 void debug_print(unsigned char* message)
