@@ -1,7 +1,7 @@
 #include "message.h"
 
 bool debug_mode = true;
-//uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
@@ -16,9 +16,24 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       Serial.println();
    }
 
-   if(info_can[3]==0x00 && info_can[2]==0x41)
+   if(info_can[3]==PIDsupported1 && info_can[2]==0x41)
    {
-      Serial.println("PID 1!");
+      Serial.println("PID 1!");      
+   }
+
+   else if(info_can[3]==PIDsupported2 && info_can[2]==0x41)
+   {
+      Serial.println("PID 2!");
+   }
+
+   else if(info_can[3]==PIDsupported3 && info_can[2]==0x41)
+   {
+      Serial.println("PID 3!");
+   }
+
+   else if(info_can[3]==PIDsupported4 && info_can[2]==0x41)
+   {
+      Serial.println("PID 4!");
    }
 
    else if(info_can[2] == 5) 
