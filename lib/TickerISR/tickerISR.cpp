@@ -37,7 +37,7 @@ bool checkPID()
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
+          vTaskDelay(100);          
         }
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -47,7 +47,11 @@ bool checkPID()
       {
         Data[2] = PIDsupported2;
         if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        while(!checkReceive())
+        {
+          if(send_msg(Data) && Print_in_serial) debug_print(Data);
+          vTaskDelay(100);          
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -56,7 +60,11 @@ bool checkPID()
       {
         Data[2] = PIDsupported3;
         if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        while(!checkReceive())
+        {
+          if(send_msg(Data) && Print_in_serial) debug_print(Data);
+          vTaskDelay(100);          
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }
@@ -65,7 +73,11 @@ bool checkPID()
       {
         Data[2] = PIDsupported4;
         if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
+        while(!checkReceive())
+        {
+          if(send_msg(Data) && Print_in_serial) debug_print(Data);
+          vTaskDelay(100);          
+        }
         MsgRec_CANroutine();
         check_receive_pid = true;
       }

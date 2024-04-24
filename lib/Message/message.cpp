@@ -1,8 +1,8 @@
 #include "message.h"
 
-bool debug_mode = false;
+bool debug_mode = true;
 uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint8_t bin[128];
+uint8_t PID_Enables_bin[128];
 BLEmsg_t BLEmsg = defaultmsg();
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
@@ -17,7 +17,7 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       Serial.println();
    }
 
-   if(info_can[0]==0x10)
+   if(info_can[2]==0x41 && info_can[0]==0x10)
    {
       if(info_can[3]==PIDsupported1) Storage_PIDenable_bit(info_can, PID_to_index_1);
       if(info_can[3]==PIDsupported2) Storage_PIDenable_bit(info_can, PID_to_index_2);
@@ -53,7 +53,7 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       if(debug_mode) Serial.printf("FuelLevel:   %f", BLEmsg.fuellevel);
    }
 
-   else if(info_can[2] == DistanceTraveled_PID) 
+   else if(info_can[2]==DistanceTraveled_PID) 
    {
       float A = info_can[3], B = info_can[4];
       BLEmsg.Distance_travel = ((A*256)+B);
@@ -63,57 +63,34 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
 
 void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
 {
-  PID_enable_bit[position]   = bit_data[4];
-  PID_enable_bit[position+1] = bit_data[5];
-  PID_enable_bit[position+2] = bit_data[6];
-  PID_enable_bit[position+3] = bit_data[7];
+   PID_enable_bit[position]   = bit_data[4];
+   PID_enable_bit[position+1] = bit_data[5];
+   PID_enable_bit[position+2] = bit_data[6];
+   PID_enable_bit[position+3] = bit_data[7];
 
-  Convert_Dec2Bin(PID_enable_bit);
-
+   if(position==PID_to_index_4) Convert_Dec2Bin();
 }
 
-void Convert_Dec2Bin(uint8_t* PID_Enables)
+void Convert_Dec2Bin()
 {
-   
-	int PID_Enables_bin[128];	
-	/*
-		Para converter um número decimal em binário basta dividir
-		sucessivamente o número decimal por 2 guardando o resto
-		da divisão.
-		Exemplo: 8
-		resto de 8 por 2 = 0
-		8 / 2 = 4
-		resto de 4 por 2 = 0
-		4 / 2 = 2
-		resto de 2 por 2 = 0
-		2 / 2 = 1
-		resto de 1 por 2 = 1
-		1 / 2 = 0
-		FIM
-		Por último é só pegar do último resto pro primeiro
-		8 em binário é 1000
-	*/
-
-   for(int i = 0, sizeof(PID_Enables), i++)
+   int k = 0;	
+   for(int i = 0; i < sizeof(PID_enable_bit); i++)
    {  
-      uint8_t Aux = PID_Enables[i]; 
-         while(Aux > 0)
-         {  PID_Enables_bin[k] = Aux % 2;
-            k++;
-            Aux = Aux / 2;
-         }   
+      uint8_t Aux = PID_enable_bit[i]; 
+      while(Aux > 0)
+      {  PID_Enables_bin[k] = Aux % 2;
+         k++;
+         Aux /= 2;
+      }   
    } 
-   int l = 0;
-   for(int j = l - 1; j >= 0; j--)
-   Serial.printf("%d", PID_Enables_bin[j]);
-   Serial.printf("\n");
+   //int l = 128;
+   //for(int j = 0; j < 128; j++) Serial.printf("%d", PID_Enables_bin[j]);
+   //Serial.printf("\n");
 }
 
-bool Check_bin_for_state(int pid_order)
+int Check_bin_for_state(int pid_order)
 {
-   if(bin[pid_order]==0x01) return true;
-
-   else return false;
+   return PID_Enables_bin[pid_order-1] & 0x01;
 }
 
 BLEmsg_t defaultmsg()
