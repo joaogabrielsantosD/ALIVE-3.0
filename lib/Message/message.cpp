@@ -18,11 +18,12 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
    }
 
    if(info_can[0]==0x10)
-   {
+   {  /*
       if(info_can[3]==PIDsupported1) Storage_PIDenable_bit(info_can, PID_to_index_1);
       if(info_can[3]==PIDsupported2) Storage_PIDenable_bit(info_can, PID_to_index_2);
       if(info_can[3]==PIDsupported3) Storage_PIDenable_bit(info_can, PID_to_index_3);
       if(info_can[3]==PIDsupported4) Storage_PIDenable_bit(info_can, PID_to_index_4);
+      */
    }
 
    else if(info_can[2] == 5) 
@@ -68,52 +69,49 @@ void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
   PID_enable_bit[position+2] = bit_data[6];
   PID_enable_bit[position+3] = bit_data[7];
 
-  Convert_Dec2Bin(PID_enable_bit);
-
+  //Convert_Dec2Bin(PID_enable_bit);
 }
 
-void Convert_Dec2Bin(uint8_t* PID_Enables)
+//void Convert_Dec2Bin(uint8_t* PID_Enables)
+//{
+//   
+//	int PID_Enables_bin[128];	
+//	/*
+//		Para converter um número decimal em binário basta dividir
+//		sucessivamente o número decimal por 2 guardando o resto
+//		da divisão.
+//		Exemplo: 8
+//		resto de 8 por 2 = 0
+//		8 / 2 = 4
+//		resto de 4 por 2 = 0
+//		4 / 2 = 2
+//		resto de 2 por 2 = 0
+//		2 / 2 = 1
+//		resto de 1 por 2 = 1
+//		1 / 2 = 0
+//		FIM
+//		Por último é só pegar do último resto pro primeiro
+//		8 em binário é 1000
+//	*/
+//
+//   for(int i = 0, sizeof(PID_Enables), i++)
+//   {  
+//      uint8_t Aux = PID_Enables[i]; 
+//         while(Aux > 0)
+//         {  PID_Enables_bin[k] = Aux % 2;
+//            k++;
+//            Aux = Aux / 2;
+//         }   
+//   } 
+//   int l = 0;
+//   for(int j = l - 1; j >= 0; j--)
+//   Serial.printf("%d", PID_Enables_bin[j]);
+//   Serial.printf("\n");
+//}
+
+int Check_bin_for_state(int pid_order)
 {
-   
-	int PID_Enables_bin[128];	
-	/*
-		Para converter um número decimal em binário basta dividir
-		sucessivamente o número decimal por 2 guardando o resto
-		da divisão.
-		Exemplo: 8
-		resto de 8 por 2 = 0
-		8 / 2 = 4
-		resto de 4 por 2 = 0
-		4 / 2 = 2
-		resto de 2 por 2 = 0
-		2 / 2 = 1
-		resto de 1 por 2 = 1
-		1 / 2 = 0
-		FIM
-		Por último é só pegar do último resto pro primeiro
-		8 em binário é 1000
-	*/
-
-   for(int i = 0, sizeof(PID_Enables), i++)
-   {  
-      uint8_t Aux = PID_Enables[i]; 
-         while(Aux > 0)
-         {  PID_Enables_bin[k] = Aux % 2;
-            k++;
-            Aux = Aux / 2;
-         }   
-   } 
-   int l = 0;
-   for(int j = l - 1; j >= 0; j--)
-   Serial.printf("%d", PID_Enables_bin[j]);
-   Serial.printf("\n");
-}
-
-bool Check_bin_for_state(int pid_order)
-{
-   if(bin[pid_order]==0x01) return true;
-
-   else return false;
+   return bin[pid_order] & 0x01;
 }
 
 BLEmsg_t defaultmsg()
