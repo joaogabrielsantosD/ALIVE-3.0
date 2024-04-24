@@ -62,16 +62,7 @@ bool MsgRec_CANroutine()
 
         // Reads message and ID
         CAN.readMsgBuf(&len, messageData); 
-        messageId = CAN.getCanId();
-
-        //Serial.print("Recieve by CAN: id ");
-
-        //Serial.print(messageId);
-        //Serial.print(" (");
-        //Serial.print(messageId, HEX);
-        //Serial.print(")HEX");
-        //Serial.print("\t");
-        // print the data
+        messageId = CAN.getCanId();        
 
         MsgRec_Treatment(messageData, len);
     }

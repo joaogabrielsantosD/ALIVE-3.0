@@ -2,8 +2,9 @@
 
 bool debug_mode = false;
 uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint8_t bin[128];
+//uint8_t bin[128];
 BLEmsg_t BLEmsg = defaultmsg();
+int PID_Enables_bin[128];
 
 void MsgRec_Treatment(unsigned char* info_can, int length)
 {
@@ -16,7 +17,8 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       }
       Serial.println();
    }
-
+   
+   /*
    if(info_can[0]==0x10)
    {
       if(info_can[3]==PIDsupported1) Storage_PIDenable_bit(info_can, PID_to_index_1);
@@ -24,6 +26,7 @@ void MsgRec_Treatment(unsigned char* info_can, int length)
       if(info_can[3]==PIDsupported3) Storage_PIDenable_bit(info_can, PID_to_index_3);
       if(info_can[3]==PIDsupported4) Storage_PIDenable_bit(info_can, PID_to_index_4);
    }
+   */
 
    else if(info_can[2] == 5) 
    {
@@ -74,28 +77,8 @@ void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
 
 void Convert_Dec2Bin(uint8_t* PID_Enables)
 {
-   
-	int PID_Enables_bin[128];	
-	/*
-		Para converter um número decimal em binário basta dividir
-		sucessivamente o número decimal por 2 guardando o resto
-		da divisão.
-		Exemplo: 8
-		resto de 8 por 2 = 0
-		8 / 2 = 4
-		resto de 4 por 2 = 0
-		4 / 2 = 2
-		resto de 2 por 2 = 0
-		2 / 2 = 1
-		resto de 1 por 2 = 1
-		1 / 2 = 0
-		FIM
-		Por último é só pegar do último resto pro primeiro
-		8 em binário é 1000
-	*/
-
-   for(int i = 0, sizeof(PID_Enables), i++)
-   {  
+   for(int i = 0; sizeof(PID_Enables); i++)
+   {  int k = 0;
       uint8_t Aux = PID_Enables[i]; 
          while(Aux > 0)
          {  PID_Enables_bin[k] = Aux % 2;
@@ -110,8 +93,8 @@ void Convert_Dec2Bin(uint8_t* PID_Enables)
 }
 
 bool Check_bin_for_state(int pid_order)
-{
-   if(bin[pid_order]==0x01) return true;
+{  
+   if(PID_Enables_bin[pid_order]==0x01) return true;
 
    else return false;
 }
