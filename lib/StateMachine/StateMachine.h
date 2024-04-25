@@ -7,7 +7,7 @@
 #include "CAN_PIDs.h"
 
 /* CicularBuffer Defs */
-typedef enum {IDLE_ST, DistanceTraveled_ST, EngineRPM_ST, VehicleSpeed_ST, FuelLevel_ST, EngineCoolant_ST} state_t;
+typedef enum {IDLE_ST, DistanceTraveled_ST=49, EngineRPM_ST=12, VehicleSpeed_ST=13, FuelLevel_ST=47, EngineCoolant_ST=5} state_t;
 
 state_t CircularBuffer_state(void);
 bool insert(state_t ST);

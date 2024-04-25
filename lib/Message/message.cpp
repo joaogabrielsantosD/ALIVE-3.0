@@ -82,17 +82,16 @@ void Convert_Dec2Bin()
 
       uint8_t Aux = PID_enable_bit[i];
 
-      /*
       Serial.printf("\n"); 
       Serial.printf("Message:\n"); 
       Serial.printf("%d", PID_enable_bit[i]);
       Serial.printf("\n"); 
-      */
+      
 
       while(j < 8)
       {  PID_Enables_bin[k] = Aux % 2;                
          Aux = Aux / 2;
-         //Serial.printf("%d", PID_Enables_bin[k]);   
+         Serial.printf("%d", PID_Enables_bin[k]);   
          k--;
          j++;            
       } 

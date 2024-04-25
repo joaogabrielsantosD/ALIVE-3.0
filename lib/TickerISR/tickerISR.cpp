@@ -1,6 +1,6 @@
 #include "tickerISR.h"
 
-bool Print_in_serial = false;
+bool Print_in_serial = true; // Put True or False to enable SerialPrint of checkPID
 Ticker ticker1Hz,
        ticker10Hz,
        ticker20Hz;
@@ -27,8 +27,7 @@ bool checkPID()
   {
     Serial.printf("Trying to send PID%d support, please turn on the car electronics\r\n", i);
     check_receive_pid = false;
-    
-    while(!check_receive_pid)
+     while(!check_receive_pid)
     {
       if(i==1)
       {
@@ -84,7 +83,7 @@ bool checkPID()
 
       vTaskDelay(1);
     }
-
+     
     if((i+1)==5) break;
   }
 
