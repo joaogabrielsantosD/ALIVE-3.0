@@ -27,49 +27,6 @@ bool checkPID()
   {
     Serial.printf("Trying to send PID%d support, please turn on the car electronics\r\n", i);
     check_receive_pid = false;
-    /*
-    while(!check_receive_pid)
-    {
-      if(i==1)
-      {
-        Data[2] = PIDsupported1;
-        
-        while(!checkReceive())
-        {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
-        }
-        MsgRec_CANroutine();
-        check_receive_pid = true;
-      }
-
-      if(i==2)
-      {
-        Data[2] = PIDsupported2;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
-        MsgRec_CANroutine();
-        check_receive_pid = true;
-      }
-
-      if(i==3)
-      {
-        Data[2] = PIDsupported3;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
-        MsgRec_CANroutine();
-        check_receive_pid = true;
-      }
-
-      if(i==4)
-      {
-        Data[2] = PIDsupported4;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
-        while(!checkReceive()) vTaskDelay(1);
-        MsgRec_CANroutine();
-        check_receive_pid = true;
-      }
-      */
      while(!check_receive_pid)
     {
       if(i==1)
@@ -79,7 +36,7 @@ bool checkPID()
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
+          vTaskDelay(100);          
         }
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -92,7 +49,7 @@ bool checkPID()
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
+          vTaskDelay(100);          
         }
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -105,7 +62,7 @@ bool checkPID()
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
+          vTaskDelay(100);          
         }
         MsgRec_CANroutine();
         check_receive_pid = true;
@@ -118,7 +75,7 @@ bool checkPID()
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(1000);          
+          vTaskDelay(100);          
         }
         MsgRec_CANroutine();
         check_receive_pid = true;
