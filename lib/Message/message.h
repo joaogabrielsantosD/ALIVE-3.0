@@ -13,11 +13,12 @@ typedef struct
 {
     float EngineCollant, Engine_rpm, vehicle_speed, fuellevel, Distance_travel;
 } BLEmsg_t;
-void Convert_Dec2Bin(uint8_t* PID_Enables);
+
 void MsgRec_Treatment(unsigned char* info_can, int length);
 void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position);
-bool Check_bin_for_state(int pid_order);
-BLEmsg_t defaultmsg();
-BLEmsg_t requestMsg();
+void Convert_Dec2Bin(void);
+int Check_bin_for_state(int pid_order);
+BLEmsg_t defaultmsg(void);
+BLEmsg_t requestMsg(void);
 
 #endif
