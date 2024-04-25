@@ -72,38 +72,28 @@ void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
 }
 
 void Convert_Dec2Bin()
-{  int k = 7;
-   int k2 = 7;
+{  
+   int k = 7, k2 = 7;
 
    for(int i = 0; i < 16; i++)
-   {  int j = 0; 
-      if(i>0){k = k2+8;
-              k2 = k;}   
+   {  
+      int j = 0; 
 
+      if(i > 0)
+      {
+         k = k2 + 8;
+         k2 = k;
+      }   
       uint8_t Aux = PID_enable_bit[i];
-
-      Serial.printf("\n"); 
-      Serial.printf("Message:\n"); 
-      Serial.printf("%d", PID_enable_bit[i]);
-      Serial.printf("\n"); 
       
-
       while(j < 8)
-      {  PID_Enables_bin[k] = Aux % 2;                
-         Aux = Aux / 2;
-         Serial.printf("%d", PID_Enables_bin[k]);   
+      {  
+         PID_Enables_bin[k] = Aux % 2;                
+         Aux /= 2;
          k--;
          j++;            
-      } 
-
-      Serial.println(); 
-      Serial.println("Vetor Bin: ");      
-      for(int l=0; l < 8; l++){Serial.printf("%d", PID_Enables_bin[l]);}       
-   }  
-   
-   Serial.println();
-   for(int l=0; l < 128; l++){Serial.printf("%d", PID_Enables_bin[l]);}    
-   
+      }      
+   }   
 }
 
 int Check_bin_for_state(int pid_order)
