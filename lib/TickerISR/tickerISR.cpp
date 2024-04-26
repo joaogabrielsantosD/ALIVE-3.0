@@ -45,7 +45,7 @@ bool checkPID()
       if(i==2)
       {
         Data[2] = PIDsupported2;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -58,7 +58,7 @@ bool checkPID()
       if(i==3)
       {
         Data[2] = PIDsupported3;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -71,7 +71,7 @@ bool checkPID()
       if(i==4)
       {
         Data[2] = PIDsupported4;
-        if(send_msg(Data) && Print_in_serial) debug_print(Data);
+        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -92,15 +92,15 @@ bool checkPID()
 
 void PIDs_1hz()
 {
-  insert(DistanceTraveled_ST);
-  insert(EngineRPM_ST);
+  insert(DistanceTraveled_PID);
+  insert(EngineRPM_PID);
 }
 
 void PIDs_10hz()
 {
-  insert(VehicleSpeed_ST);
-  insert(FuelLevel_ST);
-  insert(EngineCoolant_ST);  
+  insert(VehicleSpeed_PID);
+  insert(FuelLevel_PID);
+  insert(EngineCoolant_PID);  
 }
 
 void PIDs_20hz()

@@ -1,10 +1,10 @@
 #include "StateMachine.h"
 
 bool DebugMode = false;
-CircularBuffer<state_t, BUFFER_SIZE> state_buffer;
-state_t current_state = IDLE_ST;
+CircularBuffer<int, BUFFER_SIZE> state_buffer;
+int current_id = 0;
 
-state_t CircularBuffer_state()
+int CircularBuffer_state()
 {
   bool buffer_full = false;
   unsigned char messageData[8] = {0x02, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -12,73 +12,35 @@ state_t CircularBuffer_state()
   if(state_buffer.isFull())
   {
     buffer_full = true;
-    current_state = state_buffer.pop();
+    current_id = state_buffer.pop();
   } else {
     buffer_full = false;
     if(!state_buffer.isEmpty())
-      current_state = state_buffer.pop();        
+      current_id = state_buffer.pop();        
     else
-      current_state = IDLE_ST;
+      current_id = 0;
   }
 
-  switch(current_state) 
-  {     
-    case IDLE_ST:
+  switch(current_id) 
+  {
+    case 0:
       //Serial.println("i");
       break;
-    
-    case DistanceTraveled_ST:
-    {   
-      messageData[2] = DistanceTraveled_PID;
       
-      if(send_msg(messageData) && DebugMode) debug_print(messageData);
+    default:
+      messageData[2] = current_id;
       
-      break;
-    }
-
-    case EngineRPM_ST:
-    {
-      messageData[2] = EngineRPM_PID;      
-        
-      if(send_msg(messageData) && DebugMode) debug_print(messageData);
-      
-      break;
-    }
-
-    case VehicleSpeed_ST:
-    {
-      messageData[2] = VehicleSpeed_PID;
-
-      if(send_msg(messageData) && DebugMode) debug_print(messageData);
-      
-      break;
-    }
-
-    case FuelLevel_ST:
-    {
-      messageData[2] = FuelLevel_PID; 
-             
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
 
       break;
-    }
-
-    case EngineCoolant_ST:
-    {
-      messageData[2] = EngineCoolant_PID;
-
-      if(send_msg(messageData) && DebugMode) debug_print(messageData);
-      
-      break;
-    }
   }
 
-  return current_state;
+  return current_id;
 }
 
-bool insert(state_t ST)
+bool insert(int ST)
 {
-  return (Check_bin_for_state((int)ST) ? state_buffer.push((state_t)ST) : 0);
+  return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
 }
 
 void debug_print(unsigned char* message)
