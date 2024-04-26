@@ -2,7 +2,7 @@
 
 bool Print_in_serial = false; // Put True or False to enable SerialPrint of checkPID
 Ticker ticker1Hz,
-       ticker10Hz,
+       ticker10Hz,  // atualizar inserts
        ticker20Hz;
 
 void setup_ticker()
@@ -13,7 +13,7 @@ void setup_ticker()
   } while(checkPID());
   
   ticker1Hz.attach(1.0, PIDs_1hz);
-  ticker10Hz.attach(2.0, PIDs_10hz);
+  //ticker10Hz.attach(2.0, PIDs_10hz);
   //ticker20Hz.attach(3.0, PIDs_20hz);
 }
 
@@ -92,8 +92,11 @@ bool checkPID()
 
 void PIDs_1hz()
 {
-  insert(DistanceTraveled_PID);
-  insert(EngineRPM_PID);
+  insert(MonitorStatus);
+  insert(OxygenSensorsPresent);
+  insert(OBDstandard);
+  //insert(DistanceTraveled_PID);
+  //insert(EngineRPM_PID);
 }
 
 void PIDs_10hz()

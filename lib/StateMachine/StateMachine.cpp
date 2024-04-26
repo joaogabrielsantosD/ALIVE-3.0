@@ -1,7 +1,7 @@
 #include "StateMachine.h"
 
-bool DebugMode = false;
-CircularBuffer<int, BUFFER_SIZE> state_buffer;
+bool DebugMode = true;
+CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
 int current_id = 0;
 
 int CircularBuffer_state()
@@ -28,7 +28,7 @@ int CircularBuffer_state()
       break;
       
     default:
-      messageData[2] = current_id;
+      messageData[2] = (unsigned char)current_id;
       
       if(send_msg(messageData) && DebugMode) debug_print(messageData);
 

@@ -9,8 +9,8 @@
 
 boolean flagCANInit = false;   // If false indicates that the CAN module was not initialized successfully
 boolean led_flag = false;
-int _id = 0; /* This variable is responsable to read the current ID in the buffer, 
-              * if already exist wait for the timeout or CAN interrupt */
+int _id = 0; /* This variable is responsible to read the current ID in the buffer, 
+              * if already exist an ID, wait for the timeout or CAN response */
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 /* State Machine Functions */

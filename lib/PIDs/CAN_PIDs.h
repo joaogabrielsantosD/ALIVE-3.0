@@ -12,7 +12,7 @@
 #define ShortTermFuel_Bank2                              0x08        
 #define LongTermFuel_Bank2                               0x09        
 #define FuelPressure                                     0x0A    
-#define AbsoluePressure                                  0x0B    
+#define AbsolutePressure                                 0x0B    
 #define EngineRPM                                        0x0C
 #define VehicleSpeed                                     0x0D    
 #define TimingAdvance                                    0x0E    
