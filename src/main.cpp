@@ -20,6 +20,7 @@ void BLElog(void* arg);
 void setup()
 {    
   Serial.begin(9600);
+  vTaskDelay(1000); // delay to avoid the bug in the serialprint when you use the monitor serial to reset the module
   Serial.println("INICIANDO ALIVE.");
   
   pinMode(LED_BUILTIN, OUTPUT);
