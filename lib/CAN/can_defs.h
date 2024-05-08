@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <mcp2515_can.h>
-#include "message.h"
 #include "CAN_PIDs.h"
 
 bool can_setup(void);

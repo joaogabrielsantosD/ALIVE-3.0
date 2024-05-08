@@ -54,7 +54,7 @@ bool send_msg(unsigned char* msg)
 bool MsgRec_CANroutine()
 {
     receive_message = false;
-    while(CAN.checkReceive() == CAN_MSGAVAIL)
+    while(CAN.checkReceive()==CAN_MSGAVAIL)
     {
         unsigned char messageData[8];
         uint32_t messageId;
@@ -63,10 +63,8 @@ bool MsgRec_CANroutine()
         // Reads message and ID
         CAN.readMsgBuf(&len, messageData); 
         messageId = CAN.getCanId();        
-
-        MsgRec_Treatment(messageData, len);
     }
-
+    
     return receive_message;
 }
 
