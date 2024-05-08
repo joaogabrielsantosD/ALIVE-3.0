@@ -1,2 +1,2 @@
-# Alive-2.0
-CAN request work with the OBDII port and send the data using BLE(Bluetooth Low Energy) communication to another microcontroler.
+# ALIVE-3.0
+Firmware to read a OBD II from any car
