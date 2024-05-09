@@ -5,7 +5,7 @@
 #include <soc/rtc_cntl_reg.h>
 #include <soc/rtc_wdt.h>
 
-void setupWDT(void);
+void set_wdt_timer(void);
 void reset_rtc_wdt(void);
 
 #endif

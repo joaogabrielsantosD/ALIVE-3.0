@@ -1,6 +1,3 @@
-#define BUFFER_SIZE             50
-#define CAN_ID                  0x18DB33F1
-
 #define PIDsupported1                                    0x00    
 #define MonitorStatus                                    0x01    
 #define FreezeDTC                                        0x02
@@ -139,13 +136,3 @@
 #define IntakeManifoldAbsolutePressure                   0x87
 #define PIDsupport5                                      0xA0   
 #define PIDsupport6                                      0xC0
-
-#define EngineCoolant_PID       0x05
-#define EngineRPM_PID           0x0C 
-#define VehicleSpeed_PID        0x0D
-#define FuelLevel_PID           0x2F
-#define DistanceTraveled_PID    0x31 
-
-#define CAN_2515
-#define SPI_CS_PIN   4//pino de da outra ecu de comunicação -> 5
-#define CAN_INT_PIN  27 // Pin used to generate the interrupt by the MCP2515 module

@@ -1,7 +1,7 @@
 #include "wdt.h"
 
 // example from: https://www.youtube.com/watch?v=yOwg1EMby2g&t=240s
-void setupWDT()
+void set_wdt_timer()
 {
   rtc_wdt_protect_off(); // Disable RTC WDT write protection
   rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC); 
