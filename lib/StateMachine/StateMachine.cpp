@@ -11,7 +11,7 @@ uint8_t pid5_enable = 0;
 uint8_t CircularBuffer_state()
 {
   /* 8 bits variable value:
-  | BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3 | BYTE 4 |     BYTE 5     |     BYTE 6     |     BYTE 7      |
+  |  BIT 0 |  BIT 1 |  BIT 2 |  BIT 3 |  BIT 4 |      BIT 5     |      BIT 6     |      BIT 7      |
   |   --   |   --   |   --   |   --   |   --   |      GPS       |  Accelerometer |      IDLE       |
   * When enable the bit flag the value of the message is set One(1).
 
@@ -84,14 +84,17 @@ void debug_print(unsigned char* message)
 
 void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
 {
-  PID_enable_bit[position]   = bit_data[4];
-  PID_enable_bit[position+1] = bit_data[5];
-  PID_enable_bit[position+2] = bit_data[6];
-  PID_enable_bit[position+3] = bit_data[7];
+  if(position < sizeof(PID_enable_bit))
+  {
+    PID_enable_bit[position]   = bit_data[4];
+    PID_enable_bit[position+1] = bit_data[5];
+    PID_enable_bit[position+2] = bit_data[6];
+    PID_enable_bit[position+3] = bit_data[7];
+  }
 
   if(position==PID_to_index_4) Convert_Dec2Bin();
 
-  else if(position==16) pid5_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
+  else if(position==PID_to_index_5) pid5_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
 
 void Convert_Dec2Bin()
