@@ -6,8 +6,8 @@
 
 /*====================== CAN DEFINITIONS ============================ */
 #define CAN_2515
-#define BUFFER_SIZE 50
-#define CAN_ID      0x18DB33F1
+#define BUFFER_SIZE         50
+#define CAN_ID              0x18DB33F1
 
 #define PIDs1               PIDsupported1
 #define PIDs2               PIDsupported2
@@ -30,13 +30,16 @@
 #define Distance_Travel_PID DistanceTraveledSinceCodeCleared
 #define MAP_sensor_PID      AbsolutePressure
 #define Odometer_PID        0xA6
+
+#define IDLE_ST             0x00
 #define Accelerometer_ST    0x01
 #define GPS_ST              0x02
 
-#define PID_to_index_1 (   0   )
-#define PID_to_index_2 ( 1 << 2 )
-#define PID_to_index_3 ( 1 << 3 )
-#define PID_to_index_4 ( 3 << 2 )
+#define PID_to_index_1      0   
+#define PID_to_index_2      4
+#define PID_to_index_3      8
+#define PID_to_index_4      12
+#define PID_to_index_5      16
 
 /*====================== HARDWARE DEFINITIONS ============================ */
 #define CAN_DEBUG_LED GPIO_NUM_2  
