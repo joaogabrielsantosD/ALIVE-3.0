@@ -11,7 +11,7 @@
 #include <wdt.h>
 
 boolean flagCANInit = false;  // If false indicates that the CAN module was not initialized successfully
-TaskHandle_t CANtask = NULL;  // BLEtask = NULL;
+TaskHandle_t CANtask = NULL;
 
 /* State Machine Functions */
 void AcquisitionStateMachine(void* arg);
