@@ -14,11 +14,11 @@ void init_tickers()
     Serial.println("Check the PID support...");
   } while(checkPID());
   
-  ticker200mHz.attach(1.0/0.2, ticker200mHzISR); // 5s
-  ticker300mHz.attach(1.0/0.3, ticker300mHzISR); // 3s
-  ticker1Hz.attach(1.0, ticker1HzISR);           // 1s
-  ticker2Hz.attach(1.0/2, ticker2HzISR);         // 0.5s
-  ticker10Hz.attach(1.0/10, ticker10HzISR);      // 0.1s
+  ticker200mHz.attach(5.0f, ticker200mHzISR); // 5s
+  ticker300mHz.attach(3.0f, ticker300mHzISR); // 3s
+  ticker1Hz.attach(1.0f, ticker1HzISR);       // 1s
+  ticker2Hz.attach(0.5f, ticker2HzISR);       // 0.5s
+  ticker10Hz.attach(0.1f, ticker10HzISR);     // 0.1s
 }
 
 bool checkPID()
@@ -49,7 +49,6 @@ bool checkPID()
       if(i==2)
       {
         Data[2] = PIDs2;
-        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -62,7 +61,6 @@ bool checkPID()
       if(i==3)
       {
         Data[2] = PIDs3;
-        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -75,7 +73,6 @@ bool checkPID()
       if(i==4)
       {
         Data[2] = PIDs4;
-        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -88,7 +85,6 @@ bool checkPID()
       if(i==5)
       {
         Data[2] = PIDs5;
-        //if(send_msg(Data) && Print_in_serial) debug_print(Data);
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -110,8 +106,6 @@ bool checkPID()
 /*=========================== ISRs ====================================*/
 void ticker200mHzISR()
 { 
-  //insert(FueL_Status_PID);
-  insert(Fuel_Pressure_PID);
   insert(Fuel_Level_PID);
   insert(Engine_CoolantP_ID);
   insert(Engine_Oil_PID);
@@ -120,10 +114,11 @@ void ticker200mHzISR()
 
 void ticker300mHzISR()
 {
+  //insert(FueL_Status_PID);
   insert(GPS_ST);
   insert(Distance_on_MIL_PID);
   insert(Distance_Travel_PID);
-  insert(Odometer_PID);
+  insert(Odometer_PID);  
 }
 
 void ticker1HzISR()
@@ -137,6 +132,7 @@ void ticker1HzISR()
 
 void ticker2HzISR()
 {
+  insert(Fuel_Pressure_PID);
   insert(Speed_PID);
   insert(Engine_RPM_ID);
 }
