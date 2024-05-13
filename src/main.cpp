@@ -3,6 +3,8 @@
 #include <AcquisitionData.h>
 /* CAN libraries */
 #include <can_defs.h>
+/* State Machine and Bit analyze librarie */
+#include <StateMachine.h>
 /* Ticker interrupts librarie */
 #include <tickerISR.h>
 /* WatchDog timer libraries */
@@ -28,11 +30,13 @@ void setup()
     Serial.println("CAN error!!!");
     esp_restart();
   }
-  
+  /* Disable the WDT */
   set_wdt_timer();
-
+  /* Initialize all tickers to insert the messages in the circular buffer */
   init_tickers();
-
+  /* Set the new WDT timer */
+  set_wdt_timer();
+  /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(WiFi + OTA) management */
   xTaskCreatePinnedToCore(AcquisitionStateMachine, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
   //xTaskCreatePinnedToCore(BLElog, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
 }
@@ -41,19 +45,19 @@ void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void AcquisitionStateMachine(void* arg)
 {
-  int _id;
-  uint32_t initialTime = 0;
+  bool _canId = false;
+  unsigned long initialTime = 0;
 
   while(1)
   {
     if(flagCANInit)
     {
-      _id = CircularBuffer_state();
+      _canId = Check_Current_State_Machine(); // check if the current id is CAN message or not
 
       initialTime = millis();    
-      while(!checkReceive() && _id>=0x03)
-      {
-        if(millis() - initialTime >= 2500) break;
+      while(!checkReceive() && _canId)
+      { // timeout
+        if(millis() - initialTime >= 3000) break;
         vTaskDelay(1);
       }
     }
