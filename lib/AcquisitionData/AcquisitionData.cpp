@@ -1,78 +1,18 @@
 #include "AcquisitionData.h"
 
 /* Debug Variables */
-bool debug_when_send = false;   // variable to enable the Serial when send the message
 bool debug_when_receive = true; // variable to enable the Serial when receive
-/* Variebles for Circular Buffer*/
-CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
-int current_id = 0;
-/* Variables for CAN */
-uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint8_t PID_Enables_bin[128];
-uint8_t pid5_enable = 0;
 
-/*================================== Circular Buffer Functions ==================================*/
-int CircularBuffer_state()
+bool Check_Current_State_Machine(void)
 {
-  bool buffer_full = false;
-  unsigned char messageData[8] = {0x02, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t __ID = CircularBuffer_state();
 
-  if(state_buffer.isFull())
-  {
-    buffer_full = true;
-    current_id = state_buffer.pop();
-  } else {
-    buffer_full = false;
-    if(!state_buffer.isEmpty())
-      current_id = state_buffer.pop();        
-    else
-      current_id = 0;
-  }
-
-  switch(current_id) 
-  {
-    case 0:
-      //Serial.println("i");
-      break;
-    
-    case 1:
-      //Serial.println("acc"); 
-      break;
-    
-    case 2:
-      //Serial.println("gps"); 
-      break;
-
-    default:
-      messageData[2] = (unsigned char)current_id;
-      
-      if(send_msg(messageData) && debug_when_send) debug_print(messageData);
-
-      break;
-  }
-
-  return current_id;
-}
-
-bool insert(int ST)
-{
-  if(ST==Accelerometer_ST || ST==GPS_ST) return state_buffer.push(ST);
-  if(ST==Odometer_PID) return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
-
-  return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
-}
-
-void debug_print(unsigned char* message)
-{
-  Serial.print("Send to CAN: id ");
-  Serial.print(CAN_ID, HEX);
-  Serial.print("  ");  
-  for(int i = 0; i < 8; i++)
-  {
-    Serial.print((message[i]), HEX); 
-    Serial.print("\t");
-  }
-  Serial.println();
+  if(__ID==0x02)
+    Serial.println("ACC");
+  if(__ID==0x04)
+    Serial.println("GPS");
+  
+  return __ID==0x00; // means this ID is the CAN msg (default in state machine)
 }
 
 /*================================ Accelerometer && GPS functions ================================*/
@@ -82,7 +22,7 @@ void debug_print(unsigned char* message)
 /*================================== CAN Acquisition functions ==================================*/
 void MsgRec_Treatment()
 {
-  uint8_t length = 0;
+  uint8_t length = 8;
   uint32_t ID = 0;
   unsigned char info_can[8] = {0};
 
@@ -92,7 +32,7 @@ void MsgRec_Treatment()
 
     if(debug_when_receive)
     {
-      for(int i=0; i < length; i++)
+      for(int i = 0; i < length; i++)
       {
         Serial.print(info_can[i], HEX);
         Serial.print("\t");
@@ -106,7 +46,7 @@ void MsgRec_Treatment()
       if(info_can[3]==PIDs2) Storage_PIDenable_bit(info_can, PID_to_index_2);
       if(info_can[3]==PIDs3) Storage_PIDenable_bit(info_can, PID_to_index_3);
       if(info_can[3]==PIDs4) Storage_PIDenable_bit(info_can, PID_to_index_4);
-      if(info_can[3]==PIDs5) pid5_enable = ((info_can[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
+      if(info_can[3]==PIDs5) Storage_PIDenable_bit(info_can, PID_to_index_5);
     }
 
     //if(info_can[2]==FueL_Status_PID)
@@ -219,49 +159,4 @@ void MsgRec_Treatment()
       Serial.printf("Odometer:  %f\r\n", res);
     }
   }
-}
-
-void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
-{
-  PID_enable_bit[position]   = bit_data[4];
-  PID_enable_bit[position+1] = bit_data[5];
-  PID_enable_bit[position+2] = bit_data[6];
-  PID_enable_bit[position+3] = bit_data[7];
-
-  if(position==PID_to_index_4) Convert_Dec2Bin();
-}
-
-void Convert_Dec2Bin()
-{  
-  int k = 7, k2 = 7;
-
-  for(int i = 0; i < 16; i++)
-  {  
-    int j = 0; 
-
-    if(i > 0)
-    {
-      k = k2 + 8;
-      k2 = k;
-    }   
-    uint8_t Aux = PID_enable_bit[i];
-    
-    while(j < 8)
-    {  
-      PID_Enables_bin[k] = Aux % 2;                
-      Aux /= 2;
-      k--;
-      j++;            
-    }      
-  }   
-}
-
-int Check_bin_for_state(int pid_order)
-{
-  return PID_Enables_bin[pid_order-1] & 0x01;
-}
-
-int Verify_odometer_exist()
-{
-  return pid5_enable;
 }
