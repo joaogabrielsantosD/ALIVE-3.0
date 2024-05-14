@@ -8,7 +8,7 @@ uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 uint8_t PID_Enables_bin[128];
 uint8_t pid5_enable = 0;
 
-uint8_t CircularBuffer_state()
+int CircularBuffer_state()
 {
   /* 8 bits variable value:
   |  BIT 0 |  BIT 1 |  BIT 2 |  BIT 3 |  BIT 4 |      BIT 5     |      BIT 6     |      BIT 7      |
@@ -57,7 +57,7 @@ uint8_t CircularBuffer_state()
       break;
   }
 
-  return _id_flag;
+  return current_id;
 }
 
 bool insert(int ST)

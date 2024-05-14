@@ -6,7 +6,7 @@
 #include "can_defs.h"
 
 /* Circular Buffer Functions */
-uint8_t CircularBuffer_state(void);
+int CircularBuffer_state(void);
 bool insert(int ST);
 void debug_print(unsigned char* message);
 /* Bit analyze and storage Functions */
