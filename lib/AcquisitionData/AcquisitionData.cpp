@@ -40,6 +40,8 @@ void MsgRec_Treatment()
           if(info_can[3]==PIDs4) Storage_PIDenable_bit(info_can, PID_to_index_4);
           if(info_can[3]==PIDs5) Storage_PIDenable_bit(info_can, PID_to_index_5);
         }
+
+        break;
       }
 
       case Fuel_Pressure_PID:
@@ -47,6 +49,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = 3*A;
         Serial.printf("Fuel Pressure:  %f\r\n", res);
+      
+        break;
       }
 
       case Fuel_Level_PID:
@@ -54,6 +58,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = (100*A)/255;
         Serial.printf("Fuel Level Input:  %f\r\n", res);
+      
+        break;
       }
 
       case Speed_PID:
@@ -61,6 +67,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = A;
         Serial.printf("Vehicle speed:  %f\r\n", res);
+      
+        break;
       }
 
       case Engine_LoadP_ID:
@@ -68,6 +76,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = (100*A)/255;
         Serial.printf("Calculated engine load value:  %f\r\n", res);
+      
+        break;
       }
 
       case Engine_CoolantP_ID:
@@ -75,6 +85,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = A - 40;
         Serial.printf("Engine Coolant Temperature:  %f\r\n", res);
+      
+        break;
       }
 
       case Engine_RPM_ID:
@@ -82,6 +94,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5];
         float res = (256*A + B)/4;
         Serial.printf("Engine RPM:  %f\r\n", res);
+      
+        break;
       }
 
       case Run_Time_PID:
@@ -89,6 +103,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5];
         float res = 256*A + B;
         Serial.printf("Run Time since engine start:  %f\r\n", res);
+      
+        break;
       }
 
       case Engine_Oil_PID:
@@ -96,6 +112,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = A - 40;
         Serial.printf("Engine Oil Temperature:  %f\r\n", res);
+      
+        break;
       }
 
       case Engine_FuelRate_PID:
@@ -103,6 +121,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5];
         float res = (256*A + B)/20;
         Serial.printf("Engine Fuel rate:  %f\r\n", res);
+      
+        break;
       }
 
       case Ambient_Temp_PID:
@@ -110,6 +130,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = A - 40;
         Serial.printf("Ambient air temperature:  %f\r\n", res);
+      
+        break;
       }
 
       case Throttle_Pos_PID:
@@ -117,6 +139,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = (100*A)/255;
         Serial.printf("Throttle position:  %f\r\n", res);
+      
+        break;
       }
 
       case Distance_on_MIL_PID:
@@ -124,6 +148,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5];
         float res = 256*A + B;
         Serial.printf("Distance traveled with malfunction indicator lamp (MIL) on :  %f\r\n", res);
+      
+        break;
       }
 
       case Distance_Travel_PID:
@@ -131,6 +157,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5];
         float res = 256*A + B;
         Serial.printf("Distance traveled since codes cleared:  %f\r\n", res);
+      
+        break;
       }
 
       case MAP_sensor_PID:
@@ -138,6 +166,8 @@ void MsgRec_Treatment()
         float A = info_can[4];
         float res = A;
         Serial.printf("Intake manifold absolute pressure(MAP):  %f\r\n", res);
+      
+        break;
       }
 
       case Odometer_PID:
@@ -145,6 +175,8 @@ void MsgRec_Treatment()
         float A = info_can[4], B = info_can[5], C = info_can[6], D = info_can[7];
         float res = ((A*pow(2,24)) + (B*pow(2,16)) + (C*pow(2,8)) + D)/10;
         Serial.printf("Odometer:  %f\r\n", res);
+      
+        break;
       }
     }
   }

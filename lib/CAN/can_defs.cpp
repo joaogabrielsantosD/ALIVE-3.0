@@ -70,7 +70,7 @@ bool send_msg(unsigned char* msg, bool extended)
 
 uint32_t get_ID_mode()
 {
-    return CAN.getCanId();;
+    return CAN.getCanId();
 }
 
 bool msg_receive()
