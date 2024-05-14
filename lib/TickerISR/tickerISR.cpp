@@ -4,8 +4,7 @@ bool Print_in_serial = true; // Put True or False to enable SerialPrint of check
 Ticker ticker200mHz, 
     ticker300mHz, 
     ticker1Hz,
-    ticker2Hz,
-    ticker10Hz;
+    ticker2Hz;
 
 void init_tickers()
 {
@@ -18,7 +17,6 @@ void init_tickers()
   ticker300mHz.attach(3.0f, ticker300mHzISR); // 3s
   ticker1Hz.attach(1.0f, ticker1HzISR);       // 1s
   ticker2Hz.attach(0.5f, ticker2HzISR);       // 0.5s
-  ticker10Hz.attach(0.1f, ticker10HzISR);     // 0.1s
 }
 
 bool checkPID()
@@ -118,7 +116,6 @@ void ticker200mHzISR()
 void ticker300mHzISR()
 {
   //insert(FueL_Status_PID);
-  insert(GPS_ST);
   insert(Distance_on_MIL_PID);
   insert(Distance_Travel_PID);
   insert(Odometer_PID);  
@@ -138,9 +135,4 @@ void ticker2HzISR()
   insert(Fuel_Pressure_PID);
   insert(Speed_PID);
   insert(Engine_RPM_ID);
-}
-
-void ticker10HzISR()
-{
-  insert(Accelerometer_ST);
 }

@@ -45,17 +45,17 @@ void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void AcquisitionStateMachine(void* arg)
 {
-  bool _canId = false;
+  int _canId = 0;
   unsigned long initialTime = 0;
 
   while(1)
   {
     if(flagCANInit)
     {
-      _canId = Check_Current_State_Machine(); // check if the current id is CAN message or not
+      _canId = CircularBuffer_state(); // check if the current id is CAN message or not
 
       initialTime = millis();    
-      while(!checkReceive() && _canId)
+      while(!checkReceive() && _canId!=0)
       { // timeout
         if(millis() - initialTime >= 3000) break;
         vTaskDelay(1);

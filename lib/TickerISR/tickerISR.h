@@ -14,6 +14,5 @@ void ticker200mHzISR(void);
 void ticker300mHzISR(void);
 void ticker1HzISR(void);
 void ticker2HzISR(void);
-void ticker10HzISR(void);
 
 #endif

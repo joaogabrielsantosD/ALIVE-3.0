@@ -62,8 +62,8 @@ int CircularBuffer_state()
 
 bool insert(int ST)
 {
-  if(ST==Accelerometer_ST || ST==GPS_ST) return state_buffer.push(ST);
-  if(ST==Odometer_PID) return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
+  if(ST==Odometer_PID) 
+    return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
 
   return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
 }

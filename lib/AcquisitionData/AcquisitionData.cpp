@@ -3,18 +3,6 @@
 /* Debug Variables */
 bool debug_when_receive = false; // variable to enable the Serial when receive
 
-bool Check_Current_State_Machine(void)
-{
-  int __ID = CircularBuffer_state();
-
-  if(__ID==0x01)
-    Serial.println("ACC");
-  if(__ID==0x02)
-    Serial.println("GPS");
-  
-  return __ID >= 0x03; // means this ID is the CAN msg (default in state machine)
-}
-
 /*================================ Accelerometer && GPS functions ================================*/
 //acc
 //gps
