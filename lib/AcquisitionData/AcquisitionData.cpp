@@ -1,7 +1,7 @@
 #include "AcquisitionData.h"
 
 /* Debug Variables */
-bool debug_when_receive = true; // variable to enable the Serial when receive
+bool debug_when_receive = false; // variable to enable the Serial when receive
 
 bool Check_Current_State_Machine(void)
 {

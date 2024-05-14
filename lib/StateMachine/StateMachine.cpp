@@ -72,7 +72,7 @@ void debug_print(unsigned char* message)
 {
   unsigned char* msg = message;
   Serial.print("Send to CAN: id ");
-  Serial.print(CAN_ID, HEX);
+  Serial.print(get_ID_mode(), HEX);
   Serial.print("  ");  
   for(int i = 0; i < 8; i++)
   {

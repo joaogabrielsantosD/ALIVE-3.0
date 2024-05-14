@@ -4,6 +4,7 @@
     mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
     bool receive_message = false;
 #endif
+bool _ext = false;
 bool led_debug_of_can = LOW;
 
 bool start_CAN_device(bool set_filt)
@@ -52,9 +53,24 @@ void set_mask_filt()
   CAN.init_Filt(5, 1, 0x18DAF110);
 }
 
+void SaveParameters_extended(bool ext)
+{
+    _ext = ext;
+}
+
 bool send_msg(unsigned char* msg)
 {
-    return CAN.sendMsgBuf(CAN_ID, 1, 8, msg)==CAN_OK ? true : false;
+    return send_msg(msg, _ext);
+}
+
+bool send_msg(unsigned char* msg, bool extended)
+{
+    return CAN.sendMsgBuf(CAN_ID(extended), extended, 8, msg)==CAN_OK ? true : false;
+}
+
+uint32_t get_ID_mode()
+{
+    return CAN.getCanId();;
 }
 
 bool msg_receive()

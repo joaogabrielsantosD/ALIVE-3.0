@@ -7,7 +7,9 @@
 /*====================== CAN DEFINITIONS ============================ */
 #define CAN_2515
 #define BUFFER_SIZE         50
-#define CAN_ID              0x18DB33F1
+#define CAN_ID_EXTENDED     0x18DB33F1
+#define CAN_ID_NORMAL       0X7DF
+#define CAN_ID(EXT)         ((EXT) ? (CAN_ID_EXTENDED) : (CAN_ID_NORMAL))      
 
 #define PIDs1               PIDsupported1
 #define PIDs2               PIDsupported2
