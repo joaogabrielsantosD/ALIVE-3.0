@@ -23,6 +23,7 @@ void init_tickers()
 
 bool checkPID()
 {
+  bool extended = false;
   // Flag to check if you received the PID support message
   bool check_receive_pid = false;
   unsigned char Data[8] = {0x04, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -39,9 +40,11 @@ bool checkPID()
         Data[2] = PIDs1;
         while(!checkReceive())
         {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
+          if(send_msg(Data, extended) && Print_in_serial) debug_print(Data);
           vTaskDelay(100);          
+          extended = !extended;
         }
+        SaveParameters_extended(!extended);
         MsgRec_Treatment();
         check_receive_pid = true;
       }
