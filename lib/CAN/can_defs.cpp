@@ -30,7 +30,7 @@ bool start_CAN_device(bool set_filt)
     if(init_flag)
     {
         if(set_filt) set_mask_filt();
-        pinMode(CAN_DEBUG_LED, OUTPUT);
+        //pinMode(CAN_DEBUG_LED, OUTPUT);
         attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
     }
 
@@ -88,7 +88,7 @@ void get_msg(unsigned char messageData[], uint32_t& id, uint8_t& len)
 
 bool checkReceive()
 {
-    digitalWrite(CAN_DEBUG_LED, led_debug_of_can);
+    //digitalWrite(CAN_DEBUG_LED, led_debug_of_can);
     return receive_message;
 }
 
