@@ -5,8 +5,9 @@
 #include "StateMachine.h"
 
 typedef struct {
-    float a;
-} wifi_packet_t;
+    uint8_t Fuel_Level_input, Speed;
+    float Engine_RPM, Odometer;
+} BLE_packet_t;
 
 /* Accelerometer && GPS functions */
 // acc function
@@ -14,5 +15,9 @@ typedef struct {
 
 /* CAN Acquisition functions */
 void MsgRec_Treatment(void);
+
+/* Packet Message Functions */
+BLE_packet_t defaultValue(void);
+BLE_packet_t updatePacket(void);
 
 #endif

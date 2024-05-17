@@ -1,5 +1,6 @@
 #include "AcquisitionData.h"
 
+BLE_packet_t volatile_packet = defaultValue();
 /* Debug Variables */
 bool debug_when_receive = false; // variable to enable the Serial when receive
 
@@ -56,8 +57,8 @@ void MsgRec_Treatment()
       case Fuel_Level_PID:
       {
         float A = info_can[4];
-        float res = (100*A)/255;
-        Serial.printf("Fuel Level Input:  %f\r\n", res);
+        volatile_packet.Fuel_Level_input = (100*A)/255;
+        Serial.printf("Fuel Level Input:  %f\r\n", volatile_packet.Fuel_Level_input);
       
         break;
       }
@@ -65,8 +66,8 @@ void MsgRec_Treatment()
       case Speed_PID:
       {
         float A = info_can[4];
-        float res = A;
-        Serial.printf("Vehicle speed:  %f\r\n", res);
+        volatile_packet.Speed = A;
+        Serial.printf("Vehicle speed:  %f\r\n", volatile_packet.Speed);
       
         break;
       }
@@ -92,8 +93,8 @@ void MsgRec_Treatment()
       case Engine_RPM_ID:
       {
         float A = info_can[4], B = info_can[5];
-        float res = (256*A + B)/4;
-        Serial.printf("Engine RPM:  %f\r\n", res);
+        volatile_packet.Engine_RPM = (256*A + B)/4;
+        Serial.printf("Engine RPM:  %f\r\n", volatile_packet.Engine_RPM);
       
         break;
       }
@@ -173,11 +174,24 @@ void MsgRec_Treatment()
       case Odometer_PID:
       {
         float A = info_can[4], B = info_can[5], C = info_can[6], D = info_can[7];
-        float res = ((A*pow(2,24)) + (B*pow(2,16)) + (C*pow(2,8)) + D)/10;
-        Serial.printf("Odometer:  %f\r\n", res);
+        volatile_packet.Odometer = ((A*pow(2,24)) + (B*pow(2,16)) + (C*pow(2,8)) + D)/10;
+        Serial.printf("Odometer:  %f\r\n", volatile_packet.Odometer);
       
         break;
       }
     }
   }
+}
+
+/*================================== Packet Message Functions ==================================*/
+BLE_packet_t defaultValue()
+{
+  BLE_packet_t t;
+  memset(&t, 0x00, sizeof(BLE_packet_t));
+  return t;
+}
+
+BLE_packet_t updatePacket()
+{
+  return volatile_packet;
 }
