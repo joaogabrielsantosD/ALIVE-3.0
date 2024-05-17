@@ -131,3 +131,14 @@ int Verify_odometer_exist()
 {
   return pid5_enable & 0x01;
 }
+
+String verify_message_is_null(int msg, String ext)
+{
+  if(msg==Odometer_PID && (Verify_odometer_exist()&0x01))
+    return ext;
+  else if(PID_Enables_bin[msg-1]&0x01)
+    return ext;
+  //else
+  //  return ext
+  return "null";
+}
