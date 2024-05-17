@@ -1,7 +1,7 @@
 #include "BLE.h"
 
 bool deviceConnected = false, oldDeviceConnected = false;
-char msgBLE[MAX_BLE_LENGTH];
+std::string msgBLE = "";
 BLEServer* pServer = NULL;
 BLEService* pService = NULL;
 BLECharacteristic* pCharacteristic = NULL;
@@ -84,10 +84,10 @@ void Send_BLE_msg()
     BLE_packet_t msg_packet = updatePacket();
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
-    doc["Fuel_Level"] = msg_packet.Fuel_Level_input;
-    doc["Speed"]      = msg_packet.Speed;
-    doc["Engine_RPM"] = msg_packet.Engine_RPM;
-    doc["Odometer"]   = msg_packet.Odometer;
+    doc["Fuel_Level"] = verify_message_is_null(Fuel_Level_PID, String(msg_packet.Fuel_Level_input));
+    doc["Speed"]      = verify_message_is_null(Speed_PID, String(msg_packet.Speed));
+    doc["Engine_RPM"] = verify_message_is_null(Engine_RPM_ID, String(msg_packet.Engine_RPM));
+    doc["Odometer"]   = verify_message_is_null(Odometer_PID, String(msg_packet.Odometer));
 
     BLE_sender(doc);
 }
@@ -95,9 +95,9 @@ void Send_BLE_msg()
 void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON>& document)
 {
     Serial.print("JSON document Size: "); Serial.println(document.size());
-    memset(msgBLE, 0, sizeof(msgBLE));
+    //memset(msgBLE, 0, sizeof(msgBLE));
     serializeJson(document, msgBLE);
-    pCharacteristic->setValue((uint8_t*)msgBLE, MAX_BLE_LENGTH);
+    pCharacteristic->setValue(msgBLE);
     pCharacteristic->notify();
 }
 
