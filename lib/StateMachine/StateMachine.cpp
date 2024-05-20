@@ -134,11 +134,21 @@ int Verify_odometer_exist()
 
 String verify_message_is_null(int msg, String ext)
 {
-  if(msg==Odometer_PID && (Verify_odometer_exist()&0x01))
-    return ext;
-  else if(PID_Enables_bin[msg-1]&0x01)
-    return ext;
-  //else
-  //  return ext
+  switch(msg)
+  {
+    case GPS_ST:
+      return ext;
+      break;
+    case Accelerometer_ST:
+      return ext;
+      break;
+    case Odometer_PID:
+      if(Verify_odometer_exist()) return ext;
+      break;
+    default:
+      if(PID_Enables_bin[msg-1]) return ext;
+      break;
+  }
+
   return "null";
 }
