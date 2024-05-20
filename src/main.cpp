@@ -22,7 +22,7 @@ void BLEsenderData(void* arg);
 void setup()
 {    
   Serial.begin(9600);
-  //vTaskDelay(1000); // delay to avoid the bug in the serialprint when you use the monitor serial to reset the module
+  //vTaskDelay(2000); // delay to avoid the bug in the serialprint when you use the monitor serial to reset the module
   Serial.println("INICIANDO ALIVE 3.0");
   
   // if there was an error in the CAN it shows
