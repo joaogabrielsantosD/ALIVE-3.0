@@ -3,11 +3,7 @@
 
 #include <Arduino.h>
 #include "StateMachine.h"
-
-typedef struct {
-    uint8_t Fuel_Level_input, Speed;
-    float Engine_RPM, Odometer;
-} BLE_packet_t;
+#include "packets.h"
 
 /* Accelerometer && GPS functions */
 // acc function

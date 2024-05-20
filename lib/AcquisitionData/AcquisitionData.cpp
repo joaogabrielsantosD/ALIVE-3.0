@@ -2,7 +2,7 @@
 
 BLE_packet_t volatile_packet = defaultValue();
 /* Debug Variables */
-bool debug_when_receive = false; // variable to enable the Serial when receive
+bool debug_when_receive = true; // variable to enable the Serial when receive
 
 /*================================ Accelerometer && GPS functions ================================*/
 //acc
@@ -32,7 +32,7 @@ void MsgRec_Treatment()
     switch(info_can[2])
     {
       case 0x41:
-      {
+      { // case for PID support
         if(info_can[3]==0x10)
         {
           if(info_can[3]==PIDs1) Storage_PIDenable_bit(info_can, PID_to_index_1);
@@ -45,38 +45,11 @@ void MsgRec_Treatment()
         break;
       }
 
-      case Fuel_Pressure_PID:
-      {
-        float A = info_can[4];
-        float res = 3*A;
-        Serial.printf("Fuel Pressure:  %f\r\n", res);
-      
-        break;
-      }
-
-      case Fuel_Level_PID:
-      {
-        float A = info_can[4];
-        volatile_packet.Fuel_Level_input = (100*A)/255;
-        Serial.printf("Fuel Level Input:  %f\r\n", volatile_packet.Fuel_Level_input);
-      
-        break;
-      }
-
-      case Speed_PID:
-      {
-        float A = info_can[4];
-        volatile_packet.Speed = A;
-        Serial.printf("Vehicle speed:  %f\r\n", volatile_packet.Speed);
-      
-        break;
-      }
-
       case Engine_LoadP_ID:
       {
         float A = info_can[4];
-        float res = (100*A)/255;
-        Serial.printf("Calculated engine load value:  %f\r\n", res);
+        volatile_packet.Calculated_Engine_Load = (100*A)/255;
+        Serial.printf("Calculated engine load value:  %f\r\n", volatile_packet.Calculated_Engine_Load);
       
         break;
       }
@@ -84,8 +57,26 @@ void MsgRec_Treatment()
       case Engine_CoolantP_ID:
       {
         float A = info_can[4];
-        float res = A - 40;
-        Serial.printf("Engine Coolant Temperature:  %f\r\n", res);
+        volatile_packet.Engine_Coolant_Temperature = A - 40;
+        Serial.printf("Engine Coolant Temperature:  %f\r\n", volatile_packet.Engine_Coolant_Temperature);
+      
+        break;
+      }
+
+      case Fuel_Pressure_PID:
+      {
+        float A = info_can[4];
+        volatile_packet.Fuel_Pressure = 3*A;
+        Serial.printf("Fuel Pressure:  %f\r\n", volatile_packet.Fuel_Pressure);
+      
+        break;
+      }
+
+      case MAP_sensor_PID:
+      {
+        float A = info_can[4];
+        volatile_packet.Intake_Manifold_Absolute_Pressure_MAP = A;
+        Serial.printf("Intake manifold absolute pressure(MAP):  %f\r\n", volatile_packet.Intake_Manifold_Absolute_Pressure_MAP);
       
         break;
       }
@@ -99,38 +90,11 @@ void MsgRec_Treatment()
         break;
       }
 
-      case Run_Time_PID:
-      {
-        float A = info_can[4], B = info_can[5];
-        float res = 256*A + B;
-        Serial.printf("Run Time since engine start:  %f\r\n", res);
-      
-        break;
-      }
-
-      case Engine_Oil_PID:
+      case Speed_PID:
       {
         float A = info_can[4];
-        float res = A - 40;
-        Serial.printf("Engine Oil Temperature:  %f\r\n", res);
-      
-        break;
-      }
-
-      case Engine_FuelRate_PID:
-      {
-        float A = info_can[4], B = info_can[5];
-        float res = (256*A + B)/20;
-        Serial.printf("Engine Fuel rate:  %f\r\n", res);
-      
-        break;
-      }
-
-      case Ambient_Temp_PID:
-      {
-        float A = info_can[4];
-        float res = A - 40;
-        Serial.printf("Ambient air temperature:  %f\r\n", res);
+        volatile_packet.Speed = A;
+        Serial.printf("Vehicle speed:  %f\r\n", volatile_packet.Speed);
       
         break;
       }
@@ -138,8 +102,17 @@ void MsgRec_Treatment()
       case Throttle_Pos_PID:
       {
         float A = info_can[4];
-        float res = (100*A)/255;
-        Serial.printf("Throttle position:  %f\r\n", res);
+        volatile_packet.Throttle_Position = (100*A)/255;
+        Serial.printf("Throttle position:  %f\r\n", volatile_packet.Throttle_Position);
+      
+        break;
+      }
+
+      case Run_Time_PID:
+      {
+        float A = info_can[4], B = info_can[5];
+        volatile_packet.Run_Time = 256*A + B;
+        Serial.printf("Run Time since engine start:  %f\r\n", volatile_packet.Run_Time);
       
         break;
       }
@@ -147,8 +120,17 @@ void MsgRec_Treatment()
       case Distance_on_MIL_PID:
       {
         float A = info_can[4], B = info_can[5];
-        float res = 256*A + B;
-        Serial.printf("Distance traveled with malfunction indicator lamp (MIL) on :  %f\r\n", res);
+        volatile_packet.Distance_traveled_with_MIL_on = 256*A + B;
+        Serial.printf("Distance traveled with malfunction indicator lamp (MIL) on :  %f\r\n", volatile_packet.Distance_traveled_with_MIL_on);
+      
+        break;
+      }
+
+      case Fuel_Level_PID:
+      {
+        float A = info_can[4];
+        volatile_packet.Fuel_Level_input = (100*A)/255;
+        Serial.printf("Fuel Level Input:  %f\r\n", volatile_packet.Fuel_Level_input);
       
         break;
       }
@@ -156,17 +138,35 @@ void MsgRec_Treatment()
       case Distance_Travel_PID:
       {
         float A = info_can[4], B = info_can[5];
-        float res = 256*A + B;
-        Serial.printf("Distance traveled since codes cleared:  %f\r\n", res);
+        volatile_packet.Distance_traveled_since_codes_cleared = 256*A + B;
+        Serial.printf("Distance traveled since codes cleared:  %f\r\n", volatile_packet.Distance_traveled_since_codes_cleared);
       
         break;
       }
 
-      case MAP_sensor_PID:
+      case Ambient_Temp_PID:
       {
         float A = info_can[4];
-        float res = A;
-        Serial.printf("Intake manifold absolute pressure(MAP):  %f\r\n", res);
+        volatile_packet.Ambient_Air_Temperature = A - 40;
+        Serial.printf("Ambient air temperature:  %f\r\n", volatile_packet.Ambient_Air_Temperature);
+      
+        break;
+      }
+
+      case Engine_Oil_PID:
+      {
+        float A = info_can[4];
+        volatile_packet.Engine_Oil_Temperature = A - 40;
+        Serial.printf("Engine Oil Temperature:  %f\r\n", volatile_packet.Engine_Oil_Temperature);
+      
+        break;
+      }
+
+      case Engine_FuelRate_PID:
+      {
+        float A = info_can[4], B = info_can[5];
+        volatile_packet.Engine_fuel_rate = (256*A + B)/20;
+        Serial.printf("Engine Fuel rate:  %f\r\n", volatile_packet.Engine_fuel_rate);
       
         break;
       }
