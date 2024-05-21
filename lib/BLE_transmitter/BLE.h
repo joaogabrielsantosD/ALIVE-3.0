@@ -12,20 +12,20 @@
 
 #define MAX_BLE_LENGTH        ESP_GATT_MAX_ATTR_LEN
 #define MAX_BLE_DELAY         90
-#define DOC_SIZE_JSON         300
+#define DOC_SIZE_JSON         400
 
-void setup_BLE(void);
+void Init_BLE_Server(void);
 int BLE_connected(void);
 void Send_BLE_msg(void);
-void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON>& document);
+void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON> &document);
 
 // Callback to receive device connection events
 class ServerCallbacks: public BLEServerCallbacks 
 {
     public: 
-        void onConnect(BLEServer* pServer);
+        void onConnect(BLEServer *pServer);
 
-        void onDisconnect(BLEServer* pServer);
+        void onDisconnect(BLEServer *pServer);
 };
 
 #endif
