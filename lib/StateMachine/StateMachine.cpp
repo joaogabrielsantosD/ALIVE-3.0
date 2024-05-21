@@ -1,6 +1,6 @@
 #include "StateMachine.h"
 
-bool debug_when_send = false;   // variable to enable the Serial when send the message
+bool debug_when_send = false;   // variable to enable the Serial when send the message 
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
 int current_id = IDLE_ST;
@@ -68,10 +68,10 @@ bool insert(int ST)
   return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
 }
 
-void debug_print(unsigned char* message)
+void debug_print(unsigned char *message)
 {
-  unsigned char* msg = message;
-  Serial.print("Send to CAN: id ");
+  unsigned char *msg = message;
+  Serial.print("Send to CAN: id 0x");
   Serial.print(get_ID_mode(), HEX);
   Serial.print("  ");  
   for(int i = 0; i < 8; i++)
@@ -82,7 +82,7 @@ void debug_print(unsigned char* message)
   Serial.println();
 }
 
-void Storage_PIDenable_bit(unsigned char* bit_data, int8_t position)
+void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 {
   if(position < sizeof(PID_enable_bit))
   {

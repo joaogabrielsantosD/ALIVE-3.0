@@ -5,7 +5,6 @@
     bool receive_message = false;
 #endif
 bool _ext = false;
-bool led_debug_of_can = LOW;
 
 bool start_CAN_device(bool set_filt)
 {
@@ -30,7 +29,6 @@ bool start_CAN_device(bool set_filt)
     if(init_flag)
     {
         if(set_filt) set_mask_filt();
-        //pinMode(CAN_DEBUG_LED, OUTPUT);
         attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
     }
 
@@ -58,12 +56,12 @@ void SaveParameters_extended(bool ext)
     _ext = ext;
 }
 
-bool send_msg(unsigned char* msg)
+bool send_msg(unsigned char *msg)
 {
     return send_msg(msg, _ext);
 }
 
-bool send_msg(unsigned char* msg, bool extended)
+bool send_msg(unsigned char *msg, bool extended)
 {
     return CAN.sendMsgBuf(CAN_ID(extended), extended, 8, msg)==CAN_OK ? true : false;
 }
@@ -78,7 +76,7 @@ bool msg_receive()
     return CAN.checkReceive()==CAN_MSGAVAIL;
 }
 
-void get_msg(unsigned char messageData[], uint32_t& id, uint8_t& len)
+void get_msg(unsigned char messageData[], uint32_t &id, uint8_t &len)
 {
     receive_message = false;
     // Reads message and ID
@@ -88,13 +86,11 @@ void get_msg(unsigned char messageData[], uint32_t& id, uint8_t& len)
 
 bool checkReceive()
 {
-    //digitalWrite(CAN_DEBUG_LED, led_debug_of_can);
     return receive_message;
 }
 
 /* CAN interrupt */
 void canISR()
 {
-   led_debug_of_can = !led_debug_of_can;
    receive_message = true; // Flag that indicates that a message was received via CAN
 }

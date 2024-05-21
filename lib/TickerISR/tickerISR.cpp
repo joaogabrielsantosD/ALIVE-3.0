@@ -28,7 +28,7 @@ bool checkPID()
 
   for(int i = 1; i < 6; i++)
   {
-    Serial.printf("Trying to send PID%d support, please turn on the car electronics\r\n", i);
+    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i);
     check_receive_pid = false;
 
     while(!check_receive_pid)
