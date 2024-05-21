@@ -3,36 +3,51 @@
 
 #include <sys/_stdint.h>
 
-typedef struct {
-    uint8_t Calculated_Engine_Load;
+typedef struct
+{
+    float acc_x, acc_y, acc_z;
+} imu_acc_t;
 
-    uint8_t Engine_Coolant_Temperature;
+typedef struct
+{
+    double LAT, LNG;
+} gps_data_t;
 
-    uint16_t Fuel_Pressure;
+typedef struct 
+{
+    float Calculated_Engine_Load,
 
-    uint8_t Intake_Manifold_Absolute_Pressure_MAP;
-
-    uint16_t Engine_RPM;
-
-    uint8_t Speed;
-
-    uint8_t Throttle_Position;
-
-    uint16_t Run_Time;
-
-    uint16_t Distance_traveled_with_MIL_on;
-
-    uint8_t Fuel_Level_input;
-
-    uint16_t Distance_traveled_since_codes_cleared;
-
-    int16_t Ambient_Air_Temperature;
-
-    int16_t Engine_Oil_Temperature;
-
-    float Engine_fuel_rate;
+        Engine_Coolant_Temperature,
     
-    float Odometer;
+        Fuel_Pressure,
+    
+        Intake_Manifold_Absolute_Pressure_MAP,
+    
+        Engine_RPM,    
+    
+        Speed,
+    
+        Throttle_Position,
+    
+        Run_Time,
+    
+        Distance_traveled_with_MIL_on,
+    
+        Fuel_Level_input,
+    
+        Distance_traveled_since_codes_cleared,
+    
+        Ambient_Air_Temperature,
+    
+        Engine_Oil_Temperature,
+    
+        Engine_fuel_rate,
+    
+        Odometer;
+
+    imu_acc_t imu_acc;
+
+    gps_data_t gps_data;
 
 } BLE_packet_t;
 
