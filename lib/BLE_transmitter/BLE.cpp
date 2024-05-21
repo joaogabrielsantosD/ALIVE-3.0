@@ -2,11 +2,11 @@
 
 bool deviceConnected = false, oldDeviceConnected = false;
 std::string msgBLE = "";
-BLEServer* pServer = NULL;
-BLEService* pService = NULL;
-BLECharacteristic* pCharacteristic = NULL;
+BLEServer *pServer = NULL;
+BLEService *pService = NULL;
+BLECharacteristic *pCharacteristic = NULL;
 
-void setup_BLE()
+void Init_BLE_Server()
 {
     // Create the BLE Device
     BLEDevice::init("Dongle OBD");
@@ -16,7 +16,7 @@ void setup_BLE()
     pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService* pService = pServer->createService(SERVICE_UUID);
+    BLEService *pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic(                                    \
@@ -47,7 +47,7 @@ void setup_BLE()
   pService->start();
 
   // Start advertising
-  BLEAdvertising* pAdvertising = BLEDevice::getAdvertising();
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
@@ -99,36 +99,36 @@ void Send_BLE_msg()
     doc["Engine_Oil_Temperature"]        = verify_message_is_null(Engine_Oil_PID, String(msg_packet.Engine_Oil_Temperature));
     doc["Engine_fuel_rate"]              = verify_message_is_null(Engine_FuelRate_PID, String(msg_packet.Engine_fuel_rate));
     doc["Odometer"]                      = verify_message_is_null(Odometer_PID, String(msg_packet.Odometer));
-    //doc["Acelerometro_X"]                = verify_message_is_null(Accelerometer_ST, String(1.0)); 
-    //doc["Acelerometro_Y"]                = verify_message_is_null(Accelerometer_ST, String(1.3)); 
-    //doc["Acelerometro_Z"]                = verify_message_is_null(Accelerometer_ST, String(1.6)); 
-    //doc["Latitude"]                      = verify_message_is_null(GPS_ST, String(-8.02342)); 
-    //doc["Longitude"]                     = verify_message_is_null(GPS_ST, String(-24.02342));     
+    doc["Acelerometro_X"]                = verify_message_is_null(Accelerometer_ST, String(msg_packet.imu_acc.acc_x)); 
+    doc["Acelerometro_Y"]                = verify_message_is_null(Accelerometer_ST, String(msg_packet.imu_acc.acc_y)); 
+    doc["Acelerometro_Z"]                = verify_message_is_null(Accelerometer_ST, String(msg_packet.imu_acc.acc_z)); 
+    doc["Latitude"]                      = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LAT)); 
+    doc["Longitude"]                     = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LNG));     
 
     BLE_sender(doc);
 }
 
-void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON>& document)
+void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON> &document)
 { 
     //Serial.print("JSON document Size: "); Serial.println(document.size());
     /* Make the JSON packet in the std::string format */
     msgBLE.clear();
     serializeJson(document, msgBLE);
     /* Print data and length of the std::string */
-    Serial.println(msgBLE.data());
-    Serial.println(msgBLE.length());
+    //Serial.println(msgBLE.data());
+    //Serial.println(msgBLE.length());
     /* Set and send the value */
     pCharacteristic->setValue(msgBLE);
     pCharacteristic->notify();
 }
 
-void ServerCallbacks::onConnect(BLEServer* pServer)
+void ServerCallbacks::onConnect(BLEServer *pServer)
 {
     Serial.println("Client connected");
     deviceConnected = true;
 }
 
-void ServerCallbacks::onDisconnect(BLEServer* pServer)
+void ServerCallbacks::onDisconnect(BLEServer *pServer)
 {
     Serial.println("Disconnected");
     deviceConnected = false;
