@@ -16,8 +16,8 @@ boolean flagCANInit = false;  // If false indicates that the CAN module was not 
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 /* State Machine Functions */
-void AcquisitionStateMachine(void* arg);
-void BLEsenderData(void* arg);
+void AcquisitionStateMachine(void *arg);
+void BLEsenderData(void *arg);
 
 void setup()
 {    
@@ -32,14 +32,19 @@ void setup()
     Serial.println("CAN error!!!");
     esp_restart();
   }
-  /* Init the BLE host connection */
-  setup_BLE();
+
   /* Disable the WDT */
   set_wdt_timer();
+  
   /* Initialize all tickers to insert the messages in the circular buffer */
   init_tickers();
+  
   /* Set the new WDT timer */
   set_wdt_timer();
+  
+  /* Init the BLE host connection */
+  Init_BLE_Server();
+
   /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE + OTA) management */
   xTaskCreatePinnedToCore(AcquisitionStateMachine, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
   xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
@@ -47,7 +52,7 @@ void setup()
 
 void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
-void AcquisitionStateMachine(void* arg)
+void AcquisitionStateMachine(void *arg)
 {
   int _canId = 0;
   unsigned long initialTime = 0;
@@ -76,7 +81,7 @@ void AcquisitionStateMachine(void* arg)
   }
 }
 
-void BLEsenderData(void* arg)
+void BLEsenderData(void *arg)
 {
   for(;;)
   {
