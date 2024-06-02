@@ -2,17 +2,15 @@
 
 #ifdef CAN_2515
     mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
-    bool receive_message = false;
+    volatile bool receive_message = false;
 #endif
 bool _ext = false;
 
 bool start_CAN_device(bool set_filt)
 {
     /* Start the can */
-    bool init_flag = false;
-    unsigned long tcanStart = 0, cantimeOut = 0;
-    tcanStart = millis();
-    cantimeOut = 1000; // (1 second)
+    unsigned long tcanStart = millis(); 
+    const unsigned long cantimeOut = 1000; // (1 second)
     // wait for the CAN shield to initialize
     Serial.println("Connecting CAN...");
     while((millis() - tcanStart) < cantimeOut) // wait timeout
@@ -20,19 +18,13 @@ bool start_CAN_device(bool set_filt)
         if(CAN.begin(CAN_500KBPS, MCP_8MHz)==CAN_OK)
         {
             Serial.println("CAN init ok!!!");
-            init_flag = true; // Marks the flag that indicates correct CAN initialization
-            break; // get out of the loop
+            if(set_filt) set_mask_filt();
+            attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
+            return true;
         }
-        init_flag = false; // Mark the flag that indicates there was a problem initializing the CAN
     }
 
-    if(init_flag)
-    {
-        if(set_filt) set_mask_filt();
-        attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
-    }
-
-    return init_flag;
+    return false;
 }
 
 void set_mask_filt() 
@@ -42,13 +34,7 @@ void set_mask_filt()
   CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
   // set filter, we can receive id from 0x04 ~ 0x09
-  CAN.init_Filt(0, 1, 0x18DAF110);
-  CAN.init_Filt(1, 1, 0x18DAF110);
-
-  CAN.init_Filt(2, 1, 0x18DAF110);
-  CAN.init_Filt(3, 1, 0x18DAF110);
-  CAN.init_Filt(4, 1, 0x18DAF110);
-  CAN.init_Filt(5, 1, 0x18DAF110);
+  for(int i = 0; i < 6; i++) CAN.init_Filt(i, 1, 0x18DAF110);
 }
 
 void SaveParameters_extended(bool ext)

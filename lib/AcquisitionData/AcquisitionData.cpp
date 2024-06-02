@@ -13,7 +13,7 @@ void MsgRec_Treatment()
 {
   uint8_t length = 8;
   uint32_t ID = 0;
-  unsigned char info_can[8] = {0};
+  unsigned char info_can[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
   while(msg_receive())
   {

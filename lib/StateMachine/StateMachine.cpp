@@ -70,13 +70,12 @@ bool insert(int ST)
 
 void debug_print(unsigned char *message)
 {
-  unsigned char *msg = message;
   Serial.print("Send to CAN: id 0x");
   Serial.print(get_ID_mode(), HEX);
   Serial.print("  ");  
   for(int i = 0; i < 8; i++)
   {
-    Serial.print(*(msg+i), HEX); 
+    Serial.print(message[i], HEX); 
     Serial.print("\t");
   }
   Serial.println();
@@ -86,10 +85,8 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 {
   if(position < sizeof(PID_enable_bit))
   {
-    PID_enable_bit[position]   = bit_data[4];
-    PID_enable_bit[position+1] = bit_data[5];
-    PID_enable_bit[position+2] = bit_data[6];
-    PID_enable_bit[position+3] = bit_data[7];
+    for(int i = 0; i < 4; i++) 
+      PID_enable_bit[position+i] = bit_data[4+i];
   }
 
   if(position==PID_to_index_4) Convert_Dec2Bin();
@@ -99,26 +96,23 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 
 void Convert_Dec2Bin()
 {  
-  int k = 7, k2 = 7;
-
-  for(int i = 0; i < 16; i++)
-  {  
-    int j = 0; 
+  for(int i = 0, k = 7, k2 = 7; i < 16; i++)
+  {
+    uint8_t Aux = PID_enable_bit[i];
+    int j = 0;
 
     if(i > 0)
     {
       k = k2 + 8;
       k2 = k;
     }   
-    uint8_t Aux = PID_enable_bit[i];
     
-    while(j < 8)
+    while(j++ < 8)
     {  
       PID_Enables_bin[k] = Aux % 2;                
       Aux /= 2;
-      k--;
-      j++;            
-    }      
+      k--;          
+    }   
   }   
 }
 
@@ -137,18 +131,16 @@ String verify_message_is_null(int msg, String ext)
   switch(msg)
   {
     case GPS_ST:
-      return ext;
+        return ext;
       break;
     case Accelerometer_ST:
-      return ext;
+        return ext;
       break;
     case Odometer_PID:
-      if(Verify_odometer_exist()) return ext;
+        return (Verify_odometer_exist() ? ext : "null");
       break;
     default:
-      if(PID_Enables_bin[msg-1]) return ext;
+        return (Check_bin_for_state(msg) ? ext : "null");
       break;
   }
-
-  return "null";
 }

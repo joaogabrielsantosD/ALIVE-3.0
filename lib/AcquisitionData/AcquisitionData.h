@@ -1,13 +1,19 @@
 #ifndef ACQUISITIONDATA_H
 #define ACQUISITIONDATA_H
 
-#include <Arduino.h>
+#include <TinyGPSPlus.h>
+#include <MPU9250.h>
+#include <pthread.h>
 #include "StateMachine.h"
 #include "packets.h"
 
+typedef void *ThreadHandle_t;
+
+void IMU_GPS_Data_Acquisition(void);
+
 /* Accelerometer && GPS functions */
-// acc function
-// gps function
+ThreadHandle_t imu_acq_function(void);
+ThreadHandle_t gps_acq_function(void);
 
 /* CAN Acquisition functions */
 void MsgRec_Treatment(void);

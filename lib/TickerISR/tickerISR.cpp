@@ -1,6 +1,7 @@
 #include "tickerISR.h"
 
 bool Print_in_serial = true; // Put True or False to enable SerialPrint of checkPID
+const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
 Ticker ticker200mHz, 
     ticker300mHz, 
     ticker1Hz,
@@ -26,16 +27,16 @@ bool checkPID()
   bool check_receive_pid = false;
   unsigned char Data[8] = {0x04, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-  for(int i = 1; i < 6; i++)
+  for(int i = 0; i < sizeof(Pids); i++)
   {
-    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i);
+    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i+1);
     check_receive_pid = false;
+    Data[2] = Pids[i];
 
     while(!check_receive_pid)
     {
-      if(i==1)
+      if(i==0)
       {
-        Data[2] = PIDs1;
         while(!checkReceive())
         {
           if(send_msg(Data, extended) && Print_in_serial) debug_print(Data);
@@ -47,45 +48,8 @@ bool checkPID()
         check_receive_pid = true;
       }
 
-      if(i==2)
+      else
       {
-        Data[2] = PIDs2;
-        while(!checkReceive())
-        {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(100);          
-        }
-        MsgRec_Treatment();
-        check_receive_pid = true;
-      }
-
-      if(i==3)
-      {
-        Data[2] = PIDs3;
-        while(!checkReceive())
-        {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(100);          
-        }
-        MsgRec_Treatment();
-        check_receive_pid = true;
-      }
-
-      if(i==4)
-      {
-        Data[2] = PIDs4;
-        while(!checkReceive())
-        {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
-          vTaskDelay(100);          
-        }
-        MsgRec_Treatment();
-        check_receive_pid = true;
-      }
-
-      if(i==5)
-      {
-        Data[2] = PIDs5;
         while(!checkReceive())
         {
           if(send_msg(Data) && Print_in_serial) debug_print(Data);
@@ -97,8 +61,6 @@ bool checkPID()
 
       vTaskDelay(1);
     }
-
-    if((i+1)==6) break;
   }
 
   return false;

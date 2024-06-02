@@ -1,7 +1,6 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-#include <Arduino.h>
 #include <CircularBuffer.hpp>
 #include "can_defs.h"
 

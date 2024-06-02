@@ -51,5 +51,4 @@ typedef struct
 
 } BLE_packet_t;
 
-
 #endif
