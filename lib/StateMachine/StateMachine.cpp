@@ -4,6 +4,7 @@ bool debug_when_send = false;   // variable to enable the Serial when send the m
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
 int current_id = IDLE_ST;
+boolean imu_flag = false;
 uint8_t PID_enable_bit[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t PID_Enables_bin[128];
 uint8_t pid5_enable = 0;
@@ -128,6 +129,11 @@ int Verify_odometer_exist()
   return pid5_enable & 0x01;
 }
 
+void save_flag_imu_parameter(boolean *_flag)
+{
+  imu_flag = *_flag;
+}
+
 String verify_message_is_null(int msg, String ext)
 {
   switch(msg)
@@ -136,7 +142,7 @@ String verify_message_is_null(int msg, String ext)
         return ext;
       break;
     case Accelerometer_ST:
-        return ext;
+        return (imu_flag ? ext : "null");
       break;
     case Odometer_PID:
         return (Verify_odometer_exist() ? ext : "null");
