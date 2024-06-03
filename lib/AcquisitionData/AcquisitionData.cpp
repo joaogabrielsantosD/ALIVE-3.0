@@ -7,7 +7,7 @@ pthread_mutex_t acq_mutex;
 TinyGPSPlus gps_const;
 MPU9250 mpu_const;
 /* Debug Variables */
-boolean *imu_init = (boolean*)malloc(sizeof(boolean));
+boolean imu_init = false;
 bool debug_when_receive = false; // variable to enable the Serial when receive
 
 void start_module_device()
@@ -23,7 +23,7 @@ void start_module_device()
     mpu_const.verbose(true);
     mpu_const.calibrateAccelGyro();
     mpu_const.verbose(false);
-    *imu_init = true;
+    imu_init = true;
     save_flag_imu_parameter(imu_init);
   }
 }
@@ -37,7 +37,7 @@ void acq_function(int acq_mode)
   switch(acq_mode)
   {
     case Accelerometer_ST:
-      pthread_create(&th, NULL, &imu_acq_function, imu_init);
+      pthread_create(&th, NULL, &imu_acq_function, NULL);
       pthread_join(th, NULL);
       break;
 
@@ -53,8 +53,7 @@ void acq_function(int acq_mode)
 /*================================ Accelerometer && GPS functions ================================*/
 ThreadHandle_t imu_acq_function(void *arg)
 {
-  boolean init = *(boolean*)arg;
-  if(mpu_const.update() && init)
+  if(mpu_const.update() && imu_init)
   {
     pthread_mutex_lock(&acq_mutex);
     volatile_packet.imu_acc.acc_x = mpu_const.getRoll();

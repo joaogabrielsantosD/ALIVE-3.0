@@ -129,9 +129,9 @@ int Verify_odometer_exist()
   return pid5_enable & 0x01;
 }
 
-void save_flag_imu_parameter(boolean *_flag)
+void save_flag_imu_parameter(boolean _flag)
 {
-  imu_flag = *_flag;
+  imu_flag = _flag;
 }
 
 String verify_message_is_null(int msg, String ext)
