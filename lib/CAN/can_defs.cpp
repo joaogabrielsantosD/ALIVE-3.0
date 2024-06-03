@@ -20,6 +20,7 @@ bool start_CAN_device(bool set_filt)
             Serial.println("CAN init ok!!!");
             if(set_filt) set_mask_filt();
             attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
+            pinMode(CAN_DEBUG_LED, OUTPUT);
             return true;
         }
     }
@@ -78,5 +79,6 @@ bool checkReceive()
 /* CAN interrupt */
 void canISR()
 {
+    digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 0x01);
    receive_message = true; // Flag that indicates that a message was received via CAN
 }

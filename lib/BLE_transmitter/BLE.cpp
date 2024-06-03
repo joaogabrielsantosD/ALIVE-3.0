@@ -47,6 +47,7 @@ void Init_BLE_Server()
   pService->start();
 
   // Start advertising
+  pinMode(BLE_DEBUG_LED, OUTPUT);
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(SERVICE_UUID);
   pAdvertising->setScanResponse(true);
@@ -120,6 +121,7 @@ void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON> &document)
     /* Set and send the value */
     pCharacteristic->setValue(msgBLE);
     pCharacteristic->notify();
+    digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 0X01);
 }
 
 void ServerCallbacks::onConnect(BLEServer *pServer)
