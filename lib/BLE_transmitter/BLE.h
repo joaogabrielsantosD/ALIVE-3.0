@@ -8,7 +8,7 @@
 #define SERVICE_UUID          "acc1f4ef-4fcf-4f90-882e-0a666da9f321"
 #define CHARACTERISTIC_UUID   "50e6cbc6-5aff-4423-974c-0e27959453c3"
 
-#define MAX_BLE_LENGTH        ESP_GATT_MAX_ATTR_LEN
+#define MAX_BLE_LENGTH        ESP_GATT_MAX_ATTR_LEN // 600 bytes
 #define MAX_BLE_DELAY         90
 #define DOC_SIZE_JSON         400
 

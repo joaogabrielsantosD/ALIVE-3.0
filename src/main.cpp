@@ -21,9 +21,8 @@ void BLEsenderData(void *arg);
 
 void setup()
 {    
-  vTaskDelay(1000); // delay to avoid the bug in the serialprint when you use the monitor serial to reset the module
-  Serial.begin(9600);
-  Serial.println("INICIANDO ALIVE 3.0");
+  Serial.begin(115200);
+  Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
   
   // if there was an error in the CAN it shows
   flagCANInit = start_CAN_device(true);
@@ -45,7 +44,10 @@ void setup()
   /* Init the BLE host connection */
   Init_BLE_Server();
 
-  /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE + OTA) management */
+  /* Init the Modules */
+  start_module_device();
+
+  /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE) management */
   xTaskCreatePinnedToCore(AcquisitionStateMachine, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
   xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
 }

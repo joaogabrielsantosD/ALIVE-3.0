@@ -4,7 +4,7 @@ bool debug_when_send = false;   // variable to enable the Serial when send the m
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
 int current_id = IDLE_ST;
-uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint8_t PID_enable_bit[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t PID_Enables_bin[128];
 uint8_t pid5_enable = 0;
 
@@ -64,8 +64,10 @@ bool insert(int ST)
 {
   if(ST==Odometer_PID) 
     return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
-
-  return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
+  else if(ST==Accelerometer_ST || ST==GPS_ST)
+    return state_buffer.push(ST);
+  else 
+    return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
 }
 
 void debug_print(unsigned char *message)

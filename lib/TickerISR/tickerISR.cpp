@@ -78,9 +78,10 @@ void ticker200mHzISR()
 void ticker300mHzISR()
 {
   //insert(FueL_Status_PID);
+  insert(Odometer_PID);  
   insert(Distance_on_MIL_PID);
   insert(Distance_Travel_PID);
-  insert(Odometer_PID);  
+  insert(GPS_ST);
 }
 
 void ticker1HzISR()
@@ -94,6 +95,7 @@ void ticker1HzISR()
 
 void ticker2HzISR()
 {
+  insert(Accelerometer_ST);
   insert(Fuel_Pressure_PID);
   insert(Speed_PID);
   insert(Engine_RPM_ID);

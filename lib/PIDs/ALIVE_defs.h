@@ -2,9 +2,11 @@
 #define ALIVE_DEFS_H
 
 #include <driver/gpio.h>
+#include <HardwareSerial.h>
 #include "CAN_PIDs.h"
 
 /*====================== CAN DEFINITIONS ============================ */
+#define SerialAT            Serial2
 #define CAN_2515
 #define BUFFER_SIZE         50
 #define CAN_ID_EXTENDED     0x18DB33F1

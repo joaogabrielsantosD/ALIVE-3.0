@@ -1,8 +1,20 @@
 #include "AcquisitionData.h"
 
 BLE_packet_t volatile_packet = defaultValue();
+static const uint32_t GPS_baudrate = 4800;
+/* Module variables */
+pthread_mutex_t acq_mutex;
+TinyGPSPlus gps_const;
 /* Debug Variables */
 bool debug_when_receive = false; // variable to enable the Serial when receive
+
+void start_module_device()
+{
+  // init the gps serial command AT communication
+  SerialAT.begin(GPS_baudrate);
+
+  
+}
 
 /*================================ Accelerometer && GPS functions ================================*/
 //acc

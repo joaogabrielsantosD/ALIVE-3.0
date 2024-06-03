@@ -7,9 +7,9 @@
 #include "StateMachine.h"
 #include "packets.h"
 
-typedef void *ThreadHandle_t;
+typedef void* ThreadHandle_t;
 
-void IMU_GPS_Data_Acquisition(void);
+void start_module_device(void);
 
 /* Accelerometer && GPS functions */
 ThreadHandle_t imu_acq_function(void);
