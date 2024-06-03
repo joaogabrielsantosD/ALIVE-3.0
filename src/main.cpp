@@ -65,11 +65,16 @@ void AcquisitionStateMachine(void *arg)
     {
       _canId = CircularBuffer_state(); // check if the current id is CAN message or not
 
-      initialTime = millis();    
-      while(!checkReceive() && _canId > 0x02)
-      { // timeout
-        if(millis() - initialTime >= 3000) break;
-        vTaskDelay(1);
+      if(_canId == 1 || _canId == 2)
+      {
+        acq_function(_canId);
+      } else {
+        initialTime = millis();    
+        while(!checkReceive() && _canId > 0x02)
+        { // timeout
+          if(millis() - initialTime >= 3000) break;
+          vTaskDelay(1);
+        }
       }
     }
 
