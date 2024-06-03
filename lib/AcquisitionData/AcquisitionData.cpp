@@ -5,7 +5,9 @@ static const uint32_t GPS_baudrate = 4800;
 /* Module variables */
 pthread_mutex_t acq_mutex;
 TinyGPSPlus gps_const;
+MPU9250 mpu_const;
 /* Debug Variables */
+boolean *imu_init = (boolean*)malloc(sizeof(boolean));
 bool debug_when_receive = false; // variable to enable the Serial when receive
 
 void start_module_device()
@@ -13,12 +15,75 @@ void start_module_device()
   // init the gps serial command AT communication
   SerialAT.begin(GPS_baudrate);
 
-  
+  // init the MPU
+  Wire.begin();
+
+  if(mpu_const.setup(0x68))
+  {
+    mpu_const.verbose(true);
+    mpu_const.calibrateAccelGyro();
+    mpu_const.verbose(false);
+    *imu_init = true;
+    save_flag_imu_parameter(imu_init);
+  }
+}
+
+void acq_function(int acq_mode)
+{
+  pthread_t th;
+
+  pthread_mutex_init(&acq_mutex, NULL);
+
+  switch(acq_mode)
+  {
+    case Accelerometer_ST:
+      pthread_create(&th, NULL, &imu_acq_function, imu_init);
+      pthread_join(th, NULL);
+      break;
+
+    case GPS_ST:
+      pthread_create(&th, NULL, &gps_acq_function, NULL);
+      pthread_join(th, NULL);
+      break;
+  }
+
+  pthread_mutex_destroy(&acq_mutex);
 }
 
 /*================================ Accelerometer && GPS functions ================================*/
-//acc
-//gps
+ThreadHandle_t imu_acq_function(void *arg)
+{
+  boolean init = *(boolean*)arg;
+  if(mpu_const.update() && init)
+  {
+    pthread_mutex_lock(&acq_mutex);
+    volatile_packet.imu_acc.acc_x = mpu_const.getRoll();
+    volatile_packet.imu_acc.acc_y = mpu_const.getPitch();
+    volatile_packet.imu_acc.acc_z = mpu_const.getYaw();
+    pthread_mutex_unlock(&acq_mutex); 
+  }
+
+  return NULL;
+}
+
+ThreadHandle_t gps_acq_function(void *arg)
+{
+  while(SerialAT.available() > 0)
+  {
+    if(gps_const.encode(SerialAT.read()))
+    {
+      if(gps_const.location.isValid())
+      {
+        pthread_mutex_lock(&acq_mutex);
+        volatile_packet.gps_data.LAT = gps_const.location.lat();
+        volatile_packet.gps_data.LNG = gps_const.location.lng();
+        pthread_mutex_unlock(&acq_mutex);
+      }
+    }
+  }
+
+  return NULL;
+}
 
 /*================================== CAN Acquisition functions ==================================*/
 void MsgRec_Treatment()
