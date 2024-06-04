@@ -46,9 +46,9 @@
 #define PID_to_index_5      16
 
 /*====================== HARDWARE DEFINITIONS ============================ */
-#define CAN_DEBUG_LED GPIO_NUM_25
-#define BLE_DEBUG_LED GPIO_NUM_26
-#define SPI_CS_PIN    GPIO_NUM_4  // Pin CS to the MCP2515 module
+#define CAN_DEBUG_LED GPIO_NUM_25 // Pin to debug led of CAN communication 
+#define BLE_DEBUG_LED GPIO_NUM_26 // Pin to debug led of BLE communication 
+#define SPI_CS_PIN    GPIO_NUM_5  // Pin CS to the MCP2515 module
 #define CAN_INT_PIN   GPIO_NUM_27 // Pin used to generate the interrupt by the MCP2515 module
 
 #endif
