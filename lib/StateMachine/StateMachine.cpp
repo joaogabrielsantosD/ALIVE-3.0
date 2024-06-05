@@ -98,25 +98,18 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 }
 
 void Convert_Dec2Bin()
-{  
-  for(int i = 0, k = 7, k2 = 7; i < 16; i++)
+{
+  for(int i = 0; i < 16; i++)
   {
     uint8_t Aux = PID_enable_bit[i];
-    int j = 0;
-
-    if(i > 0)
-    {
-      k = k2 + 8;
-      k2 = k;
-    }   
+    int k = (i + 1) * 8 - 1;
     
-    while(j++ < 8)
-    {  
-      PID_Enables_bin[k] = Aux % 2;                
+    for(int j = 0; j < 8; j++)
+    { // loop for complete the 8 bits of the uint8_t variable
+      PID_Enables_bin[k--] = Aux % 2;
       Aux /= 2;
-      k--;          
-    }   
-  }   
+    }  
+  }
 }
 
 int Check_bin_for_state(int pid_order)
