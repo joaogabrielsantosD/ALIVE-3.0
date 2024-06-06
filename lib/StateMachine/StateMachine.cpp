@@ -4,7 +4,8 @@ bool debug_when_send = false;   // variable to enable the Serial when send the m
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
 int current_id = IDLE_ST;
-uint8_t PID_enable_bit[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+boolean imu_flag = false;
+uint8_t PID_enable_bit[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t PID_Enables_bin[128];
 uint8_t pid5_enable = 0;
 
@@ -64,19 +65,20 @@ bool insert(int ST)
 {
   if(ST==Odometer_PID) 
     return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
-
-  return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
+  else if(ST==Accelerometer_ST || ST==GPS_ST)
+    return state_buffer.push(ST);
+  else 
+    return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
 }
 
 void debug_print(unsigned char *message)
 {
-  unsigned char *msg = message;
   Serial.print("Send to CAN: id 0x");
   Serial.print(get_ID_mode(), HEX);
   Serial.print("  ");  
   for(int i = 0; i < 8; i++)
   {
-    Serial.print(*(msg+i), HEX); 
+    Serial.print(message[i], HEX); 
     Serial.print("\t");
   }
   Serial.println();
@@ -86,10 +88,8 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 {
   if(position < sizeof(PID_enable_bit))
   {
-    PID_enable_bit[position]   = bit_data[4];
-    PID_enable_bit[position+1] = bit_data[5];
-    PID_enable_bit[position+2] = bit_data[6];
-    PID_enable_bit[position+3] = bit_data[7];
+    for(int i = 0; i < 4; i++) 
+      PID_enable_bit[position+i] = bit_data[4+i];
   }
 
   if(position==PID_to_index_4) Convert_Dec2Bin();
@@ -98,28 +98,18 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
 }
 
 void Convert_Dec2Bin()
-{  
-  int k = 7, k2 = 7;
-
+{
   for(int i = 0; i < 16; i++)
-  {  
-    int j = 0; 
-
-    if(i > 0)
-    {
-      k = k2 + 8;
-      k2 = k;
-    }   
+  {
     uint8_t Aux = PID_enable_bit[i];
+    int k = (i + 1) * 8 - 1;
     
-    while(j < 8)
-    {  
-      PID_Enables_bin[k] = Aux % 2;                
+    for(int j = 0; j < 8; j++)
+    { // loop for complete the 8 bits of the uint8_t variable
+      PID_Enables_bin[k--] = Aux % 2;
       Aux /= 2;
-      k--;
-      j++;            
-    }      
-  }   
+    }  
+  }
 }
 
 int Check_bin_for_state(int pid_order)
@@ -132,23 +122,26 @@ int Verify_odometer_exist()
   return pid5_enable & 0x01;
 }
 
+void save_flag_imu_parameter(boolean _flag)
+{
+  imu_flag = _flag;
+}
+
 String verify_message_is_null(int msg, String ext)
 {
   switch(msg)
   {
     case GPS_ST:
-      return ext;
+        return ext;
       break;
     case Accelerometer_ST:
-      return ext;
+        return (imu_flag ? ext : "null");
       break;
     case Odometer_PID:
-      if(Verify_odometer_exist()) return ext;
+        return (Verify_odometer_exist() ? ext : "null");
       break;
     default:
-      if(PID_Enables_bin[msg-1]) return ext;
+        return (Check_bin_for_state(msg) ? ext : "null");
       break;
   }
-
-  return "null";
 }
