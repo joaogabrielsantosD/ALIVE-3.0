@@ -8,7 +8,7 @@ TinyGPSPlus gps_const;
 MPU9250 mpu_const;
 /* Debug Variables */
 boolean imu_init = false;
-bool debug_when_receive = false; // variable to enable the Serial when receive
+bool debug_when_receive = true; // variable to enable the Serial when receive
 
 void start_module_device()
 {
@@ -95,7 +95,7 @@ void MsgRec_Treatment()
   {
     get_msg(info_can, ID, length);
 
-    if(debug_when_receive)
+    if(false)
     {
       for(int i = 0; i < length; i++)
       {
