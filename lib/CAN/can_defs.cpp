@@ -15,7 +15,7 @@ bool start_CAN_device(bool set_filt)
     Serial.println("Connecting CAN...");
     while((millis() - tcanStart) < cantimeOut) // wait timeout
     { 
-        if(CAN.begin(CAN_500KBPS, MCP_8MHz)==CAN_OK)
+        if(CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
         {
             Serial.println("CAN init ok!!!");
             if(set_filt) set_mask_filt();
@@ -50,7 +50,7 @@ bool send_msg(unsigned char *msg)
 
 bool send_msg(unsigned char *msg, bool extended)
 {
-    return CAN.sendMsgBuf(CAN_ID(extended), extended, 8, msg)==CAN_OK ? true : false;
+    return CAN.sendMsgBuf(CAN_ID(extended), extended, 8, msg) == CAN_OK ? true : false;
 }
 
 uint32_t get_ID_mode()
@@ -60,7 +60,7 @@ uint32_t get_ID_mode()
 
 bool msg_receive()
 {
-    return CAN.checkReceive()==CAN_MSGAVAIL;
+    return CAN.checkReceive() == CAN_MSGAVAIL;
 }
 
 void get_msg(unsigned char messageData[], uint32_t &id, uint8_t &len)
