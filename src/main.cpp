@@ -96,7 +96,7 @@ void BLEsenderData(void *arg)
     {
       Send_BLE_msg();
 
-      vTaskDelay(MAX_BLE_DELAY);
+      vTaskDelay(MAX_BLE_DELAY+10);
     }
 
     vTaskDelay(10);
