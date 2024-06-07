@@ -53,7 +53,8 @@ int CircularBuffer_state()
       _id_flag &= ~0xFF; // disable all bits
       messageData[2] = (unsigned char)current_id;
       
-      if(send_msg(messageData) && debug_when_send) debug_print(messageData);
+      send_msg(messageData);
+      //if(send_msg(messageData) && debug_when_send) debug_print(messageData);
 
       break;
   }
