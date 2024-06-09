@@ -67,6 +67,7 @@ int BLE_connected()
     // disconnecting
     if(!deviceConnected && oldDeviceConnected)
     {
+        digitalWrite(BLE_DEBUG_LED, LOW);
         pServer->startAdvertising(); // restart advertising
         Serial.println("start advertising");
         oldDeviceConnected = deviceConnected;
