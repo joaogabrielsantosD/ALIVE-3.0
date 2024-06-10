@@ -7,7 +7,7 @@
 #include "StateMachine.h"
 #include "packets.h"
 
-typedef void* ThreadHandle_t;
+typedef void *ThreadHandle_t;
 
 void start_module_device(void);
 void acq_function(int acq_mode);
@@ -20,7 +20,6 @@ ThreadHandle_t gps_acq_function(void *arg);
 void MsgRec_Treatment(void);
 
 /* Packet Message Functions */
-BLE_packet_t defaultValue(void);
 BLE_packet_t updatePacket(void);
 
 #endif

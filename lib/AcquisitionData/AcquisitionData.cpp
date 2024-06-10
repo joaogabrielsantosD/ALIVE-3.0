@@ -1,6 +1,6 @@
 #include "AcquisitionData.h"
 
-BLE_packet_t volatile_packet = defaultValue();
+BLE_packet_t volatile_packet;
 static const uint32_t GPS_baudrate = 4800;
 /* Module variables */
 pthread_mutex_t acq_mutex;
@@ -13,6 +13,8 @@ bool debug_when_receive_info = false; // variable to enable the Serial when rece
 
 void start_module_device()
 {
+  memset(&volatile_packet, 0, sizeof(BLE_packet_t));
+
   // init the gps serial command AT communication
   SerialAT.begin(GPS_baudrate);
 
@@ -90,7 +92,7 @@ void MsgRec_Treatment()
 {
   uint8_t length = 8;
   uint32_t ID = 0;
-  unsigned char info_can[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+  unsigned char info_can[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   while(msg_receive())
   {
@@ -266,13 +268,6 @@ void MsgRec_Treatment()
 }
 
 /*================================== Packet Message Functions ==================================*/
-BLE_packet_t defaultValue()
-{
-  BLE_packet_t t;
-  memset(&t, 0x00, sizeof(BLE_packet_t));
-  return t;
-}
-
 BLE_packet_t updatePacket()
 {
   return volatile_packet;
