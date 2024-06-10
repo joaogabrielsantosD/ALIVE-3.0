@@ -9,16 +9,17 @@ bool _ext = false;
 bool start_CAN_device(bool set_filt)
 {
     /* Start the can */
-    unsigned long tcanStart = millis(); 
+    unsigned long tcanStart = millis();
     const unsigned long cantimeOut = 1000; // (1 second)
     // wait for the CAN shield to initialize
     Serial.println("Connecting CAN...");
     while((millis() - tcanStart) < cantimeOut) // wait timeout
-    { 
+    {
         if(CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
         {
             Serial.println("CAN init ok!!!");
-            if(set_filt) set_mask_filt();
+            if(set_filt)
+                set_mask_filt();
             attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
             pinMode(CAN_DEBUG_LED, OUTPUT);
             return true;
@@ -28,14 +29,15 @@ bool start_CAN_device(bool set_filt)
     return false;
 }
 
-void set_mask_filt() 
+void set_mask_filt()
 {
-  // set mask, set both the mask to 0x3ff
-  CAN.init_Mask(0, 1, 0x1FFFFFFF);
-  CAN.init_Mask(1, 1, 0x1FFFFFFF);
+    // set mask, set both the mask to 0x3ff
+    CAN.init_Mask(0, 1, 0x1FFFFFFF);
+    CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
-  // set filter, we can receive id from 0x04 ~ 0x09
-  for(int i = 0; i < 6; i++) CAN.init_Filt(i, 1, 0x18DAF110);
+    // set filter, we can receive id from 0x04 ~ 0x09
+    for(int i = 0; i < 6; i++)
+        CAN.init_Filt(i, 1, 0x18DAF110);
 }
 
 void SaveParameters_extended(bool ext)
@@ -67,8 +69,8 @@ void get_msg(unsigned char messageData[], uint32_t &id, uint8_t &len)
 {
     receive_message = false;
     // Reads message and ID
-    id = CAN.getCanId();  
-    CAN.readMsgBuf(&len, messageData); 
+    id = CAN.getCanId();
+    CAN.readMsgBuf(&len, messageData);
 }
 
 bool checkReceive()
@@ -80,5 +82,5 @@ bool checkReceive()
 void canISR()
 {
     digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 0x01);
-   receive_message = true; // Flag that indicates that a message was received via CAN
+    receive_message = true; // Flag that indicates that a message was received via CAN
 }
