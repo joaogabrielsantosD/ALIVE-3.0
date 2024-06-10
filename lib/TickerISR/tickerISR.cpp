@@ -29,17 +29,18 @@ bool checkPID()
 
   for(int i = 0; i < sizeof(Pids); i++)
   {
-    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i+1);
+    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
     check_receive_pid = false;
     Data[2] = Pids[i];
 
     while(!check_receive_pid)
     {
-      if(i==0)
+      if(i == 0)
       {
         while(!checkReceive())
         {
-          if(send_msg(Data, extended) && Print_in_serial) debug_print(Data);
+          if(send_msg(Data, extended) && Print_in_serial) 
+            debug_print(Data);
           vTaskDelay(100);          
           extended = !extended;
         }
@@ -52,7 +53,8 @@ bool checkPID()
       {
         while(!checkReceive())
         {
-          if(send_msg(Data) && Print_in_serial) debug_print(Data);
+          if(send_msg(Data) && Print_in_serial) 
+            debug_print(Data);
           vTaskDelay(100);          
         }
         MsgRec_Treatment();
