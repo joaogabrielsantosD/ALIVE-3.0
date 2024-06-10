@@ -15,7 +15,6 @@
 void Init_BLE_Server(void);
 int BLE_connected(void);
 void Send_BLE_msg(void);
-void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON> &document);
 
 // Callback to receive device connection events
 class ServerCallbacks: public BLEServerCallbacks 

@@ -18,12 +18,11 @@ void Init_BLE_Server()
     // Create the BLE Service
     BLEService *pService = pServer->createService(SERVICE_UUID);
 
-
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic( \
         CHARACTERISTIC_UUID,                          \
-        BLECharacteristic::PROPERTY_NOTIFY |          \
-        BLECharacteristic::PROPERTY_READ              \
+        BLECharacteristic::PROPERTY_NOTIFY  |         \
+        BLECharacteristic::PROPERTY_READ
         );
 
     // Create a BLE Descriptor
@@ -108,15 +107,10 @@ void Send_BLE_msg()
     doc["Latitude"]                      = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LAT));
     doc["Longitude"]                     = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LNG));
 
-    BLE_sender(doc);
-}
-
-void BLE_sender(StaticJsonDocument<DOC_SIZE_JSON> &document)
-{
     // Serial.print("JSON document Size: "); Serial.println(document.size());
     /* Make the JSON packet in the std::string format */
     msgBLE.clear();
-    serializeJson(document, msgBLE);
+    serializeJson(doc, msgBLE);
     /* Print data and length of the std::string */
     //Serial.println(msgBLE.data());
     //Serial.println(msgBLE.length());
