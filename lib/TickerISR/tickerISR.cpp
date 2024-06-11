@@ -37,12 +37,19 @@ bool checkPID()
     {
       if(i == 0)
       {
+        unsigned long obd_connection = millis();
+        const unsigned long OBD_timout = 3000; // 3 seconds
         while(!checkReceive())
         {
           if(send_msg(Data, extended) && Print_in_serial) 
             debug_print(Data);
-          vTaskDelay(100);          
           extended = !extended;
+
+          // timeout for OBD II connection failed
+          if((millis() - obd_connection) >= OBD_timout)
+            esp_restart();
+          
+          vTaskDelay(10);          
         }
         SaveParameters_extended(!extended);
         MsgRec_Treatment();
@@ -55,7 +62,7 @@ bool checkPID()
         {
           if(send_msg(Data) && Print_in_serial) 
             debug_print(Data);
-          vTaskDelay(100);          
+          vTaskDelay(10);          
         }
         MsgRec_Treatment();
         check_receive_pid = true;
