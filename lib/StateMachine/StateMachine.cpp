@@ -51,8 +51,14 @@ int CircularBuffer_state()
       break;
 
     default: /* CAN msg */
-      _id_flag &= ~0xFF; // disable all bits
-      messageData[2] = (unsigned char)current_id;
+      
+      if(current_id == DTC_mode_3)
+      {
+        messageData[0] = 0x01;
+        messageData[1] = 0x03;
+      } else {
+        messageData[2] = (unsigned char)current_id;
+      }
 
       #if debug_when_send == 1
         if(send_msg(messageData)) debug_print(messageData);

@@ -7,28 +7,30 @@ pthread_mutex_t acq_mutex;
 TinyGPSPlus gps_const;
 MPU9250 mpu_const;
 /* Debug Variables */
-boolean imu_init = false;
 bool debug_when_receive_byte = false;
 bool debug_when_receive_info = false; // variable to enable the Serial when receive
 
 void start_module_device()
 {
   memset(&volatile_packet, 0, sizeof(BLE_packet_t));
+  bool *imu_init = (bool*)malloc(sizeof(bool));
 
   // init the gps serial command AT communication
   SerialAT.begin(GPS_baudrate);
 
   // init the MPU
   Wire.begin();
-
+  
+  *imu_init = false;
   if(mpu_const.setup(0x68))
   {
     mpu_const.verbose(true);
     mpu_const.calibrateAccelGyro();
     mpu_const.verbose(false);
-    imu_init = true;
-    save_flag_imu_parameter(imu_init);
+    *imu_init = true;
+    save_flag_imu_parameter(*imu_init);
   }
+  free(imu_init);
 }
 
 void acq_function(int acq_mode)
@@ -56,7 +58,7 @@ void acq_function(int acq_mode)
 /*================================ Accelerometer && GPS functions ================================*/
 ThreadHandle_t imu_acq_function(void *arg)
 {
-  if(mpu_const.update() && imu_init)
+  if(mpu_const.update())
   {
     pthread_mutex_lock(&acq_mutex);
     volatile_packet.imu_acc.acc_x = mpu_const.getRoll();
@@ -263,6 +265,44 @@ void MsgRec_Treatment()
       
         break;
       }
+    
+      default:
+      {
+        String DTC_debug = "";
+
+        char _first_char = (info_can[3] == 0 ? 'P' : info_can[3] == 1 ? 'C' : info_can[3] == 2 ? 'B' 
+        : info_can[3] == 3 ? 'U' : 'H'); 
+
+        uint8_t *aux = (uint8_t*)malloc(sizeof(uint8_t));
+        *aux = (info_can[4] & 0x03);
+
+        uint8_t _second_char = (*(aux) != 0 && *(aux) != 3 ? *(aux) ^= 3 : *(aux));
+        uint8_t _third_char = (info_can[4] & 0xF0) >> 4;
+        uint8_t _fourth_char = (info_can[4] & 0xF0) >> 4;
+        uint8_t _fifth_char = (info_can[4] & 0x0F);
+
+        char third_char = (_third_char == 10 ? 'A' : _third_char == 11 ? 'B' : _third_char == 12 ? 'C'  \
+        : _third_char == 13 ? 'D' : _third_char == 14 ? 'E' : _third_char == 15 ? 'F' : 'H');
+
+        char fourth_char = (_fourth_char == 10 ? 'A' : _fourth_char == 11 ? 'B' : _fourth_char == 12 ? 'C'  \
+        : _fourth_char == 13 ? 'D' : _fourth_char == 14 ? 'E' : _fourth_char == 15 ? 'F' : 'H');
+
+        char fifth_char = (_fifth_char == 10 ? 'A' : _fifth_char == 11 ? 'B' : _fifth_char == 12 ? 'C'  \
+        : _fifth_char == 13 ? 'D' : _fifth_char == 14 ? 'E' : _fifth_char == 15 ? 'F' : 'H');
+
+        // main message
+        DTC_debug += (String(_first_char) + String(_second_char) + String(third_char == 'H' ? _third_char : third_char));
+
+        // Series number
+        DTC_debug += String(fourth_char == 'H' ? _fourth_char : fourth_char);
+        DTC_debug += String(fifth_char == 'H' ? _fifth_char : fifth_char);
+
+        Serial.println(DTC_debug);
+        free(aux);
+
+        break;
+      }
+    
     }
   }
 }
