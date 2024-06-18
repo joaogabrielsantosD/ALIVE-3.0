@@ -8,6 +8,7 @@ void init_tickers(void);
 bool checkPID(void);
 
 /* ISRs */
+void ticker100mHzISR(void);
 void ticker200mHzISR(void);
 void ticker300mHzISR(void);
 void ticker1HzISR(void);
