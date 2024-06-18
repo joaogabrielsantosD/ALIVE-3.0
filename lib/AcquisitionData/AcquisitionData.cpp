@@ -13,7 +13,6 @@ bool debug_when_receive_info = false; // variable to enable the Serial when rece
 void start_module_device()
 {
   memset(&volatile_packet, 0, sizeof(BLE_packet_t));
-  bool *imu_init = (bool*)malloc(sizeof(bool));
 
   // init the gps serial command AT communication
   SerialAT.begin(GPS_baudrate);
@@ -21,16 +20,13 @@ void start_module_device()
   // init the MPU
   Wire.begin();
   
-  *imu_init = false;
   if(mpu_const.setup(0x68))
   {
     mpu_const.verbose(true);
     mpu_const.calibrateAccelGyro();
     mpu_const.verbose(false);
-    *imu_init = true;
-    save_flag_imu_parameter(*imu_init);
+    save_flag_imu_parameter(true);
   }
-  free(imu_init);
 }
 
 void acq_function(int acq_mode)
@@ -302,7 +298,6 @@ void MsgRec_Treatment()
 
         break;
       }
-    
     }
   }
 }
