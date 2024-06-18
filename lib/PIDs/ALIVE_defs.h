@@ -34,6 +34,7 @@
 #define Distance_Travel_PID DistanceTraveledSinceCodeCleared
 #define MAP_sensor_PID      AbsolutePressure
 #define Odometer_PID        0xA6
+#define DTC_mode_3          0xFFFF // 2 bytes of PID
 
 #define IDLE_ST             0x00
 #define Accelerometer_ST    0x01
