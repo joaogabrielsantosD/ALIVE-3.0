@@ -2,8 +2,7 @@
 
 bool Print_in_serial = true; // Put True or False to enable SerialPrint of checkPID
 const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
-Ticker ticker100mHz,
-    ticker200mHz, 
+Ticker ticker200mHz, 
     ticker300mHz, 
     ticker1Hz,
     ticker2Hz;
@@ -15,7 +14,6 @@ void init_tickers()
     Serial.println("Check the PID support...");
   } while(checkPID());
   
-  ticker100mHz.attach(10.0f, ticker100mHzISR); // 10s
   ticker200mHz.attach(5.0f, ticker200mHzISR);  // 5s
   ticker300mHz.attach(3.0f, ticker300mHzISR);  // 3s
   ticker1Hz.attach(1.0f, ticker1HzISR);        // 1s
@@ -40,7 +38,7 @@ bool checkPID()
       if(i == 0)
       {
         unsigned long obd_connection = millis();
-        const unsigned long OBD_timout = 4000; // 4 seconds
+        const unsigned long OBD_timout = 2000; // 2 seconds
         while(!checkReceive())
         {
           if(send_msg(Data, extended) && Print_in_serial) 
@@ -78,12 +76,6 @@ bool checkPID()
 }
 
 /*=========================== ISRs ====================================*/
-void ticker100mHzISR()
-{
-  // State to verify the Diagnostic Trouble Code on the vehicle
-  insert(DTC_mode_3);
-}
-
 void ticker200mHzISR()
 { 
   insert(Fuel_Level_PID);
