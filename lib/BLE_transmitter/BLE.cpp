@@ -22,6 +22,7 @@ void Init_BLE_Server()
     pCharacteristic = pService->createCharacteristic( \
         CHARACTERISTIC_UUID,                          \
         BLECharacteristic::PROPERTY_NOTIFY  |         \
+        BLECharacteristic::PROPERTY_WRITE   |         \
         BLECharacteristic::PROPERTY_READ              \
         );
 
@@ -40,7 +41,7 @@ void Init_BLE_Server()
     //pCharacteristic_2->addDescriptor(pBLE2902_2);
 
     // add callback functions here:
-    //pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
 
     // Start the service
     pCharacteristic->setValue(" ");
@@ -51,7 +52,7 @@ void Init_BLE_Server()
     BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
     pAdvertising->addServiceUUID(SERVICE_UUID);
     pAdvertising->setScanResponse(true);
-    pAdvertising->setMinPreferred(0x0); // set value to 0x00 to not advertise this parameter
+    pAdvertising->setMinPreferred(0x06); // set value to 0x00 to not advertise this parameter
     BLEDevice::startAdvertising();
     Serial.println("Waiting a client connection to notify...");
 }
@@ -106,6 +107,7 @@ void Send_BLE_msg()
     doc["Acelerometro_Z"]                = verify_message_is_null(Accelerometer_ST, String(msg_packet.imu_acc.acc_z));
     doc["Latitude"]                      = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LAT));
     doc["Longitude"]                     = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LNG));
+    doc["DTC"]                           = msg_packet.DTC;
 
     // Serial.print("JSON document Size: "); Serial.println(document.size());
     /* Make the JSON packet in the std::string format */
@@ -130,4 +132,20 @@ void ServerCallbacks::onDisconnect(BLEServer *pServer)
 {
     Serial.println("Disconnected");
     deviceConnected = false;
+}
+
+void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
+{
+    std::string value = SenderCharacteristic->getValue();
+
+    if(SenderCharacteristic->getLength() > 0)
+    {
+        for(int i = 0; i < SenderCharacteristic->getLength(); i++)
+            value[i] = toupper(value[i]);
+
+        if(value.compare("DTC") == 0)
+        {
+            Serial.println("DTC requisitado");
+        }
+    } 
 }
