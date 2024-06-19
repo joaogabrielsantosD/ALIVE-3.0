@@ -13,6 +13,7 @@ bool debug_when_receive_info = false; // variable to enable the Serial when rece
 void start_module_device()
 {
   memset(&volatile_packet, 0, sizeof(BLE_packet_t));
+  volatile_packet.DTC = "null";
 
   // init the gps serial command AT communication
   SerialAT.begin(GPS_baudrate);
@@ -264,42 +265,53 @@ void MsgRec_Treatment()
     
       default:
       {
-        String DTC_debug = "";
+        if(info_can[1] == 0x43)
+        {
+          volatile_packet.DTC = make_DTC_code(info_can[3], info_can[4]);
 
-        char _first_char = (info_can[3] == 0 ? 'P' : info_can[3] == 1 ? 'C' : info_can[3] == 2 ? 'B' 
-        : info_can[3] == 3 ? 'U' : 'H'); 
-
-        uint8_t *aux = (uint8_t*)malloc(sizeof(uint8_t));
-        *aux = (info_can[4] & 0x03);
-
-        uint8_t _second_char = (*(aux) != 0 && *(aux) != 3 ? *(aux) ^= 3 : *(aux));
-        uint8_t _third_char = (info_can[4] & 0xF0) >> 4;
-        uint8_t _fourth_char = (info_can[4] & 0xF0) >> 4;
-        uint8_t _fifth_char = (info_can[4] & 0x0F);
-
-        char third_char = (_third_char == 10 ? 'A' : _third_char == 11 ? 'B' : _third_char == 12 ? 'C'  \
-        : _third_char == 13 ? 'D' : _third_char == 14 ? 'E' : _third_char == 15 ? 'F' : 'H');
-
-        char fourth_char = (_fourth_char == 10 ? 'A' : _fourth_char == 11 ? 'B' : _fourth_char == 12 ? 'C'  \
-        : _fourth_char == 13 ? 'D' : _fourth_char == 14 ? 'E' : _fourth_char == 15 ? 'F' : 'H');
-
-        char fifth_char = (_fifth_char == 10 ? 'A' : _fifth_char == 11 ? 'B' : _fifth_char == 12 ? 'C'  \
-        : _fifth_char == 13 ? 'D' : _fifth_char == 14 ? 'E' : _fifth_char == 15 ? 'F' : 'H');
-
-        // main message
-        DTC_debug += (String(_first_char) + String(_second_char) + String(third_char == 'H' ? _third_char : third_char));
-
-        // Series number
-        DTC_debug += String(fourth_char == 'H' ? _fourth_char : fourth_char);
-        DTC_debug += String(fifth_char == 'H' ? _fifth_char : fifth_char);
-
-        Serial.println(DTC_debug);
-        free(aux);
+          Serial.println(volatile_packet.DTC);
+        }
 
         break;
       }
     }
   }
+}
+
+String make_DTC_code(uint8_t first_msg, uint8_t second_msg)
+{
+  String code_dtc = "";
+  char *characters = (char*)malloc(sizeof(char) * 3);
+
+  // First character
+  char _first_char = (first_msg == 0 ? 'P' : first_msg == 1 ? 'C' : first_msg == 2 ? 'B' : first_msg == 3 ? 'U' : 'Z'); 
+
+  if(_first_char == 'Z') return {"null"};
+  
+  code_dtc += String(_first_char);
+
+  uint8_t aux = (second_msg & 0x03);
+  code_dtc += String((aux != 0 && aux != 3 ? aux ^= 3 : aux));
+ 
+  uint8_t _third_fourth_fifth_char[] = 
+  { 
+    (uint8_t)((second_msg & 0xF0) >> 4), (uint8_t)((second_msg & 0xF0) >> 4), (uint8_t)(second_msg & 0x0F)
+  };
+
+  for(size_t i = 0; i < sizeof(_third_fourth_fifth_char); i++)
+    *(characters + i) = (char)verify_char(_third_fourth_fifth_char[i]);
+
+  for(size_t i = 0; i < sizeof(_third_fourth_fifth_char); i++)
+  {
+    if(*(characters + i) != 'Z')
+      code_dtc += String(*(characters + i));
+    else
+      code_dtc += String(_third_fourth_fifth_char[i]);
+  }
+
+  free(characters);  
+
+  return code_dtc;
 }
 
 /*================================== Packet Message Functions ==================================*/
