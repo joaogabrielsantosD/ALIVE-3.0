@@ -154,7 +154,7 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
         else if(value.compare("APAGAR DTC") == 0)
         {
             dtc_callback = &cleanDTC;
-            Serial.println("DTC requisitado");
+            Serial.println("Codigo DTC apagado");
             dtc_callback();
         }
     } 
