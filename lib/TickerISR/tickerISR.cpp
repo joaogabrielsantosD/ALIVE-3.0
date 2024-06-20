@@ -75,6 +75,19 @@ bool checkPID()
   return false;
 }
 
+void Call_DTC_mode3(void)
+{
+  if(Print_in_serial)
+  {  
+    if(insert(DTC_mode_3))
+      Serial.println("DTC enviado com sucesso");
+    else
+      Serial.println("Erro ao enviar o DTC");
+  } else {
+    insert(DTC_mode_3);
+  }
+}
+
 /*=========================== ISRs ====================================*/
 void ticker200mHzISR()
 { 

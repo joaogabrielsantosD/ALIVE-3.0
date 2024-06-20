@@ -6,6 +6,7 @@
 
 void init_tickers(void);
 bool checkPID(void);
+void Call_DTC_mode3(void);
 
 /* ISRs */
 void ticker200mHzISR(void);
