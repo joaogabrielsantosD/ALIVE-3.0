@@ -136,6 +136,7 @@ void ServerCallbacks::onDisconnect(BLEServer *pServer)
 
 void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
 {
+    dtc_control_function dtc_callback;
     std::string value = SenderCharacteristic->getValue();
 
     if(SenderCharacteristic->getLength() > 0)
@@ -145,7 +146,16 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
 
         if(value.compare("DTC") == 0)
         {
+            dtc_callback = &Call_DTC_mode3;
+            Serial.println("DTC requisitado");  
+            dtc_callback();
+        }
+
+        else if(value.compare("APAGAR DTC") == 0)
+        {
+            dtc_callback = &cleanDTC;
             Serial.println("DTC requisitado");
+            dtc_callback();
         }
     } 
 }
