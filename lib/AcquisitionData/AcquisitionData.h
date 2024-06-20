@@ -21,6 +21,7 @@ ThreadHandle_t gps_acq_function(void *arg);
 /* CAN Acquisition functions */
 void MsgRec_Treatment(void);
 String make_DTC_code(uint8_t first_msg, uint8_t second_msg);
+void cleanDTC(void);
 
 /* Packet Message Functions */
 BLE_packet_t updatePacket(void);

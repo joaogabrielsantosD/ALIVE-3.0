@@ -8,7 +8,15 @@ TinyGPSPlus gps_const;
 MPU9250 mpu_const;
 /* Debug Variables */
 bool debug_when_receive_byte = false;
-bool debug_when_receive_info = false; // variable to enable the Serial when receive
+bool debug_when_receive_info = false;
+/*
+  * 0 - Não Printa nada na Serial
+  * 1 - Print apenas mensagens CAN
+  * 2 - Print apenas DTC
+  * 3 - Print apenas dados dos modulos
+  * 4 - Print todos
+*/
+#define debug_message 0
 
 void start_module_device()
 {
@@ -64,6 +72,12 @@ ThreadHandle_t imu_acq_function(void *arg)
     pthread_mutex_unlock(&acq_mutex); 
   }
 
+  #if debug_message == 3 || debug_message == 4
+    Serial.printf("Acc x: %.2f\r\n", volatile_packet.imu_acc.acc_x);
+    Serial.printf("Acc y: %.2f\r\n", volatile_packet.imu_acc.acc_y);
+    Serial.printf("Acc z: %.2f\r\n", volatile_packet.imu_acc.acc_z);    
+  #endif
+
   return NULL;
 }
 
@@ -82,6 +96,11 @@ ThreadHandle_t gps_acq_function(void *arg)
       }
     }
   }
+
+  #if debug_message == 3 || debug_message == 4
+    Serial.printf("LAT: %lf\r\n", volatile_packet.gps_data.LAT);
+    Serial.printf("LNG: %lf\r\n", volatile_packet.gps_data.LAT);    
+  #endif
 
   return NULL;
 }
@@ -132,8 +151,10 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Calculated_Engine_Load = (100*A)/255;
-        if(debug_when_receive_info) Serial.printf("Calculated engine load value:  %f\r\n", volatile_packet.Calculated_Engine_Load);
-      
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Calculated engine load value:  %f\r\n", volatile_packet.Calculated_Engine_Load);
+        #endif
+
         break;
       }
 
@@ -141,8 +162,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Engine_Coolant_Temperature = A - 40;
-        if(debug_when_receive_info) Serial.printf("Engine Coolant Temperature:  %f\r\n", volatile_packet.Engine_Coolant_Temperature);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Engine Coolant Temperature:  %f\r\n", volatile_packet.Engine_Coolant_Temperature);
+        #endif
+
         break;
       }
 
@@ -150,8 +174,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Fuel_Pressure = 3*A;
-        if(debug_when_receive_info) Serial.printf("Fuel Pressure:  %f\r\n", volatile_packet.Fuel_Pressure);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Fuel Pressure:  %f\r\n", volatile_packet.Fuel_Pressure);
+        #endif
+
         break;
       }
 
@@ -159,8 +186,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Intake_Manifold_Absolute_Pressure_MAP = A;
-        if(debug_when_receive_info) Serial.printf("Intake manifold absolute pressure(MAP):  %f\r\n", volatile_packet.Intake_Manifold_Absolute_Pressure_MAP);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Intake manifold absolute pressure(MAP):  %f\r\n", volatile_packet.Intake_Manifold_Absolute_Pressure_MAP);
+        #endif
+
         break;
       }
 
@@ -168,8 +198,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Engine_RPM = (256*A + B)/4;
-        if(debug_when_receive_info) Serial.printf("Engine RPM:  %f\r\n", volatile_packet.Engine_RPM);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Engine RPM:  %f\r\n", volatile_packet.Engine_RPM);
+        #endif
+
         break;
       }
 
@@ -177,8 +210,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Speed = A;
-        if(debug_when_receive_info) Serial.printf("Vehicle speed:  %f\r\n", volatile_packet.Speed);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Vehicle speed:  %f\r\n", volatile_packet.Speed);
+        #endif
+
         break;
       }
 
@@ -186,8 +222,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Throttle_Position = (100*A)/255;
-        if(debug_when_receive_info) Serial.printf("Throttle position:  %f\r\n", volatile_packet.Throttle_Position);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Throttle position:  %f\r\n", volatile_packet.Throttle_Position);
+        #endif
+
         break;
       }
 
@@ -195,8 +234,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Run_Time = 256*A + B;
-        if(debug_when_receive_info) Serial.printf("Run Time since engine start:  %f\r\n", volatile_packet.Run_Time);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Run Time since engine start:  %f\r\n", volatile_packet.Run_Time);
+        #endif
+
         break;
       }
 
@@ -204,8 +246,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Distance_traveled_with_MIL_on = 256*A + B;
-        if(debug_when_receive_info) Serial.printf("Distance traveled with malfunction indicator lamp (MIL) on :  %f\r\n", volatile_packet.Distance_traveled_with_MIL_on);
-      
+        
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Distance traveled with malfunction indicator lamp (MIL) on :  %f\r\n", volatile_packet.Distance_traveled_with_MIL_on);
+        #endif
+
         break;
       }
 
@@ -213,8 +258,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Fuel_Level_input = (100*A)/255;
-        if(debug_when_receive_info) Serial.printf("Fuel Level Input:  %f\r\n", volatile_packet.Fuel_Level_input);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Fuel Level Input:  %f\r\n", volatile_packet.Fuel_Level_input);
+        #endif
+
         break;
       }
 
@@ -222,8 +270,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Distance_traveled_since_codes_cleared = 256*A + B;
-        if(debug_when_receive_info) Serial.printf("Distance traveled since codes cleared:  %f\r\n", volatile_packet.Distance_traveled_since_codes_cleared);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Distance traveled since codes cleared:  %f\r\n", volatile_packet.Distance_traveled_since_codes_cleared);
+        #endif
+
         break;
       }
 
@@ -231,8 +282,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Ambient_Air_Temperature = A - 40;
-        if(debug_when_receive_info) Serial.printf("Ambient air temperature:  %f\r\n", volatile_packet.Ambient_Air_Temperature);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Ambient air temperature:  %f\r\n", volatile_packet.Ambient_Air_Temperature);
+        #endif
+
         break;
       }
 
@@ -240,8 +294,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3];
         volatile_packet.Engine_Oil_Temperature = A - 40;
-        if(debug_when_receive_info) Serial.printf("Engine Oil Temperature:  %f\r\n", volatile_packet.Engine_Oil_Temperature);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Engine Oil Temperature:  %f\r\n", volatile_packet.Engine_Oil_Temperature);
+        #endif
+
         break;
       }
 
@@ -249,8 +306,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Engine_fuel_rate = (256*A + B)/20;
-        if(debug_when_receive_info) Serial.printf("Engine Fuel rate:  %f\r\n", volatile_packet.Engine_fuel_rate);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Engine Fuel rate:  %f\r\n", volatile_packet.Engine_fuel_rate);
+        #endif
+
         break;
       }
 
@@ -258,8 +318,11 @@ void MsgRec_Treatment()
       {
         float A = info_can[3], B = info_can[4], C = info_can[5], D = info_can[6];
         volatile_packet.Odometer = ((A*pow(2,24)) + (B*pow(2,16)) + (C*pow(2,8)) + D)/10;
-        if(debug_when_receive_info) Serial.printf("Odometer:  %f\r\n", volatile_packet.Odometer);
-      
+
+        #if debug_message == 1 || debug_message == 4 
+          Serial.printf("Odometer:  %f\r\n", volatile_packet.Odometer);
+        #endif
+
         break;
       }
     
@@ -269,7 +332,11 @@ void MsgRec_Treatment()
         {
           volatile_packet.DTC = make_DTC_code(info_can[3], info_can[4]);
 
-          Serial.println(volatile_packet.DTC);
+          #if debug_message == 2 || debug_message == 4
+            Serial.print("Codigo de leitura de falhas: ");
+            Serial.println(volatile_packet.DTC);
+          #endif
+
         }
 
         break;
@@ -290,19 +357,18 @@ String make_DTC_code(uint8_t first_msg, uint8_t second_msg)
   
   code_dtc += String(_first_char);
 
-  uint8_t aux = (second_msg & 0x03);
-  code_dtc += String((aux != 0 && aux != 3 ? aux ^= 3 : aux));
+  uint8_t _second_char = (second_msg & 0x03);
+  code_dtc += String((_second_char != 0 && _second_char != 3 ? _second_char ^= 3 : _second_char));
  
   uint8_t _third_fourth_fifth_char[] = 
   { 
     (uint8_t)((second_msg & 0xF0) >> 4), (uint8_t)((second_msg & 0xF0) >> 4), (uint8_t)(second_msg & 0x0F)
   };
 
-  for(size_t i = 0; i < sizeof(_third_fourth_fifth_char); i++)
+  for(int8_t i = 0; i < sizeof(_third_fourth_fifth_char); i++)
+  {
     *(characters + i) = (char)verify_char(_third_fourth_fifth_char[i]);
 
-  for(size_t i = 0; i < sizeof(_third_fourth_fifth_char); i++)
-  {
     if(*(characters + i) != 'Z')
       code_dtc += String(*(characters + i));
     else
@@ -312,6 +378,12 @@ String make_DTC_code(uint8_t first_msg, uint8_t second_msg)
   free(characters);  
 
   return code_dtc;
+}
+
+void cleanDTC()
+{
+  volatile_packet.DTC.clear();
+  volatile_packet.DTC = "null";
 }
 
 /*================================== Packet Message Functions ==================================*/
