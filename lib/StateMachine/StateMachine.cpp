@@ -76,6 +76,8 @@ bool insert(int ST)
 {
   if(ST == Odometer_PID) 
     return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+  else if(ST == DTC_mode_3)
+    return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
   else if(ST == Accelerometer_ST || ST == GPS_ST)
     return state_buffer.push(ST);
   else 
