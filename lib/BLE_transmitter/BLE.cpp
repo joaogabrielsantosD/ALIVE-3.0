@@ -109,17 +109,20 @@ void Send_BLE_msg()
     doc["Longitude"]                     = verify_message_is_null(GPS_ST, String(msg_packet.gps_data.LNG));
     doc["DTC"]                           = msg_packet.DTC;
 
-    // Serial.print("JSON document Size: "); Serial.println(document.size());
+    //Serial.print("JSON document Size: "); Serial.println(doc.size());
+    
     /* Make the JSON packet in the std::string format */
     msgBLE.clear();
     serializeJson(doc, msgBLE);
+    
     /* Print data and length of the std::string */
     //Serial.println(msgBLE.data());
     //Serial.println(msgBLE.length());
+    
     /* Set and send the value */
     pCharacteristic->setValue(msgBLE);
     pCharacteristic->notify();
-    digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 0X01);
+    digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 0x01);
 }
 
 void ServerCallbacks::onConnect(BLEServer *pServer)
