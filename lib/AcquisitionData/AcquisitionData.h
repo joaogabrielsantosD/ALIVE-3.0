@@ -7,7 +7,9 @@
 #include "StateMachine.h"
 #include "packets.h"
 
-typedef void* ThreadHandle_t;
+#define verify_char(c) (c == 10 ? 'A' : c == 11 ? 'B' : c == 12 ? 'C' : c == 13 ? 'D' : c == 14 ? 'E' : c == 15 ? 'F' : 'Z')
+
+typedef void *ThreadHandle_t;
 
 void start_module_device(void);
 void acq_function(int acq_mode);
@@ -18,9 +20,10 @@ ThreadHandle_t gps_acq_function(void *arg);
 
 /* CAN Acquisition functions */
 void MsgRec_Treatment(void);
+String make_DTC_code(uint8_t first_msg, uint8_t second_msg);
+void cleanDTC(void);
 
 /* Packet Message Functions */
-BLE_packet_t defaultValue(void);
 BLE_packet_t updatePacket(void);
 
 #endif
