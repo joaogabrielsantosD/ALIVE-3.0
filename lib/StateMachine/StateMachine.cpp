@@ -1,13 +1,13 @@
 #include "StateMachine.h"
 
-bool debug_when_send = false;   // variable to enable the Serial when send the message 
+#define debug_when_send 0  // variable to enable the Serial when send the message 
 /* Variables for Circular Buffer*/
-CircularBuffer<int, BUFFER_SIZE*2> state_buffer;
+CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_id = IDLE_ST;
 boolean imu_flag = false;
 uint8_t PID_enable_bit[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 uint8_t PID_Enables_bin[128];
-uint8_t pid5_enable = 0;
+uint8_t odometer_pid_enable = 0;
 
 int CircularBuffer_state()
 {
@@ -18,14 +18,15 @@ int CircularBuffer_state()
 
   * If all bits value is equal Zero(0), means this array reference a CAN message */
   uint8_t _id_flag = 0x00;
+  bool buffer_full = false;
   unsigned char messageData[8] = {0x02, 0x01, 0x00/*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   if(state_buffer.isFull())
   {
-    //buffer_full = true;
+    buffer_full = true;
     current_id = state_buffer.pop();
   } else {
-    //buffer_full = false;
+    buffer_full = false;
     if(!state_buffer.isEmpty())
       current_id = state_buffer.pop();        
     else
@@ -50,10 +51,20 @@ int CircularBuffer_state()
       break;
 
     default: /* CAN msg */
-      _id_flag &= ~0xFF; // disable all bits
-      messageData[2] = (unsigned char)current_id;
       
-      if(send_msg(messageData) && debug_when_send) debug_print(messageData);
+      if(current_id == DTC_mode_3)
+      {
+        messageData[0] = 0x01;
+        messageData[1] = 0x03;
+      } else {
+        messageData[2] = (unsigned char)current_id;
+      }
+
+      #if debug_when_send == 1
+        if(send_msg(messageData)) debug_print(messageData);
+      #else
+        send_msg(messageData);
+      #endif
 
       break;
   }
@@ -63,12 +74,14 @@ int CircularBuffer_state()
 
 bool insert(int ST)
 {
-  if(ST==Odometer_PID) 
-    return (Verify_odometer_exist() ? state_buffer.push(ST) : 0);
-  else if(ST==Accelerometer_ST || ST==GPS_ST)
+  if(ST == Odometer_PID) 
+    return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+  else if(ST == DTC_mode_3)
+    return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
+  else if(ST == Accelerometer_ST || ST == GPS_ST)
     return state_buffer.push(ST);
   else 
-    return (Check_bin_for_state(ST) ? state_buffer.push(ST) : 0);
+    return Check_bin_for_state(ST) ? state_buffer.push(ST) : 0;
 }
 
 void debug_print(unsigned char *message)
@@ -89,12 +102,13 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int8_t position)
   if(position < sizeof(PID_enable_bit))
   {
     for(int i = 0; i < 4; i++) 
-      PID_enable_bit[position+i] = bit_data[4+i];
+      PID_enable_bit[position + i] = bit_data[4 + i];
   }
 
-  if(position==PID_to_index_4) Convert_Dec2Bin();
-
-  else if(position==PID_to_index_5) pid5_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
+  if(position == PID_to_index_4) 
+    Convert_Dec2Bin();
+  else if(position == PID_to_index_5) 
+    odometer_pid_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
 
 void Convert_Dec2Bin()
@@ -119,7 +133,7 @@ int Check_bin_for_state(int pid_order)
 
 int Verify_odometer_exist()
 {
-  return pid5_enable & 0x01;
+  return odometer_pid_enable & 0x01;
 }
 
 void save_flag_imu_parameter(boolean _flag)
@@ -135,13 +149,13 @@ String verify_message_is_null(int msg, String ext)
         return ext;
       break;
     case Accelerometer_ST:
-        return (imu_flag ? ext : "null");
+        return imu_flag ? ext : "null";
       break;
     case Odometer_PID:
-        return (Verify_odometer_exist() ? ext : "null");
+        return Verify_odometer_exist() ? ext : "null";
       break;
     default:
-        return (Check_bin_for_state(msg) ? ext : "null");
+        return Check_bin_for_state(msg) ? ext : "null";
       break;
   }
 }

@@ -49,6 +49,8 @@ typedef struct
 
     gps_data_t gps_data;
 
+    String DTC;
+
 } BLE_packet_t;
 
 #endif

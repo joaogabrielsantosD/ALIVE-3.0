@@ -8,7 +8,7 @@
 /*====================== CAN DEFINITIONS ============================ */
 #define SerialAT            Serial2
 #define CAN_2515
-#define BUFFER_SIZE         50
+#define BUFFER_SIZE         100
 #define CAN_ID_EXTENDED     0x18DB33F1
 #define CAN_ID_NORMAL       0x7DF
 #define CAN_ID(EXT)         ((EXT) ? (CAN_ID_EXTENDED) : (CAN_ID_NORMAL))      
@@ -34,6 +34,7 @@
 #define Distance_Travel_PID DistanceTraveledSinceCodeCleared
 #define MAP_sensor_PID      AbsolutePressure
 #define Odometer_PID        0xA6
+#define DTC_mode_3          0xFFFF // 2 bytes of PID
 
 #define IDLE_ST             0x00
 #define Accelerometer_ST    0x01

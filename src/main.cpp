@@ -67,6 +67,10 @@ void AcquisitionStateMachine(void *arg)
 
       if(_canId == 1 || _canId == 2)
       {
+        /* 0x01 is ACC data and 0x02 is GPS data, the acq_function(int acq_mode) 
+         * call the threads will be execute the acquisition function of respective data.
+         * The @param acq_mode only accept 0x01 or 0x02, bigger then this
+         * will be ignored */
         acq_function(_canId);
       } else {
         initialTime = millis();    
@@ -96,7 +100,7 @@ void BLEsenderData(void *arg)
     {
       Send_BLE_msg();
 
-      vTaskDelay(MAX_BLE_DELAY);
+      vTaskDelay(MAX_BLE_DELAY + 10);
     }
 
     vTaskDelay(10);
