@@ -16,7 +16,7 @@
 typedef void (*dtc_control_function)(void);
 
 void Init_BLE_Server(void);
-int BLE_connected(void);
+bool BLE_connected(void);
 void Send_BLE_msg(void);
 
 // Callback to receive device connection events

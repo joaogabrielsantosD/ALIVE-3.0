@@ -57,7 +57,7 @@ void Init_BLE_Server()
     Serial.println("Waiting a client connection to notify...");
 }
 
-int BLE_connected()
+bool BLE_connected()
 {
     if(deviceConnected)
     {
@@ -79,7 +79,7 @@ int BLE_connected()
         oldDeviceConnected = deviceConnected;
     }
 
-    return !(deviceConnected ^ 0x01);
+    return deviceConnected;
 }
 
 void Send_BLE_msg()
