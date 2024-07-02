@@ -25,18 +25,18 @@ void setup()
   Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
   
   // if there was an error in the CAN it shows
-  flagCANInit = start_CAN_device(true);
-  if(!flagCANInit)
-  {
-    Serial.println("CAN error!!!");
-    esp_restart();
-  }
+  //flagCANInit = start_CAN_device(true);
+  //if(!flagCANInit)
+  //{
+  //  Serial.println("CAN error!!!");
+  //  esp_restart();
+  //}
 
   /* Disable the WDT */
   set_wdt_timer();
   
   /* Initialize all tickers to insert the messages in the circular buffer */
-  init_tickers();
+  //init_tickers();
   
   /* Set the new WDT timer */
   set_wdt_timer();
@@ -45,10 +45,10 @@ void setup()
   Init_BLE_Server();
 
   /* Init the Modules */
-  start_module_device();
+  //start_module_device();
 
   /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE) management */
-  xTaskCreatePinnedToCore(AcquisitionStateMachine, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
+  //xTaskCreatePinnedToCore(AcquisitionStateMachine, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
   xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
 }
 
