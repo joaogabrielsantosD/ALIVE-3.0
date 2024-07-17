@@ -13,36 +13,36 @@ typedef struct
     double LAT, LNG;
 } gps_data_t;
 
-typedef struct 
+typedef struct
 {
     float Calculated_Engine_Load,
 
         Engine_Coolant_Temperature,
-    
+
         Fuel_Pressure,
-    
-        Intake_Manifold_Absolute_Pressure_MAP,
-    
-        Engine_RPM,    
-    
+
+        Intake_Manifold__MAP,
+
+        Engine_RPM,
+
         Speed,
-    
+
         Throttle_Position,
-    
+
         Run_Time,
-    
+
         Distance_traveled_with_MIL_on,
-    
+
         Fuel_Level_input,
-    
-        Distance_traveled_since_codes_cleared,
-    
+
+        Distance_traveled,
+
         Ambient_Air_Temperature,
-    
+
         Engine_Oil_Temperature,
-    
+
         Engine_fuel_rate,
-    
+
         Odometer;
 
     imu_acc_t imu_acc;

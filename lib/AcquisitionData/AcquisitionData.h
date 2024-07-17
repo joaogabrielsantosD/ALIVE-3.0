@@ -7,7 +7,11 @@
 #include "StateMachine.h"
 #include "packets.h"
 
-#define verify_char(c) (c == 10 ? 'A' : c == 11 ? 'B' : c == 12 ? 'C' : c == 13 ? 'D' : c == 14 ? 'E' : c == 15 ? 'F' : 'Z')
+#define verify_char(c) (c == 10 ? 'A' : c == 11 ? 'B' \
+                                      : c == 12 ? 'C' \
+                                      : c == 13 ? 'D' \
+                                      : c == 14 ? 'E' \
+                                      : c == 15 ? 'F' : 'Z') // If c < 10, send the character 'Z' as an error flag
 
 typedef void *ThreadHandle_t;
 
