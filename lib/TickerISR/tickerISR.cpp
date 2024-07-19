@@ -49,7 +49,7 @@ bool checkPID()
           vTaskDelay(10);
         }
         SaveParameters_extended(!extended);
-        MsgRec_Treatment();
+        acq_function(0); 
         check_receive_pid = true;
       }
 
@@ -61,7 +61,7 @@ bool checkPID()
             debug_print(Data);
           vTaskDelay(10);
         }
-        MsgRec_Treatment();
+        acq_function(0);
         check_receive_pid = true;
       }
 

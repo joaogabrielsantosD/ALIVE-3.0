@@ -3,7 +3,7 @@
 BLE_packet_t volatile_packet;
 static const uint32_t GPS_baudrate = 4800;
 /* Module variables */
-pthread_mutex_t acq_mutex;
+pthread_mutex_t acq_mutex = PTHREAD_MUTEX_INITIALIZER;
 TinyGPSPlus gps_const;
 MPU9250 mpu_const;
 /* Debug Variables */
@@ -55,8 +55,13 @@ void acq_function(int acq_mode)
       pthread_create(&th, NULL, &gps_acq_function, NULL);
       pthread_join(th, NULL);
       break;
+    
+    default:
+      pthread_create(&th, NULL, &Handling_CAN_msg, NULL);
+      pthread_join(th, NULL);
+      break;
   }
-
+  
   pthread_mutex_destroy(&acq_mutex);
 }
 
@@ -106,7 +111,7 @@ ThreadHandle_t gps_acq_function(void *arg)
 }
 
 /*================================== CAN Acquisition functions ==================================*/
-void MsgRec_Treatment()
+ThreadHandle_t Handling_CAN_msg(void *arg)
 {
   uint8_t length = 8;
   uint32_t ID = 0;
@@ -114,6 +119,7 @@ void MsgRec_Treatment()
 
   while (msg_receive())
   {
+    pthread_mutex_lock(&acq_mutex);
     get_msg(info_can, ID, length);
 
     if (debug_when_receive_byte)
@@ -342,7 +348,10 @@ void MsgRec_Treatment()
         break;
       }
     }
+    pthread_mutex_unlock(&acq_mutex);
   }
+
+  return NULL;
 }
 
 String make_DTC_code(uint8_t first_msg, uint8_t second_msg)
@@ -361,7 +370,7 @@ String make_DTC_code(uint8_t first_msg, uint8_t second_msg)
   code_dtc += String(_first_char); // write the first char
 
   uint8_t _second_char = (second_msg & 0x03);
-  _second_char = (_second_char != 0 &&_second_char != 3 ? _second_char ^= 3 : _second_char);
+  _second_char = (_second_char != 0 && _second_char != 3 ? _second_char ^= 3 : _second_char);
   code_dtc += String(_second_char); // write the second char
   
   uint8_t _third_fourth_fifth_char[] =

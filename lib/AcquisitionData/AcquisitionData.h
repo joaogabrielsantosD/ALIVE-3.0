@@ -23,7 +23,7 @@ ThreadHandle_t imu_acq_function(void *arg);
 ThreadHandle_t gps_acq_function(void *arg);
 
 /* CAN Acquisition functions */
-void MsgRec_Treatment(void);
+ThreadHandle_t Handling_CAN_msg(void *arg);
 String make_DTC_code(uint8_t first_msg, uint8_t second_msg);
 void cleanDTC(void);
 
