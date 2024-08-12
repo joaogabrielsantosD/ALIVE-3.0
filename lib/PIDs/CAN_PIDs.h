@@ -9,7 +9,7 @@
 #define ShortTermFuel_Bank2                              0x08        
 #define LongTermFuel_Bank2                               0x09        
 #define FuelPressure                                     0x0A    
-#define AbsolutePressure                                 0x0B    
+#define IntakeManifoldAbsolutePressure                   0x0B    
 #define EngineRPM                                        0x0C
 #define VehicleSpeed                                     0x0D    
 #define TimingAdvance                                    0x0E    
@@ -29,9 +29,9 @@
 #define OBDstandard                                      0x1C       
 #define OxygenSensorsPresent2                            0x1D                   
 #define AuxiliaryInputStatus                             0x1E                   
-#define RunTime                                          0x1F   
+#define RunTimeSinceEngineStart                          0x1F   
 #define PIDsupported2                                    0x20           
-#define DistanceTraveled                                 0x21               
+#define DistanceTraveledMIL                              0x21               
 #define FuelRailPressure_vac                             0x22                   
 #define FuelRailPressure_dis                             0x23                   
 #define O2S1_WR_lambda1                                  0x24           
@@ -71,9 +71,9 @@
 #define AmbientAirTemperature                            0x46           
 #define AbsoluteThrottlePositionB                        0x47               
 #define AbsoluteThrottlePositionC                        0x48               
-#define AcceleratorPedalD                                0x49       
-#define AcceleratorPedalE                                0x4A       
-#define AcceleratorPedalF                                0x4B       
+#define AcceleratorPedalPositionD                        0x49       
+#define AcceleratorPedalPositionE                        0x4A       
+#define AcceleratorPedalPositionF                        0x4B       
 #define CommandedThrottleActuator                        0x4C               
 #define TimeRun_MIL                                      0x4D
 #define TimeSinceTroubleCodesCleared                     0x4E                   
@@ -105,11 +105,11 @@
 #define IntakeAirTemperatureSensor                       0X68               
 #define CommandedEGR_ERROR                               0X69       
 #define CommandedDiesel                                  0X6A   
-#define ExhaustGas                                       0X6B
-#define CommandedThrottleActuator2                       0X6C               
+#define ExhaustGasRecircuilationTemperature              0X6B
+#define CommandedThrottleActuator2Position               0X6C               
 #define FuelPressureControlSystem                        0X6D               
 #define InjectionPressureControl                         0X6E               
-#define TurboChargerCompressor                           0X6F                           
+#define TurboChargerCompressorPressure                   0X6F                           
 #define BoostPressureControl                             0x70 
 #define VGT                                              0x71
 #define WastegateControl                                 0x72    
@@ -133,6 +133,6 @@
 #define ManifoldSurfaceTemperature                       0x84
 #define NOxReagentSystem                                 0x85
 #define PM_Sensor                                        0x86
-#define IntakeManifoldAbsolutePressure                   0x87
+//#define IntakeManifoldAbsolutePressure                   0x87
 #define PIDsupport5                                      0xA0   
 #define PIDsupport6                                      0xC0
