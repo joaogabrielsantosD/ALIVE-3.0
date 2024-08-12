@@ -153,7 +153,6 @@ void ticker_10sec_ISR()
   insert(CatalystTemperature_Bank1Sensor2);
   insert(CatalystTemperature_Bank2Sensor2);
 
-
   insert(BarometricPressure);
   insert(AmbientAirTemperature);
 
