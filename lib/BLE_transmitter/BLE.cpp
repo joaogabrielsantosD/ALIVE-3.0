@@ -1,5 +1,6 @@
 #include "BLE.h"
 
+//#define PrintJSON
 bool deviceConnected = false, oldDeviceConnected = false;
 std::string msgBLE = "";
 BLEServer *pServer = NULL;
@@ -87,20 +88,20 @@ void Send_BLE_msg()
     BLE_packet_t msg_packet = updatePacket();
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
-    doc["Engine_Load"]            = verify_message_is_null(Engine_LoadP_ID, msg_packet.Calculated_Engine_Load);
-    doc["Engine_Coolant"]         = verify_message_is_null(Engine_CoolantP_ID, msg_packet.Engine_Coolant_Temperature);
-    doc["Fuel_Pressure"]          = verify_message_is_null(Fuel_Pressure_PID, msg_packet.Fuel_Pressure);
-    doc["MAP_SENSOR"]             = verify_message_is_null(MAP_sensor_PID, msg_packet.Intake_Manifold__MAP);
-    doc["Engine_RPM"]             = verify_message_is_null(Engine_RPM_ID, msg_packet.Engine_RPM);
-    doc["Speed"]                  = verify_message_is_null(Speed_PID, msg_packet.Speed);
-    doc["Throttle_Position"]      = verify_message_is_null(Throttle_Pos_PID, msg_packet.Throttle_Position);
-    doc["Run_Time"]               = verify_message_is_null(Run_Time_PID, msg_packet.Run_Time);
-    doc["Distance_traveled_MIL"]  = verify_message_is_null(Distance_on_MIL_PID, msg_packet.Distance_traveled);
-    doc["Fuel_Level"]             = verify_message_is_null(Fuel_Level_PID, msg_packet.Fuel_Level_input);
-    doc["Distance_traveled"]      = verify_message_is_null(Distance_Travel_PID, msg_packet.Distance_traveled_with_MIL_on);
-    doc["Ambient_Temperature"]    = verify_message_is_null(Ambient_Temp_PID, msg_packet.Ambient_Air_Temperature);
-    doc["Engine_Oil_Temperature"] = verify_message_is_null(Engine_Oil_PID, msg_packet.Engine_Oil_Temperature);
-    doc["Engine_fuel_rate"]       = verify_message_is_null(Engine_FuelRate_PID, msg_packet.Engine_fuel_rate);
+    doc["Engine_Load"]            = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
+    doc["Engine_Coolant"]         = verify_message_is_null(EngineCollantTemp, msg_packet.Engine_Coolant_Temperature);
+    doc["Fuel_Pressure"]          = verify_message_is_null(FuelPressure, msg_packet.Fuel_Pressure);
+    doc["MAP_SENSOR"]             = verify_message_is_null(IntakeManifoldAbsolutePressure, msg_packet.Intake_Manifold__MAP);
+    doc["Engine_RPM"]             = verify_message_is_null(EngineRPM, msg_packet.Engine_RPM);
+    doc["Speed"]                  = verify_message_is_null(VehicleSpeed, msg_packet.Speed);
+    doc["Throttle_Position"]      = verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
+    doc["Run_Time"]               = verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
+    doc["Distance_traveled_MIL"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled);
+    doc["Fuel_Level"]             = verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
+    doc["Distance_traveled"]      = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled_with_MIL_on);
+    doc["Ambient_Temperature"]    = verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
+    doc["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
+    doc["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
     doc["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
     doc["Acelerometro_X"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
     doc["Acelerometro_Y"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
@@ -109,15 +110,16 @@ void Send_BLE_msg()
     doc["Longitude"]              = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
     doc["DTC"]                    = msg_packet.DTC;
 
-    // Serial.print("JSON document Size: "); Serial.println(doc.size());
-
     /* Make the JSON packet in the std::string format */
     msgBLE.clear();
     serializeJson(doc, msgBLE);
 
     /* Print data and length of the std::string */
-    // Serial.println(msgBLE.data());
-    // Serial.println(msgBLE.length());
+    #ifdef PrintJSON
+        Serial.print("JSON document Size: "); Serial.println(doc.size());
+        Serial.println(msgBLE.data());
+        Serial.print("JSON in std::string size: "); Serial.println(msgBLE.length());
+    #endif
 
     /* Set and send the value */
     pCharacteristic->setValue(msgBLE);

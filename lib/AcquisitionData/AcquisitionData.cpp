@@ -57,8 +57,7 @@ void acq_function(int acq_mode)
       break;
     
     default:
-      pthread_create(&th, NULL, &Handling_CAN_msg, NULL);
-      pthread_join(th, NULL);
+      Handling_CAN_msg();
       break;
   }
   
@@ -111,7 +110,7 @@ ThreadHandle_t gps_acq_function(void *arg)
 }
 
 /*================================== CAN Acquisition functions ==================================*/
-ThreadHandle_t Handling_CAN_msg(void *arg)
+void Handling_CAN_msg()
 {
   uint8_t length = 8;
   uint32_t ID = 0;
@@ -119,7 +118,6 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
 
   while (msg_receive())
   {
-    pthread_mutex_lock(&acq_mutex);
     get_msg(info_can, ID, length);
 
     if (debug_when_receive_byte)
@@ -153,7 +151,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Engine_LoadP_ID:
+      case EngineLoad:
       {
         float A = info_can[3];
         volatile_packet.Calculated_Engine_Load = (100 * A) / 255;
@@ -165,7 +163,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Engine_CoolantP_ID:
+      case EngineCollantTemp:
       {
         float A = info_can[3];
         volatile_packet.Engine_Coolant_Temperature = A - 40;
@@ -177,7 +175,55 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Fuel_Pressure_PID:
+      case ShortTermFuel_Bank1:
+      {
+        float A = info_can[3];
+        volatile_packet.Short_Long_Term.ShortTermFuel.Bank1 = (A - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("ShortTermFuel_Bank1:  %f\r\n", volatile_packet.Short_Long_Term.ShortTermFuel.Bank1);
+        #endif
+
+        break;
+      }
+
+      case LongTermFuel_Bank1:
+      {
+        float A = info_can[3];
+        volatile_packet.Short_Long_Term.LongTermFuel.Bank1 = (A - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("LongTermFuel_Bank1:  %f\r\n", volatile_packet.Short_Long_Term.LongTermFuel.Bank1);
+        #endif
+
+        break;
+      }
+
+      case ShortTermFuel_Bank2:
+      {
+        float A = info_can[3];
+        volatile_packet.Short_Long_Term.ShortTermFuel.Bank2 = (A - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("ShortTermFuel_Bank2:  %f\r\n", volatile_packet.Short_Long_Term.ShortTermFuel.Bank2);
+        #endif
+
+        break;
+      }
+
+      case LongTermFuel_Bank2:
+      {
+        float A = info_can[3];
+        volatile_packet.Short_Long_Term.LongTermFuel.Bank2 = (A - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("LongTermFuel_Bank2:  %f\r\n", volatile_packet.Short_Long_Term.LongTermFuel.Bank2);
+        #endif
+
+        break;
+      }
+
+      case FuelPressure:
       {
         float A = info_can[3];
         volatile_packet.Fuel_Pressure = 3 * A;
@@ -189,7 +235,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case MAP_sensor_PID:
+      case IntakeManifoldAbsolutePressure:
       {
         float A = info_can[3];
         volatile_packet.Intake_Manifold__MAP = A;
@@ -201,7 +247,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Engine_RPM_ID:
+      case EngineRPM:
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Engine_RPM = (256 * A + B) / 4;
@@ -213,7 +259,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Speed_PID:
+      case VehicleSpeed:
       {
         float A = info_can[3];
         volatile_packet.Speed = A;
@@ -225,7 +271,43 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Throttle_Pos_PID:
+      case TimingAdvance:
+      {
+        float A = info_can[3];
+        volatile_packet.Timing_Advance = (A / 2) - 64;
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("TimingAdvance:  %f\r\n", volatile_packet.Timing_Advance);
+        #endif
+
+        break;
+      }
+
+      case IntakeAirTemperature:
+      {
+        float A = info_can[3];
+        volatile_packet.Intake_Air_Temperature = A - 40;
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("IntakeAirTemperature:  %f\r\n", volatile_packet.Intake_Air_Temperature);
+        #endif
+        
+        break;
+      }
+
+      case MAFairFlowRate:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.MAF_Air_FlowRate = ((A * 256) + B) / 100;
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("MAFairFlowRate:  %f\r\n", volatile_packet.MAF_Air_FlowRate);
+        #endif
+
+        break;
+      }      
+
+      case ThrottlePosition:
       {
         float A = info_can[3];
         volatile_packet.Throttle_Position = (100 * A) / 255;
@@ -237,7 +319,183 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Run_Time_PID:
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor1 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss1 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor1);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss1);
+          }
+        #endif
+        
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor2 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss2 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor2);
+          
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss2);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor3 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss3 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor3);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss3);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor4 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss4 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank1_Sensor4);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk1_ss4);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor1 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss1 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor1);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss1);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor2 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss2 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor2);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss2);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3:
+      {
+        float A = info_can[3], B = info_can[4];
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor3 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss3 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor3);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss3);
+          }
+        #endif
+
+        break;
+      }
+
+      case OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4:
+      {
+        float A = info_can[3], B = info_can[4]; 
+        volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor4 = A / 200;
+
+        if (B != 0xFF)
+          volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss4 = (B - 128) * (100 / 128);
+
+        #if debug_message == 1 || debug_message == 4
+          Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4:  %f\r\n", 
+          volatile_packet.Short_Long_Term.OxygenSensorVolt._Bank2_Sensor4);
+
+          if (B != 0xFF)
+          {
+            Serial.printf("OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4 ( 2 ):  %f\r\n", 
+            volatile_packet.Short_Long_Term.OxygenSensorVolt.bk2_ss4);
+          }
+        #endif
+
+        break;
+      }
+
+      case RunTimeSinceEngineStart:
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Run_Time = 256 * A + B;
@@ -249,7 +507,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Distance_on_MIL_PID:
+      case DistanceTraveledMIL:
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Distance_traveled_with_MIL_on = 256 * A + B;
@@ -261,7 +519,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Fuel_Level_PID:
+      case FuelLevelInput:
       {
         float A = info_can[3];
         volatile_packet.Fuel_Level_input = (100 * A) / 255;
@@ -273,7 +531,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Distance_Travel_PID:
+      case DistanceTraveledSinceCodeCleared:
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Distance_traveled = 256 * A + B;
@@ -285,7 +543,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Ambient_Temp_PID:
+      case AmbientAirTemperature:
       {
         float A = info_can[3];
         volatile_packet.Ambient_Air_Temperature = A - 40;
@@ -297,7 +555,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Engine_Oil_PID:
+      case EngineOilTemperature:
       {
         float A = info_can[3];
         volatile_packet.Engine_Oil_Temperature = A - 40;
@@ -309,7 +567,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
   
-      case Engine_FuelRate_PID:
+      case EngineFuelRate:
       {
         float A = info_can[3], B = info_can[4];
         volatile_packet.Engine_fuel_rate = (256 * A + B) / 20;
@@ -348,10 +606,7 @@ ThreadHandle_t Handling_CAN_msg(void *arg)
         break;
       }
     }
-    pthread_mutex_unlock(&acq_mutex);
   }
-
-  return NULL;
 }
 
 String make_DTC_code(uint8_t first_msg, uint8_t second_msg)

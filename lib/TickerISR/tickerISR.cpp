@@ -1,8 +1,9 @@
 #include "tickerISR.h"
 
-bool Print_in_serial = true; // Put True or False to enable SerialPrint of checkPID
+#define Print_in_serial // discomment to enable SerialPrint of checkPID
 const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
-Ticker ticker200mHz, ticker300mHz, ticker1Hz, ticker2Hz;
+Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs, 
+    ticker5secs, ticker1secs, ticker_05sec, ticker_01sec;
 
 void init_tickers()
 {
@@ -11,10 +12,15 @@ void init_tickers()
     Serial.println("Check the PID support...");
   } while (checkPID());
 
-  ticker200mHz.attach(5.0f, ticker200mHzISR); // 5s
-  ticker300mHz.attach(3.0f, ticker300mHzISR); // 3s
-  ticker1Hz.attach(1.0f, ticker1HzISR);       // 1s
-  ticker2Hz.attach(0.5f, ticker2HzISR);       // 0.5s
+  tickerONCE.once(1.0f, PIDs_once);           // one time
+  ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
+  ticker1min.attach(60.0f, ticker_1min_ISR);
+  ticker30secs.attach(30.0f, ticker_30sec_ISR);
+  ticker10secs.attach(10.0f, ticker_10sec_ISR);
+  ticker5secs.attach(5.0f, ticker_5sec_ISR);
+  ticker1secs.attach(1.0f, ticker_1sec_ISR);
+  ticker_05sec.attach(0.5f, ticker_05sec_ISR);
+  ticker_01sec.attach(0.1f, ticker_01sec_ISR);
 }
 
 bool checkPID()
@@ -26,7 +32,9 @@ bool checkPID()
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
-    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+    #ifdef Print_in_serial
+     Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+    #endif
     check_receive_pid = false;
     Data[2] = Pids[i];
 
@@ -38,8 +46,12 @@ bool checkPID()
         const unsigned long OBD_timout = 2000; // 2 seconds
         while (!checkReceive())
         {
-          if (send_msg(Data, extended) && Print_in_serial)
-            debug_print(Data);
+          #ifdef Print_in_serial
+            if (send_msg(Data, extended))
+              debug_print(Data);
+          #else
+            send_msg(Data, extended)
+          #endif
           extended = !extended;
 
           // timeout for OBD II connection failed
@@ -57,8 +69,12 @@ bool checkPID()
       {
         while (!checkReceive())
         {
-          if (send_msg(Data) && Print_in_serial)
-            debug_print(Data);
+          #ifdef Print_in_serial
+            if (send_msg(Data))
+              debug_print(Data);
+          #else
+            send_msg(Data)
+          #endif
           vTaskDelay(10);
         }
         acq_function(0);
@@ -74,49 +90,167 @@ bool checkPID()
 
 void Call_DTC_mode3(void)
 {
-  if (Print_in_serial)
-  {
+  #ifdef Print_in_serial
     if (insert(DTC_mode_3))
       Serial.println("DTC enviado com sucesso");
     else
       Serial.println("Erro ao enviar o DTC");
-  }
-
-  else
+  #else
     insert(DTC_mode_3);
+  #endif
 }
 
 /*=========================== ISRs ====================================*/
-void ticker200mHzISR()
+void PIDs_once()
 {
-  insert(Fuel_Level_PID);
-  insert(Engine_CoolantP_ID);
-  insert(Engine_Oil_PID);
-  insert(Ambient_Temp_PID);
+  insert(FuelType);
+  insert(HybridBatteryLife);  
 }
 
-void ticker300mHzISR()
+void ticker_5min_ISR()
 {
-  // insert(FueL_Status_PID);
+  insert(DistanceTraveledSinceCodeCleared);
+  insert(DistanceTraveledMIL); 
   insert(Odometer_PID);
-  insert(Distance_on_MIL_PID);
-  insert(Distance_Travel_PID);
+  insert(EthanolFuel);
+}
+
+void ticker_1min_ISR()
+{
+  insert(FuelPressure);  
+
+  insert(TimeRun_MIL);
+  insert(TimeSinceTroubleCodesCleared);
+  insert(CommandedEGR_ERROR);
+  insert(EngineRunTime);
+
+  insert(ShortTermFuel_Bank1);                                       
+  insert(LongTermFuel_Bank1);                                        
+  insert(ShortTermFuel_Bank2);                                       
+  insert(LongTermFuel_Bank2);
+}
+
+void ticker_30sec_ISR()
+{
   insert(GPS_ST);
+  insert(ControlModuleVoltage);
+  insert(AbsoluteLoadValue);
+  insert(AbsoluteFuelRailPressure);
+  insert(FuelPressureControlSystem);
+  insert(FuelLevelInput);
+  insert(InjectionPressureControl);
+  insert(DPF1);
+  insert(DPF2);
 }
 
-void ticker1HzISR()
+void ticker_10sec_ISR()
 {
-  insert(MAP_sensor_PID);
-  insert(Throttle_Pos_PID);
-  insert(Engine_FuelRate_PID);
-  insert(Run_Time_PID);
-  insert(Engine_LoadP_ID);
+  insert(EngineCollantTemp);
+  insert(IntakeAirTemperature);
+
+  insert(CatalystTemperature_Bank1Sensor1);
+  insert(CatalystTemperature_Bank2Sensor1);
+  insert(CatalystTemperature_Bank1Sensor2);
+  insert(CatalystTemperature_Bank2Sensor2);
+
+
+  insert(BarometricPressure);
+  insert(AmbientAirTemperature);
+
+  insert(AbsoluteVapourPressure);
+  insert(EvapSystemVaporPressure);
+  insert(EngineOilTemperature);
+
+  insert(EngineCoolantTemperature);
+  insert(IntakeAirTemperatureSensor); 
+  insert(ExhaustGasRecircuilationTemperature);
+
+  insert(TurboChargerCompressorPressure);
+  insert(BoostPressureControl);
+  insert(VGT);
+  insert(WastegateControl);
+  insert(ExhaustPressure);
+
+  insert(TurbochargerTemperature1);
+  insert(TurbochargerTemperature2);
+  insert(ChargeAIR_CACT);
+  insert(EGT_Bank1);
+  insert(EGT_Bank2);
+  insert(DPF_Temperature);
+  insert(NOxNTE);
+  insert(PMxNTE);
 }
 
-void ticker2HzISR()
+void ticker_5sec_ISR()
 {
-  insert(Accelerometer_ST);
-  insert(Fuel_Pressure_PID);
-  insert(Speed_PID);
-  insert(Engine_RPM_ID);
+  insert(O2S1_WR_lambda2);
+  insert(O2S2_WR_lambda2);
+  insert(O2S3_WR_lambda2);
+  insert(O2S4_WR_lambda2);
+  insert(O2S5_WR_lambda2);
+  insert(O2S6_WR_lambda2);
+  insert(O2S7_WR_lambda2);
+  insert(O2S8_WR_lambda2);
+
+  //insert(OxygenSensorsPresent);                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1);                           
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2);                                                  
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3);                                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4);                                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1);                                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2);                                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3);                                              
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4);    
+
+  insert(CommandEquivalenceRatio);
+
+  insert(ShortTermSecondaryOxygenSensor_bank1bank3);
+  insert(LongTermSecondaryOxygenSensor_bank1bank3);
+  insert(ShortTermSecondaryOxygenSensor_bank2bank4);
+  insert(LongTermSecondaryOxygenSensor_bank2bank4);
+
+  insert(FuelRailPressure_vac);                                                 
+  insert(FuelRailPressure_dis); 
+}
+
+void ticker_1sec_ISR()
+{
+  insert(EngineLoad);
+  insert(IntakeManifoldAbsolutePressure);
+  insert(MAFairFlowRate);  
+
+  insert(VaporPressure);
+  insert(MaximumValueForEquivalenceRatio);
+  insert(MaximumValueForAirFlowRate);
+  insert(DriverDemandEngine);
+  insert(ActualEngine_PercentTorque);
+  insert(EngineReferenceTorque);
+  insert(EnginePercentTorque);
+
+  insert(MassAirFlowSensor);
+  insert(CommandedDiesel);
+  insert(TurbochargerRPM);
+  insert(RunTimeSinceEngineStart);
+}
+
+void ticker_05sec_ISR()
+{ 
+  insert(Accelerometer_ST); 
+  insert(EngineRPM);
+  insert(VehicleSpeed);
+}
+
+void ticker_01sec_ISR()
+{
+  insert(TimingAdvance);
+  insert(ThrottlePosition);
+  insert(RelativeThrottlePosition);
+  insert(AbsoluteThrottlePositionB);
+  insert(AbsoluteThrottlePositionC); 
+  insert(AcceleratorPedalPositionD);
+  insert(AcceleratorPedalPositionE);
+  insert(AcceleratorPedalPositionF);
+  insert(CommandedThrottleActuator);
+  insert(RelativeAcceleratorPedalPosition);
+  insert(CommandedThrottleActuator2Position);
 }
