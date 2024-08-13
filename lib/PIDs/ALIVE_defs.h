@@ -18,21 +18,6 @@
 #define PIDs3               PIDsupported3
 #define PIDs4               PIDsupported4
 #define PIDs5               PIDsupport5
-#define FueL_Status_PID     FuelSystem
-#define Fuel_Pressure_PID   FuelPressure
-#define Fuel_Level_PID      FuelLevelInput
-#define Speed_PID           VehicleSpeed
-#define Engine_LoadP_ID     EngineLoad
-#define Engine_CoolantP_ID  EngineCollantTemp
-#define Engine_RPM_ID       EngineRPM
-#define Run_Time_PID        RunTime
-#define Engine_Oil_PID      EngineOilTemperature
-#define Engine_FuelRate_PID EngineFuelRate
-#define Ambient_Temp_PID    AmbientAirTemperature
-#define Throttle_Pos_PID    ThrottlePosition
-#define Distance_on_MIL_PID DistanceTraveled
-#define Distance_Travel_PID DistanceTraveledSinceCodeCleared
-#define MAP_sensor_PID      AbsolutePressure
 #define Odometer_PID        0xA6
 #define DTC_mode_3          0xFFFF // 2 bytes of PID
 

@@ -14,6 +14,6 @@ void Convert_Dec2Bin(void);
 int Check_bin_for_state(int pid_order);
 int Verify_odometer_exist(void);
 void save_flag_imu_parameter(boolean _flag);
-String verify_message_is_null(int msg, String ext);
+String verify_message_is_null(int id, double msg);
 
 #endif
