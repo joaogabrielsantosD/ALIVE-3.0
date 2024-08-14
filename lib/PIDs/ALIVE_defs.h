@@ -8,7 +8,7 @@
 /*====================== CAN DEFINITIONS ============================ */
 #define SerialAT            Serial2
 #define CAN_2515
-#define BUFFER_SIZE         100
+#define BUFFER_SIZE         200
 #define CAN_ID_EXTENDED     0x18DB33F1
 #define CAN_ID_NORMAL       0x7DF
 #define CAN_ID(EXT)         ((EXT) ? (CAN_ID_EXTENDED) : (CAN_ID_NORMAL))      
