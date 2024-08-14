@@ -1,6 +1,6 @@
 #include "StateMachine.h"
 
-#define debug_when_send 0 // variable to enable the Serial when send the message
+//#define debug_when_send // variable to enable the Serial when send the message
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_id = IDLE_ST;
@@ -66,7 +66,7 @@ int CircularBuffer_state()
         messageData[2] = 0x00;
       }
 
-      #if debug_when_send == 1
+      #ifdef debug_when_send
         if (send_msg(messageData))
           debug_print(messageData);
       #else
