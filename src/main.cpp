@@ -65,7 +65,7 @@ void AcquisitionStateMachine(void *arg)
     {
       _canId = CircularBuffer_state(); // check if the current id is CAN message or not
 
-      if (_canId == 1 || _canId == 2)
+      if (_canId == Accelerometer_ST || _canId == GPS_ST)
       {
         /* 0x01 is ACC data and 0x02 is GPS data, the acq_function(int acq_mode)
          * call the threads will be execute the acquisition function of respective data. */
@@ -75,7 +75,7 @@ void AcquisitionStateMachine(void *arg)
       else
       {
         initialTime = millis();
-        while (!checkReceive() && _canId > 0x02)
+        while (!checkReceive() && _canId != IDLE_ST)
         { // timeout
           if (millis() - initialTime >= 3000)
             break;
