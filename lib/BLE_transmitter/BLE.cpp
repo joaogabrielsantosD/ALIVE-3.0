@@ -1,6 +1,9 @@
 #include "BLE.h"
 
+/* Defines for debug */
 //#define PrintJSON
+#define BLEdebug
+
 bool deviceConnected = false, oldDeviceConnected = false;
 std::string msgBLE = "";
 BLEServer *pServer = NULL;
@@ -55,7 +58,9 @@ void Init_BLE_Server()
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06); // set value to 0x00 to not advertise this parameter
     BLEDevice::startAdvertising();
-    Serial.println("Waiting a client connection to notify...");
+    #ifdef BLEdebug
+     Serial.println("Waiting a client connection to notify...");
+    #endif
 }
 
 bool BLE_connected()
@@ -70,7 +75,9 @@ bool BLE_connected()
     {
         digitalWrite(BLE_DEBUG_LED, LOW);
         pServer->startAdvertising(); // restart advertising
-        Serial.println("start advertising");
+        #ifdef BLEdebug
+            Serial.println("start advertising");
+        #endif
         oldDeviceConnected = deviceConnected;
     }
 
@@ -129,13 +136,17 @@ void Send_BLE_msg()
 
 void ServerCallbacks::onConnect(BLEServer *pServer)
 {
-    Serial.println("Client connected");
+    #ifdef BLEdebug
+        Serial.println("Client connected");
+    #endif
     deviceConnected = true;
 }
 
 void ServerCallbacks::onDisconnect(BLEServer *pServer)
 {
-    Serial.println("Disconnected");
+    #ifdef BLEdebug
+        Serial.println("Disconnected");
+    #endif
     deviceConnected = false;
 }
 
@@ -150,13 +161,17 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
 
         if (value.compare("DTC") == 0)
         {
-            Serial.println("DTC requisitado");
+            #ifdef BLEdebug
+                Serial.println("DTC requisitado");
+            #endif
             Call_DTC_mode3();
         }
 
         else if (value.compare("APAGAR DTC") == 0)
         {
-            Serial.println("Codigo DTC apagado");
+            #ifdef BLEdebug
+                Serial.println("Codigo DTC apagado");
+            #endif
             cleanDTC();
         }
     }
