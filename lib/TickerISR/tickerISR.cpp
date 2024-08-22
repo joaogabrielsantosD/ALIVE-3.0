@@ -121,7 +121,7 @@ void ticker_1min_ISR()
 
   insert(TimeRun_MIL);
   insert(TimeSinceTroubleCodesCleared);
-  insert(CommandedEGR_ERROR);
+  //insert(CommandedEGR_ERROR);
   insert(EngineRunTime);
 
   insert(ShortTermFuel_Bank1);                                       
@@ -136,11 +136,11 @@ void ticker_30sec_ISR()
   insert(ControlModuleVoltage);
   insert(AbsoluteLoadValue);
   insert(AbsoluteFuelRailPressure);
-  insert(FuelPressureControlSystem);
-  insert(FuelLevelInput);
-  insert(InjectionPressureControl);
-  insert(DPF1);
-  insert(DPF2);
+  //insert(FuelPressureControlSystem);
+  //insert(FuelLevelInput);
+  //insert(InjectionPressureControl);
+  //insert(DPF1);
+  //insert(DPF2);
 }
 
 void ticker_10sec_ISR()
@@ -162,22 +162,22 @@ void ticker_10sec_ISR()
 
   insert(EngineCoolantTemperature);
   insert(IntakeAirTemperatureSensor); 
-  insert(ExhaustGasRecircuilationTemperature);
+  //insert(ExhaustGasRecircuilationTemperature);
 
-  insert(TurboChargerCompressorPressure);
-  insert(BoostPressureControl);
-  insert(VGT);
-  insert(WastegateControl);
-  insert(ExhaustPressure);
+  //insert(TurboChargerCompressorPressure);
+  //insert(BoostPressureControl);
+  //insert(VGT);
+  //insert(WastegateControl);
+  //insert(ExhaustPressure);
 
-  insert(TurbochargerTemperature1);
-  insert(TurbochargerTemperature2);
-  insert(ChargeAIR_CACT);
-  insert(EGT_Bank1);
-  insert(EGT_Bank2);
+  //insert(TurbochargerTemperature1);
+  //insert(TurbochargerTemperature2);
+  //insert(ChargeAIR_CACT);
+  //insert(EGT_Bank1);
+  //insert(EGT_Bank2);
   insert(DPF_Temperature);
-  insert(NOxNTE);
-  insert(PMxNTE);
+  //insert(NOxNTE);
+  //insert(PMxNTE);
 }
 
 void ticker_5sec_ISR()
@@ -227,8 +227,8 @@ void ticker_1sec_ISR()
   insert(EnginePercentTorque);
 
   insert(MassAirFlowSensor);
-  insert(CommandedDiesel);
-  insert(TurbochargerRPM);
+  //insert(CommandedDiesel);
+  //insert(TurbochargerRPM);
   insert(RunTimeSinceEngineStart);
 }
 
@@ -251,5 +251,5 @@ void ticker_01sec_ISR()
   insert(AcceleratorPedalPositionF);
   insert(CommandedThrottleActuator);
   insert(RelativeAcceleratorPedalPosition);
-  insert(CommandedThrottleActuator2Position);
+  //insert(CommandedThrottleActuator2Position);
 }

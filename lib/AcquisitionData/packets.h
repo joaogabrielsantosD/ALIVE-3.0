@@ -34,6 +34,26 @@ typedef struct
 
 typedef struct
 {
+    float O2S1[2], O2S2[2], O2S3[2], O2S4[2], O2S5[2], O2S6[2], O2S7[2], O2S8[2];
+} O2Sx_WR_lambda1_t;
+
+typedef struct
+{
+    float O2S1[2], O2S2[2], O2S3[2], O2S4[2], O2S5[2], O2S6[2], O2S7[2], O2S8[2];
+} O2Sx_WR_lambda2_t;
+
+typedef struct
+{
+    float Bank1_Sensor1, Bank2_Sensor1, Bank1_Sensor2, Bank2_Sensor2; 
+} CatalystTemperature_t;
+
+typedef struct
+{
+    float   ShortTerm_bank1_bank3[2], LongTerm_bank1_bank3[2], ShortTerm_bank2_bank4[2], LongTerm_bank2_bank4[2];    
+} SecondaryOxygenSensor_t;
+
+typedef struct
+{
     float Calculated_Engine_Load,
 
         Engine_Coolant_Temperature,
@@ -68,20 +88,101 @@ typedef struct
 
         MAF_Air_FlowRate,
 
+        Fuel_Rail_Pressure_vac,
+
+        Fuel_Rail_Pressure_dis,
+
+        _EGR_,
+
+        _EGR_ERROR_,
+
+        Evaporative_Purge,
+
+        Warm_Ups,
+
+        Vapor_Pressure,
+
+        Barometric_Pressure,
+
+        Control_Module_Voltage,
+
+        Absolute_Load_Value,
+
+        Command_Equivalence_Ratio,
+
+        Relative_Throttle_Position,
+
+        Absolute_Throttle_PositionB,
+
+        Absolute_Throttle_PositionC,
+
+        Absolute_Throttle_PositionD,
+
+        Absolute_Throttle_PositionE,
+
+        Absolute_Throttle_PositionF,
+
+        Commanded_Throttle_Actuator,
+
+        Time_Run_MIL,
+
+        Time_Since_Trouble_Codes_Cleared,
+
+        Maximum_Value_For_Equivalence_Ratio[4],
+
+        Maximum_Value_For_Air_Flow_Rate[3],
+
+        Ethanol_Fuel,
+
+        Absolute_Vapour_Pressure,
+
+        Evap_System_Vapor_Pressure,
+
+        Absolute_Fuel_Rail_Pressure,
+
+        Relative_Accelerator_Pedal_Position,
+
+        Hybrid_Battery_Life,
+
+        Fuel_Injection_Timing,
+
+        Driver_Demand_Engine,
+
+        Actual_Engine_Percent_Torque,
+
+        Engine_Reference_Torque,
+
+        Engine_Percent_Torque[4],
+
+        Mass_Air_Flow_Sensor,
+
+        _Engine_Coolant_Temperature_[2],
+
+        Intake_Air_Temperature_Sensor,
+
+        Commanded_EGR_ERROR,
+
+        Commanded_Diesel,
+
+        DPF__Temperature,
+
         Odometer;
     
-    union
-    {
+    struct {
         ShortTermFuel_t ShortTermFuel;
         LongTermFuel_t LongTermFuel; 
-        OxygenSensorVolt_Short_Term_FuelTrim_t OxygenSensorVolt; 
+        OxygenSensorVolt_Short_Term_FuelTrim_t OxygenSensorVolt;
+        O2Sx_WR_lambda1_t O2Sx_WR;
+        O2Sx_WR_lambda2_t O2Sx_WR_lambda2;
+        CatalystTemperature_t Catalyst_Temperature;
+        SecondaryOxygenSensor_t Secondary_OxygenSensor;
     } Short_Long_Term;
 
     imu_acc_t imu_acc;
 
     gps_data_t gps_data;
 
-    String DTC;
+    String DTC, Fuel_Type;
 
 } BLE_packet_t;
 
