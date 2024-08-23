@@ -58,7 +58,7 @@ bool checkPID()
           if ((millis() - obd_connection) >= OBD_timout)
             esp_restart();
 
-          vTaskDelay(10);
+          delay(10);
         }
         SaveParameters_extended(!extended);
         acq_function(0); 
@@ -75,13 +75,13 @@ bool checkPID()
           #else
             send_msg(Data)
           #endif
-          vTaskDelay(10);
+          delay(10);
         }
         acq_function(0);
         check_receive_pid = true;
       }
 
-      vTaskDelay(1);
+      delay(1);
     }
   }
 

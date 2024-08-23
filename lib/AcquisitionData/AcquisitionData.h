@@ -2,7 +2,7 @@
 #define ACQUISITIONDATA_H
 
 #include <TinyGPSPlus.h>
-#include <MPU9250.h>
+#include <MPU9250_WE.h>
 #include <pthread.h>
 #include "StateMachine.h"
 #include "packets.h"
@@ -12,10 +12,11 @@ typedef void *ThreadHandle_t;
 
 void start_module_device(void);
 void acq_function(int acq_mode);
+void imu_acq_function();
 
-/* Accelerometer && GPS functions */
-ThreadHandle_t imu_acq_function(void *arg);
-ThreadHandle_t gps_acq_function(void *arg);
+void initializeMPU9250();
+void calibrateMPU9250();
+
 
 /* CAN Acquisition functions */
 void Handling_CAN_msg(void);
