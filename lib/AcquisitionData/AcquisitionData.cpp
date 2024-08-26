@@ -5,16 +5,13 @@ BLE_packet_t volatile_packet;
 static const uint32_t GPS_baudrate = 4800;
 
 /* Module variables */
+pthread_mutex_t acq_mutex = PTHREAD_MUTEX_INITIALIZER;
 TinyGPSPlus gps_const;
-#define MPU9250_ADDR 0x68
-MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
+MPU9250 mpu_const;
 
 /* Debug Variables */
-
-//#define debug_when_receive_byte   
-//#define debug_acc             //Print on Serial the calibrations paramenters
-//#define debug_GPS             //Print on Serial the paramenters
-
+//#define debug_when_receive_byte;
+//#define debug_modules
 
 void start_module_device()
 {
@@ -22,70 +19,90 @@ void start_module_device()
   volatile_packet.DTC = "null";
 
   // init the gps serial command AT communication
- // SerialAT.begin(GPS_baudrate);
+  SerialAT.begin(GPS_baudrate);
 
   // init the MPU
   Wire.begin();
-  initializeMPU9250();
-  calibrateMPU9250();
+
+  if (mpu_const.setup(0x68))
+  {
+    mpu_const.verbose(true);
+    mpu_const.calibrateAccelGyro();
+    mpu_const.verbose(false);
+    save_flag_imu_parameter(true);
+  }
 }
 
 void acq_function(int acq_mode)
 {
+  pthread_t th;
+
+  pthread_mutex_init(&acq_mutex, NULL);
+
   switch (acq_mode)
   {
-    case Accelerometer_ST:      
-     imu_acq_function();
-     break;
+    case Accelerometer_ST:
+      pthread_create(&th, NULL, &imu_acq_function, NULL);
+      pthread_join(th, NULL);
+      break;
 
+    case GPS_ST:
+      pthread_create(&th, NULL, &gps_acq_function, NULL);
+      pthread_join(th, NULL);
+      break;
+    
     default:
       Handling_CAN_msg();
       break;
   }
- 
+  
+  pthread_mutex_destroy(&acq_mutex);
 }
 
 /*================================ Accelerometer && GPS functions ================================*/
-void imu_acq_function()
+ThreadHandle_t imu_acq_function(void *arg)
 {
-    xyzFloat gValue = MPU9250.getGValues();
-    xyzFloat gyr = MPU9250.getGyrValues();
-    xyzFloat magValue = MPU9250.getMagValues();
-    xyzFloat angles = MPU9250.getAngles();
+  if (mpu_const.update())
+  {
+    pthread_mutex_lock(&acq_mutex);
+    volatile_packet.imu_acc.acc_x = mpu_const.getRoll();
+    volatile_packet.imu_acc.acc_y = mpu_const.getPitch();
+    volatile_packet.imu_acc.acc_z = mpu_const.getYaw();
+    pthread_mutex_unlock(&acq_mutex);
+  }
 
-    //float resultantG = MPU9250.getResultantG(gValue);
-    float temp = MPU9250.getTemperature();
-    float pitch = MPU9250.getPitch();
-    float roll = MPU9250.getRoll();  
+  #ifdef debug_modules
+    Serial.printf("Acc x: %.2f\r\n", volatile_packet.imu_acc.acc_x);
+    Serial.printf("Acc y: %.2f\r\n", volatile_packet.imu_acc.acc_y);
+    Serial.printf("Acc z: %.2f\r\n", volatile_packet.imu_acc.acc_z);
+  #endif
 
-    /*BLE PACKET ACC*/
-    volatile_packet.imu_acc.acc_x = gValue.x;
-    volatile_packet.imu_acc.acc_y = gValue.y;
-    volatile_packet.imu_acc.acc_z = gValue.z;
+  return NULL;
+}
 
-    volatile_packet.imu_ang.ang_x = angles.x;
-    volatile_packet.imu_ang.ang_y = angles.y;
-    volatile_packet.imu_ang.ang_z = angles.z;
+ThreadHandle_t gps_acq_function(void *arg)
+{
+  while (SerialAT.available() > 0)
+  {
+    if (gps_const.encode(SerialAT.read()))
+    {
+      if (gps_const.location.isValid())
+      {
+        pthread_mutex_lock(&acq_mutex);
+        volatile_packet.gps_data.LAT = gps_const.location.lat();
+        volatile_packet.gps_data.LNG = gps_const.location.lng();
+        pthread_mutex_unlock(&acq_mutex);
+      }
+    }
+  }
 
-    #ifdef debug_acc
-      Serial.print("Acceleration in g (x,y,z):  ");
-      Serial.printf("%.2f, ", gValue.x);      
-      Serial.printf("%.2f, ", gValue.y);       
-      Serial.printf("%.2f\r\n", gValue.z);  
-      
-      Serial.print("Temperature in °C: ");
-      Serial.printf("%.2f\r\n", temp);
-      
-      Serial.print("Angles X Y Z: ");
-      Serial.printf("%.2f, ",angles.x);      
-      Serial.printf("%.2f, ",angles.y);       
-      Serial.printf("%.2f\r\n",angles.z); 
+  #ifdef debug_modules
+    Serial.printf("LAT: %lf\r\n", volatile_packet.gps_data.LAT);
+    Serial.printf("LNG: %lf\r\n", volatile_packet.gps_data.LAT);
+  #endif
 
-      Serial.print("Pitch Roll ");
-      Serial.printf("%.2f, ",pitch);      
-      Serial.printf("%.2f\r\n",roll);
-    #endif
-}   
+  return NULL;
+}
 
 /*================================== CAN Acquisition functions ==================================*/
 void Handling_CAN_msg()
@@ -121,35 +138,4 @@ void cleanDTC()
 BLE_packet_t updatePacket()
 {
   return volatile_packet;
-}
-
-void initializeMPU9250() {
-  // Inicializa o MPU9250
-  while (!MPU9250.init()) {
-    Serial.println("Acelerometro não responde!");
-    delay(1000);
-  }
-  Serial.println("Acelerometro Inicializado!");
-
-  while (!MPU9250.initMagnetometer()) {
-    Serial.println("Magnetometro não responde!");
-    delay(1000);
-  }
-  Serial.println("Magnetometro Inicializado!");
-
-  // Configurações do MPU9250
-  MPU9250.enableGyrDLPF();
-  MPU9250.setGyrDLPF(MPU9250_DLPF_6);
-  MPU9250.setSampleRateDivider(5);
-  MPU9250.setGyrRange(MPU9250_GYRO_RANGE_250);
-  MPU9250.setAccRange(MPU9250_ACC_RANGE_2G);
-  MPU9250.enableAccDLPF(true);
-  MPU9250.setAccDLPF(MPU9250_DLPF_6);
-  MPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
-  delay(100);
-}
-void calibrateMPU9250() {
-  Serial.println("Iniciando a calibração do acelerometro...");  
-  MPU9250.autoOffsets();
-  Serial.println("Feito!");
 }
