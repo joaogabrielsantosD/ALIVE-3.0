@@ -10,6 +10,11 @@ typedef struct
 
 typedef struct
 {
+    float ang_x, ang_y, ang_z;
+} imu_ang_t;
+
+typedef struct
+{
     double LAT, LNG;
 } gps_data_t;
 
@@ -92,9 +97,9 @@ typedef struct
 
         Fuel_Rail_Pressure_dis,
 
-        _EGR_,
+        _EGR,
 
-        _EGR_ERROR_,
+        _EGR_ERROR,
 
         Evaporative_Purge,
 
@@ -156,7 +161,7 @@ typedef struct
 
         Mass_Air_Flow_Sensor,
 
-        _Engine_Coolant_Temperature_[2],
+        Engine_Coolant_Temp[2],
 
         Intake_Air_Temperature_Sensor,
 
@@ -179,6 +184,8 @@ typedef struct
     } Short_Long_Term;
 
     imu_acc_t imu_acc;
+
+    imu_ang_t imu_ang;
 
     gps_data_t gps_data;
 
