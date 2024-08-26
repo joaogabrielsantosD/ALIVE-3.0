@@ -1,7 +1,6 @@
 #include "StateMachine.h"
 
-//#define debug_when_send     //Variable to print the messageStructure when sended to Car, Uncomment to Enable.
-
+//#define debug_when_send // variable to enable the Serial when send the message
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_id = IDLE_ST;
@@ -12,8 +11,15 @@ uint8_t odometer_pid_enable = 0;
 
 int CircularBuffer_state()
 {
+  /* 8 bits variable value:
+  |  BIT 0 |  BIT 1 |  BIT 2 |  BIT 3 |  BIT 4 |      BIT 5     |      BIT 6     |      BIT 7      |
+  |   --   |   --   |   --   |   --   |   --   |      GPS       |  Accelerometer |      IDLE       |
+  * When enable the bit flag the value of the message is set One(1).
+
+  * If all bits value is equal Zero(0), means this array reference a CAN message */
+  uint8_t _id_flag = 0x00;
   bool buffer_full = false;
-  unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
+  unsigned char messageData[8] = {0x00, 0x00, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   if (state_buffer.isFull())
   {
@@ -31,26 +37,32 @@ int CircularBuffer_state()
   {
     case IDLE_ST:
       // Serial.println("i");
+      _id_flag |= (1 << IDLE_ST); // enable IDLE bit flag
       break;
 
     case Accelerometer_ST:
-    case GPS_ST:
-      // Serial.println("Modulo ACC \\ GPS");
+      // Serial.println("acc");
+      _id_flag |= (1 << Accelerometer_ST); // enable ACC bit flag
       break;
 
-    default: /* CAN PID msg */
+    case GPS_ST:
+      // Serial.println("gps");
+      _id_flag |= (1 << GPS_ST); // enable GPS bit flag
+      break;
+
+    default: /* CAN msg */
 
       if (current_id != DTC_mode_3)
       {
-        messageData[0] = 0x02;  //Lenght
-        messageData[1] = 0x01;  //Mode = Current Data
-        messageData[2] = (unsigned char)current_id; //PID
+        messageData[0] = 0x02;
+        messageData[1] = 0x01;
+        messageData[2] = (unsigned char)current_id;
       }
       
       else
       {
         messageData[0] = 0x01;
-        messageData[1] = 0x03;  //Mode = Stored DTC
+        messageData[1] = 0x03;
         messageData[2] = 0x00;
       }
 
@@ -157,5 +169,3 @@ String verify_message_is_null(int id, double msg)
       break;
   }
 }
-
-

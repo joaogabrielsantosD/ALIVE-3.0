@@ -10,11 +10,6 @@ typedef struct
 
 typedef struct
 {
-    float ang_x, ang_y, ang_z;
-} imu_ang_t;
-
-typedef struct
-{
     double LAT, LNG;
 } gps_data_t;
 
@@ -184,7 +179,6 @@ typedef struct
     } Short_Long_Term;
 
     imu_acc_t imu_acc;
-    imu_ang_t imu_ang;
 
     gps_data_t gps_data;
 
