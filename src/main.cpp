@@ -15,6 +15,7 @@
 boolean flagCANInit = false; // If false indicates that the CAN module was not initialized successfully
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
+
 /* State Machine Functions */
 void AcquisitionStateMachine(void *arg);
 void BLEsenderData(void *arg);
@@ -68,7 +69,7 @@ void AcquisitionStateMachine(void *arg)
       if (_canId == Accelerometer_ST || _canId == GPS_ST)
       {
         /* 0x01 is ACC data and 0x02 is GPS data, the acq_function(int acq_mode)
-         * call the threads will be execute the acquisition function of respective data. */
+         * call the threads will be execute the acquisition function of respective data. */        
         acq_function(_canId);
       }
 
@@ -79,7 +80,7 @@ void AcquisitionStateMachine(void *arg)
         { // timeout
           if (millis() - initialTime >= 3000)
             break;
-          vTaskDelay(1);
+          delay(1);
         }
 
         if (checkReceive())
@@ -90,7 +91,7 @@ void AcquisitionStateMachine(void *arg)
       }
     }
 
-    vTaskDelay(1);
+    delay(1);
   }
 }
 
@@ -102,9 +103,9 @@ void BLEsenderData(void *arg)
     {
       Send_BLE_msg();
 
-      vTaskDelay(MAX_BLE_DELAY + 10);
+      delay(MAX_BLE_DELAY + 10);
     }
 
-    vTaskDelay(10);
+    delay(10);
   }
 }
