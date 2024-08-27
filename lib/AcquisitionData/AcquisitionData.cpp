@@ -36,6 +36,7 @@ void start_module_device()
     MPU9250.autoOffsets();
     MPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
     vTaskDelay(100);
+    save_flag_imu_parameter(true);
   }
   
   #ifdef debug_acc
