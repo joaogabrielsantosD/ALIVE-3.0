@@ -25,8 +25,23 @@ void start_module_device()
   // init the MPU
   Wire.begin();
 
-  if (initializeMPU9250())
+  if (MPU9250.init() && MPU9250.initMagnetometer())
+  {
+    #ifdef debug_acc
+      Serial.println("Accelerometer and Magnetometer Initialized");
+    #endif
+
+    // MPU9250 settings
+    MPU9250.setSampleRateDivider(5);
     MPU9250.autoOffsets();
+    MPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
+    vTaskDelay(100);
+  }
+  
+  #ifdef debug_acc
+    else
+      Serial.println("Accelerometer and Magnetometer not responding!!");
+  #endif
 }
 
 void acq_function(int acq_mode)
@@ -89,50 +104,7 @@ void acq_function(int acq_mode)
   }
 }
 
-/*================================ Accelerometer functions ================================*/
-bool initializeMPU9250() 
-{
-  // Inicializa o MPU9250
-  if (!MPU9250.init()) 
-  {
-    #ifdef debug_acc
-      Serial.println("Acelerometro não responde!");
-      delay(1000);
-    #endif
-    return false;
-  }
-
-  #ifdef debug_acc
-    Serial.println("Acelerometro Inicializado!");
-  #endif
-
-  if (!MPU9250.initMagnetometer()) 
-  {
-    #ifdef debug_acc
-      Serial.println("Magnetometro não responde!");
-      delay(1000);
-    #endif
-    return false;
-  }
-
-  #ifdef debug_acc
-    Serial.println("Magnetometro Inicializado!");
-  #endif
-
-  // Configurações do MPU9250
-  MPU9250.enableGyrDLPF();
-  MPU9250.setGyrDLPF(MPU9250_DLPF_6);
-  MPU9250.setSampleRateDivider(5);
-  MPU9250.setGyrRange(MPU9250_GYRO_RANGE_250);
-  MPU9250.setAccRange(MPU9250_ACC_RANGE_2G);
-  MPU9250.enableAccDLPF(true);
-  MPU9250.setAccDLPF(MPU9250_DLPF_6);
-  MPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
-  delay(100);
-
-  return true;
-}
-
+/*================================ Accelerometer && GPS functions ================================*/
 void imu_acq_function()
 {
   xyzFloat gValue = MPU9250.getGValues();
