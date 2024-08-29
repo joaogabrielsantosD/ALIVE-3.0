@@ -1,7 +1,7 @@
 #include "BLE.h"
 
 /* Defines for debug */
-//#define PrintJSON
+#define PrintJSON
 #define BLEdebug
 
 bool deviceConnected = false, oldDeviceConnected = false;
@@ -110,11 +110,11 @@ void Send_BLE_msg()
     doc["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
     doc["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
     doc["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
-    doc["Acelerometro_X"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
+    doc["Acelerometro_X"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
     doc["Acelerometro_Y"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
     doc["Acelerometro_Z"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
     doc["Latitude"]               = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
-    doc["Longitude"]              = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
+    doc["Longitude"]              = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);    
     doc["DTC"]                    = msg_packet.DTC;
 
     /* Make the JSON packet in the std::string format */

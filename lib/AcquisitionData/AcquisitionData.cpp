@@ -11,8 +11,8 @@ MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
 
 /* Debug Variables */
 
-//#define debug_when_receive_byte   
-//#define debug_acc             //Print on Serial the calibrations paramenters
+//#define debug_when_receive_byte  
+//#define debug_acc             //Print on Serial  paramenters
 //#define debug_GPS             //Print on Serial the paramenters
 
 
