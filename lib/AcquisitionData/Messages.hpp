@@ -192,7 +192,7 @@ class CAN_Messages
                 break;
               }
             }
-           return "";
+           return "null";
         };
 
     public:
@@ -208,21 +208,21 @@ class CAN_Messages
                 { // case for PID support
                     if (*(PID + 0) == 0x10)
                     {
-                    if (*(PID + 3) == PIDs1)
-                        Storage_PIDenable_bit(PID, PID_to_index_1);
-                    else if (*(PID + 3) == PIDs2)
-                        Storage_PIDenable_bit(PID, PID_to_index_2);
-                    else if (*(PID + 3) == PIDs3)
-                        Storage_PIDenable_bit(PID, PID_to_index_3);
-                    else if (*(PID + 3) == PIDs4)
-                        Storage_PIDenable_bit(PID, PID_to_index_4);
-                    else if (*(PID + 3) == PIDs5)
-                        Storage_PIDenable_bit(PID, PID_to_index_5);
+                        if (*(PID + 3) == PIDs1)
+                            Storage_PIDenable_bit(PID, PID_to_index_1);
+                        else if (*(PID + 3) == PIDs2)
+                            Storage_PIDenable_bit(PID, PID_to_index_2);
+                        else if (*(PID + 3) == PIDs3)
+                            Storage_PIDenable_bit(PID, PID_to_index_3);
+                        else if (*(PID + 3) == PIDs4)
+                            Storage_PIDenable_bit(PID, PID_to_index_4);
+                        else if (*(PID + 3) == PIDs5)
+                            Storage_PIDenable_bit(PID, PID_to_index_5);
                     }
             
                     break;
                 }
-            
+
                 case EngineLoad:
                 {
                     float A = *(PID + 3);
@@ -318,7 +318,7 @@ class CAN_Messages
             
                     break;
                 }
-            
+
                 case EngineRPM:
                 {
                     float A = *(PID + 3), B = *(PID + 4);
@@ -330,7 +330,7 @@ class CAN_Messages
             
                     break;
                 }
-            
+
                 case VehicleSpeed:
                 {
                     float A = *(PID + 3);
@@ -342,7 +342,7 @@ class CAN_Messages
             
                     break;
                 }
-            
+
                 case TimingAdvance:
                 {
                     float A = *(PID + 3);
@@ -730,10 +730,10 @@ class CAN_Messages
                 case EGR:
                 {
                     float A = *(PID + 3);
-                    packet->_EGR_ = 100 * (A / 255);
+                    packet->_EGR = 100 * (A / 255);
 
                     #if debug_message == 1 || debug_message == 4
-                        Serial.printf("EGR:  %f\r\n", packet->_EGR_);
+                        Serial.printf("EGR:  %f\r\n", packet->_EGR);
                     #endif
 
                     break;
@@ -742,10 +742,10 @@ class CAN_Messages
                 case EGR_ERROR:
                 {
                     float A = *(PID + 3);
-                    packet->_EGR_ERROR_ = (A - 128) * (100 / 128);
+                    packet->_EGR_ERROR = (A - 128) * (100 / 128);
 
                     #if debug_message == 1 || debug_message == 4
-                        Serial.printf("EGR_ERROR:  %f\r\n", packet->_EGR_ERROR_);
+                        Serial.printf("EGR_ERROR:  %f\r\n", packet->_EGR_ERROR);
                     #endif
 
                     break;
@@ -1416,7 +1416,7 @@ class CAN_Messages
 
                     #if debug_message == 1 || debug_message == 4
                         Serial.printf("Engine Percent Torque:  %f | %f | %f | %f\r\n", 
-                        packet->Engine_Percent_Torque[0], packet->Engine_Percent_Torque[1]
+                        packet->Engine_Percent_Torque[0], packet->Engine_Percent_Torque[1],
                         packet->Engine_Percent_Torque[2], packet->Engine_Percent_Torque[3]);
                     #endif
 
@@ -1439,15 +1439,15 @@ class CAN_Messages
                 {
                     float B = *(PID + 4), C = *(PID + 5);
                     if((*(PID + 3) & 1) == 1)
-                        packet->_Engine_Coolant_Temperature_[0] = B - 40;
+                        packet->Engine_Coolant_Temp[0] = B - 40;
                     if(((*(PID + 3) & 2) << 1) == 1)
-                        packet->_Engine_Coolant_Temperature_[1] = C - 40;
+                        packet->Engine_Coolant_Temp[1] = C - 40;
 
                     #if debug_message == 1 || debug_message == 4
                         if ((*(PID + 3) & 1) == 1)
-                            Serial.printf("Engine Coolant Temperature B:  %f\r\n", packet->_Engine_Coolant_Temperature_[0]);
+                            Serial.printf("Engine Coolant Temperature B:  %f\r\n", packet->Engine_Coolant_Temp[0]);
                         if(((*(PID + 3) & 2) << 1) == 1)
-                            Serial.printf("Engine Coolant Temperature C:  %f\r\n", packet->_Engine_Coolant_Temperature_[1]);
+                            Serial.printf("Engine Coolant Temperature C:  %f\r\n", packet->Engine_Coolant_Temp[1]);
                     #endif
 
                     break;
@@ -1464,7 +1464,7 @@ class CAN_Messages
 
                     break;
                 }
-                
+
                 /*
                 case CommandedEGR_ERROR:
                 {

@@ -1,19 +1,16 @@
-#include "StateMachine.h"
-
-//#define debug_when_send     //Variable to print the messageStructure when sended to Car, Uncomment to Enable.
+#include "CircularBufferState.h"
 
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_id = IDLE_ST;
 boolean imu_flag = false;
-uint8_t PID_enable_bit[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-uint8_t PID_Enables_bin[128];
+uint8_t PID_enable_bit[16] = {0};
+uint8_t PID_Enables_bin[128] = {0};
 uint8_t odometer_pid_enable = 0;
 
 int CircularBuffer_state()
 {
   bool buffer_full = false;
-  unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
 
   if (state_buffer.isFull())
   {
@@ -27,54 +24,20 @@ int CircularBuffer_state()
       current_id = IDLE_ST;
   }
 
-  switch (current_id)
-  {
-    case IDLE_ST:
-      // Serial.println("i");
-      break;
-
-    case Accelerometer_ST:
-    case GPS_ST:
-      // Serial.println("Modulo ACC \\ GPS");
-      break;
-
-    default: /* CAN PID msg */
-
-      if (current_id != DTC_mode_3)
-      {
-        messageData[0] = 0x02;  //Lenght
-        messageData[1] = 0x01;  //Mode = Current Data
-        messageData[2] = (unsigned char)current_id; //PID
-      }
-      
-      else
-      {
-        messageData[0] = 0x01;
-        messageData[1] = 0x03;  //Mode = Stored DTC
-        messageData[2] = 0x00;
-      }
-
-      #ifdef debug_when_send
-        if (send_msg(messageData))
-          debug_print(messageData);
-      #else
-        send_msg(messageData);
-      #endif
-
-      break;
-  }
-
   return current_id;
 }
 
 bool insert(int ST)
-{
-  if (ST == Odometer_PID)
-    return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+{   
+  if (ST == Accelerometer_ST)
+    return imu_flag ? state_buffer.push(ST) : 0;
+
   else if (ST == DTC_mode_3)
     return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
-  else if (ST == Accelerometer_ST || ST == GPS_ST)
-    return state_buffer.push(ST);
+
+  else if (ST == Odometer_PID)
+    return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+
   else
     return Check_bin_for_state(ST) ? state_buffer.push(ST) : 0;
 }
@@ -157,5 +120,3 @@ String verify_message_is_null(int id, double msg)
       break;
   }
 }
-
-

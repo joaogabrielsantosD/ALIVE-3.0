@@ -7,10 +7,15 @@ Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs,
 
 void init_tickers()
 {
-  do
-  {
+  #ifdef Print_in_serial
     Serial.println("Check the PID support...");
-  } while (checkPID());
+    if (!checkPID())
+      Serial.println("OBD NOT connected");
+    else
+      Serial.println("OBD connected");
+  #else
+    checkPID();
+  #endif
 
   tickerONCE.once(1.0f, PIDs_once);           // one time
   ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
@@ -43,7 +48,7 @@ bool checkPID()
       if (i == 0)
       {
         unsigned long obd_connection = millis();
-        const unsigned long OBD_timout = 2000; // 2 seconds
+        const unsigned long OBD_timout = 3000; // 3 seconds
         while (!checkReceive())
         {
           #ifdef Print_in_serial
@@ -56,12 +61,12 @@ bool checkPID()
 
           // timeout for OBD II connection failed
           if ((millis() - obd_connection) >= OBD_timout)
-            esp_restart();
+            return false;
 
-          delay(10);
+          vTaskDelay(10);
         }
         SaveParameters_extended(!extended);
-        acq_function(0); 
+        acq_function(Save_PIDs_Enable); 
         check_receive_pid = true;
       }
 
@@ -75,17 +80,17 @@ bool checkPID()
           #else
             send_msg(Data)
           #endif
-          delay(10);
+          vTaskDelay(10);
         }
-        acq_function(0);
+        acq_function(Save_PIDs_Enable);
         check_receive_pid = true;
       }
 
-      delay(1);
+      vTaskDelay(1);
     }
   }
 
-  return false;
+  return true;
 }
 
 void Call_DTC_mode3(void)

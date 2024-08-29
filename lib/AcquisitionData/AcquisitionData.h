@@ -4,19 +4,20 @@
 #include <TinyGPSPlus.h>
 #include <MPU9250_WE.h>
 #include <pthread.h>
-#include "StateMachine.h"
+#include "CircularBufferState.h"
 #include "packets.h"
 #include "Messages.hpp"
+
+#define MPU9250_ADDR 0x68
 
 typedef void *ThreadHandle_t;
 
 void start_module_device(void);
 void acq_function(int acq_mode);
-void imu_acq_function();
 
-void initializeMPU9250();
-void calibrateMPU9250();
-
+/* Accelerometer functions */
+bool initializeMPU9250(void);
+void imu_acq_function(void);
 
 /* CAN Acquisition functions */
 void Handling_CAN_msg(void);

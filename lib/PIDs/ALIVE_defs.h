@@ -19,6 +19,8 @@
 #define PIDs4               PIDsupported4
 #define PIDs5               PIDsupport5
 #define Odometer_PID        0xA6
+
+#define Save_PIDs_Enable    0xAAAA
 #define DTC_mode_3          0xFFFF // 2 bytes of PID
 
 #define IDLE_ST             0x00
@@ -35,6 +37,6 @@
 #define CAN_DEBUG_LED GPIO_NUM_25 // Pin to debug led of CAN communication 
 #define BLE_DEBUG_LED GPIO_NUM_26 // Pin to debug led of BLE communication 
 #define SPI_CS_PIN    GPIO_NUM_5  // Pin CS to the MCP2515 module
-#define CAN_INT_PIN   GPIO_NUM_27 // Pin used to generate the interrupt by the MCP2515 module
+#define CAN_INT_PIN   GPIO_NUM_27 // Pin used to generate the interrupt by the MCP2515 module
 
 #endif

@@ -6,7 +6,7 @@
 /* CAN libraries */
 #include <can_defs.h>
 /* State Machine and Bit analyze librarie */
-#include <StateMachine.h>
+#include <CircularBufferState.h>
 /* Ticker interrupts librarie */
 #include <tickerISR.h>
 /* WatchDog timer libraries */
@@ -14,7 +14,6 @@
 
 boolean flagCANInit = false; // If false indicates that the CAN module was not initialized successfully
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
-
 
 /* State Machine Functions */
 void AcquisitionStateMachine(void *arg);
@@ -57,41 +56,18 @@ void loop() { reset_rtc_wdt(); /* Reset the wathdog timer */ }
 
 void AcquisitionStateMachine(void *arg)
 {
-  int _canId = 0;
-  unsigned long initialTime = 0;
+  int circularbuffer_State = IDLE_ST;
 
   while (1)
   {
     if (flagCANInit)
     {
-      _canId = CircularBuffer_state(); // check if the current id is CAN message or not
+      circularbuffer_State = CircularBuffer_state(); // check if the current id is CAN message or not
 
-      if (_canId == Accelerometer_ST || _canId == GPS_ST)
-      {
-        /* 0x01 is ACC data and 0x02 is GPS data, the acq_function(int acq_mode)
-         * call the threads will be execute the acquisition function of respective data. */        
-        acq_function(_canId);
-      }
-
-      else
-      {
-        initialTime = millis();
-        while (!checkReceive() && _canId != IDLE_ST)
-        { // timeout
-          if (millis() - initialTime >= 3000)
-            break;
-          delay(1);
-        }
-
-        if (checkReceive())
-        {
-          // Routine that handles when a message arrives via can
-          acq_function(_canId);
-        }
-      }
+      acq_function(circularbuffer_State);
     }
 
-    delay(1);
+    vTaskDelay(1);
   }
 }
 
@@ -103,9 +79,9 @@ void BLEsenderData(void *arg)
     {
       Send_BLE_msg();
 
-      delay(MAX_BLE_DELAY + 10);
+      vTaskDelay(MAX_BLE_DELAY + 10);
     }
 
-    delay(10);
+    vTaskDelay(10);
   }
 }
