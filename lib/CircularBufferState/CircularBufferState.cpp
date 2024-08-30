@@ -3,7 +3,7 @@
 /* Variables for Circular Buffer*/
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_id = IDLE_ST;
-boolean imu_flag = false;
+boolean imu_flag = false, gps_flag = false;
 uint8_t PID_enable_bit[16] = {0};
 uint8_t PID_Enables_bin[128] = {0};
 uint8_t odometer_pid_enable = 0;
@@ -31,6 +31,9 @@ bool insert(int ST)
 {   
   if (ST == Accelerometer_ST)
     return imu_flag ? state_buffer.push(ST) : 0;
+
+  else if (ST == GPS_ST)
+    return state_buffer.push(ST);    // Try to connect any time, if is possible
 
   else if (ST == DTC_mode_3)
     return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
@@ -99,12 +102,17 @@ void save_flag_imu_parameter(boolean _flag)
   imu_flag = _flag;
 }
 
+void save_flag_gps_parameter(boolean _flag_)
+{
+  gps_flag = _flag_;
+}
+
 String verify_message_is_null(int id, double msg)
 {
   switch (id)
   {
     case GPS_ST:
-      return String(msg);
+      return gps_flag ? String(msg) : "null";
       break;
     
     case Accelerometer_ST:

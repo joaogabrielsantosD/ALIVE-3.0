@@ -2,10 +2,9 @@
 
 CAN_Messages CAN_msg;
 BLE_packet_t volatile_packet;
-static const uint32_t GPS_baudrate = 4800;
 
 /* Module variables */
-TinyGPSPlus gps_const;
+TinyGPSPlus NEO_M8N;
 MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
 
 /* Debug Variables */
@@ -24,8 +23,8 @@ void start_module_device()
   memset(&volatile_packet, 0, sizeof(BLE_packet_t));
   volatile_packet.DTC = "null";
 
-  // init the gps serial command AT communication
-  // SerialAT.begin(GPS_baudrate);
+  // init the gps serial communication with GPS module
+  SerialGPS.begin(GPSBaudRate);
 
   // init the MPU
   Wire.begin();
@@ -63,6 +62,7 @@ void acq_function(int acq_mode)
       break;
 
     case GPS_ST:
+      gps_acq_function();
       break;
 
     case Save_PIDs_Enable:
@@ -148,6 +148,33 @@ void imu_acq_function()
     Serial.printf("%.2f\r\n", MPU9250.getRoll());
   #endif
 }   
+
+void gps_acq_function()
+{
+  static bool first_conection = false;
+
+  if (NEO_M8N.satellites.isValid() && NEO_M8N.location.isValid())
+  {
+    volatile_packet.gps_data.LAT = NEO_M8N.location.lat();
+    volatile_packet.gps_data.LNG = NEO_M8N.location.lng();
+
+    #ifdef debug_GPS
+      Serial.printf("Satellites: %d\r\n", NEO_M8N.satellites.value());
+      Serial.printf("Latitude: %lf\r\n", volatile_packet.gps_data.LAT);
+      Serial.printf("Longitude: %lf\r\n", volatile_packet.gps_data.LNG);      
+    #endif
+    
+    if (!first_conection)
+    {
+      first_conection = true;
+      save_flag_gps_parameter(true);
+    }
+  }
+
+  // This ensures that the gps object is being "fed".
+  while (SerialGPS.available() > 0)
+    NEO_M8N.encode(SerialGPS.read());
+}
 
 /*================================== CAN Acquisition functions ==================================*/
 void Handling_CAN_msg()
