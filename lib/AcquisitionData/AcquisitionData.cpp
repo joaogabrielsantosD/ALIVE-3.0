@@ -16,7 +16,7 @@ MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
 //#define debug_when_send // Variable to print the messageStructure when sended to Car, Uncomment to Enable.
 //#define debug_when_receive_byte   
 //#define debug_acc             // Print on Serial the calibrations paramenters
-//#define debug_GPS             // Print on Serial the paramenters
+//define debug_GPS             // Print on Serial the paramenters
 
 void start_module_device()
 {
@@ -128,6 +128,8 @@ void imu_acq_function()
   volatile_packet.imu_ang.ang_x = angles.x;
   volatile_packet.imu_ang.ang_y = angles.y;
   volatile_packet.imu_ang.ang_z = angles.z;
+
+  volatile_packet.acctemp = MPU9250.getTemperature();
 
   #ifdef debug_acc
     Serial.print("Acceleration in g (x,y,z):  ");

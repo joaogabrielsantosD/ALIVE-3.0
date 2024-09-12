@@ -28,7 +28,7 @@ void setup()
   flagCANInit = start_CAN_device(true);
   if (!flagCANInit)
   {
-    Serial.println("CAN error!!!");
+    Serial.println("CAN error!!!");    
     esp_restart();
   }
 

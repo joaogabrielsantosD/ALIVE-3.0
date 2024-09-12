@@ -110,9 +110,9 @@ void Send_BLE_msg()
     doc["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
     doc["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
     doc["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
-    doc["Acelerometro_X"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
-    doc["Acelerometro_Y"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
-    doc["Acelerometro_Z"]         = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
+    doc["Ang_X"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
+    doc["Ang_Y"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
+    doc["Temp_Intern"]            = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);
     doc["Latitude"]               = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
     doc["Longitude"]              = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);    
     doc["DTC"]                    = msg_packet.DTC;
@@ -124,7 +124,7 @@ void Send_BLE_msg()
     /* Print data and length of the std::string */
     #ifdef PrintJSON
         Serial.print("JSON document Size: "); Serial.println(doc.size());
-        Serial.println(msgBLE.data());
+        Serial.println(msgBLE.data());  
         Serial.print("JSON in std::string size: "); Serial.println(msgBLE.length());
     #endif
 
