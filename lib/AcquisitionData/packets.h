@@ -171,7 +171,9 @@ typedef struct
 
         DPF__Temperature,
 
-        Odometer;
+        Odometer,
+
+        acctemp;
     
     struct {
         ShortTermFuel_t ShortTermFuel;
