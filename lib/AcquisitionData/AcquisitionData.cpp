@@ -8,15 +8,10 @@ TinyGPSPlus NEO_M8N;
 MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
 
 /* Debug Variables */
-
-//#define debug_when_receive_byte  
-//#define debug_acc             //Print on Serial  paramenters
-//#define debug_GPS             //Print on Serial the paramenters
-
-//#define debug_when_send // Variable to print the messageStructure when sended to Car, Uncomment to Enable.
+//#define debug_when_send       // Variable to print the messageStructure when sended to Car, Uncomment to Enable.
 //#define debug_when_receive_byte   
 //#define debug_acc             // Print on Serial the calibrations paramenters
-//define debug_GPS             // Print on Serial the paramenters
+//#define debug_GPS             // Print on Serial the paramenters
 
 void start_module_device()
 {
@@ -138,7 +133,7 @@ void imu_acq_function()
     Serial.printf("%.2f\r\n", gValue.z);  
     
     Serial.print("Temperature in °C: ");
-    Serial.printf("%.2f\r\n", MPU9250.getTemperature());
+    Serial.printf("%.2f\r\n", volatile_packet.acctemp);
     
     Serial.print("Angles X Y Z: ");
     Serial.printf("%.2f, ",angles.x);      

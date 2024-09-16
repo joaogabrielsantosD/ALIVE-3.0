@@ -9,9 +9,12 @@ void init_tickers()
 {
   #ifdef Print_in_serial
     Serial.println("Check the PID support...");
-    if (!checkPID()){
+    if (!checkPID())
+    {
       Serial.println("OBD NOT connected");
-      esp_restart();}
+      esp_restart();
+    }
+
     else
       Serial.println("OBD connected");
   #else
