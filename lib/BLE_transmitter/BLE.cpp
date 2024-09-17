@@ -1,8 +1,8 @@
 #include "BLE.h"
 
 /* Defines for debug */
-#define PrintJSON
-#define BLEdebug
+//#define PrintJSON
+//#define BLEdebug
 
 bool deviceConnected = false, oldDeviceConnected = false;
 std::string msgBLE = "";

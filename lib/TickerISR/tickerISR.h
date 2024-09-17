@@ -2,10 +2,9 @@
 #define TICKERISR_H
 
 #include <Ticker.h>
-#include "AcquisitionData.h"
+#include "CircularBufferState.h"
 
 void init_tickers(void);
-bool checkPID(void);
 void Call_DTC_mode3(void);
 
 /* ISRs */
