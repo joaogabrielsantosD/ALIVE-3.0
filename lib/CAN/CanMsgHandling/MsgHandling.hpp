@@ -1,7 +1,7 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include "AcquisitionData.h"
+#include "CollectedData/CollectedDataStruct.h"
 
 #define verify_char(c) (c == 10 ? 'A' : c == 11 ? 'B' \
                                       : c == 12 ? 'C' \

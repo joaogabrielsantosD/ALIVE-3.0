@@ -43,65 +43,7 @@ void start_module_device()
   #endif
 }
 
-void acq_function(int acq_mode)
-{
-  switch (acq_mode)
-  {
-    case IDLE_ST:
-      //Serial.println("i");
-      break;
 
-    case Accelerometer_ST:
-      imu_acq_function();
-      break;
-
-    case GPS_ST:
-      gps_acq_function();
-      break;
-
-    case Save_PIDs_Enable:
-      break;
-    
-    // default: /* CAN PID msg */
-    // {
-    //   unsigned long initialTime = 0;
-    //   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    //                                 /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
-    //   if (acq_mode != DTC_mode_3)
-    //   {
-    //     messageData[0] = 0x02; // Lenght
-    //     messageData[1] = 0x01; // Mode = Current Data
-    //     messageData[2] = (unsigned char)acq_mode; // PID
-    //   }
-
-    //   else
-    //   {
-    //     messageData[0] = 0x01;
-    //     messageData[1] = 0x03; // Mode = Stored DTC
-    //     messageData[2] = 0x00;
-    //   }
-
-    //   #ifdef debug_when_send
-    //     if (send_msg(messageData))
-    //       debug_print(messageData);
-    //   #else
-    //     send_msg(messageData); // Send the resquest
-    //   #endif
-
-    //   initialTime = millis();
-    //   while (CAN.checkReceive() == CAN_MSGAVAIL) // Wait the response
-    //   { // timeout
-    //     if (millis() - initialTime >= 3000)
-    //       break;
-    //     vTaskDelay(1);
-    //   }
-      
-    //   if (CAN.checkReceive() == CAN_MSGAVAIL)
-    //     Handling_CAN_msg();
-    //   break;
-    // }
-  }
-}
 
 void cleanDTC()
 {
@@ -177,8 +119,4 @@ void gps_acq_function()
     NEO_M8N.encode(SerialGPS.read());
 }
 
-/*================================== Packet Message Functions ==================================*/
-BLE_packet_t updatePacket()
-{
-  return volatile_packet;
-}
+

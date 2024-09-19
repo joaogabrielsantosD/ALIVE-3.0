@@ -61,7 +61,7 @@ void ticker_1min_ISR()
 
 void ticker_30sec_ISR()
 {
-  insert(GPS_ST);
+  //insert(GPS_ST);
   insert(ControlModuleVoltage);
   insert(AbsoluteLoadValue);
   insert(AbsoluteFuelRailPressure);
@@ -163,7 +163,7 @@ void ticker_1sec_ISR()
 
 void ticker_05sec_ISR()
 { 
-  insert(Accelerometer_ST); 
+  //insert(Accelerometer_ST); 
   insert(EngineRPM);
   insert(VehicleSpeed);
 }

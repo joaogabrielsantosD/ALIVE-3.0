@@ -2,7 +2,8 @@
 #define STATEMACHINE_H
 
 #include <CircularBuffer.hpp>
-#include "ALIVE_defs.h"
+#include "Definitions/ALIVE_defs.h"
+#include "CanFunctions.h"
 
 /* Circular Buffer Functions */
 int CircularBuffer_state(void);

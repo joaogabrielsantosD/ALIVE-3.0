@@ -13,7 +13,10 @@ BLECharacteristic *pCharacteristic = NULL;
 void Init_BLE_Server()
 {
     // Create the BLE Device
-    BLEDevice::init("Dongle OBD");
+    BLEDevice::init("ALIVE");
+
+    //Set maximum MTU (512 bytes)
+    BLEDevice::setMTU(512);
 
     // Create the BLE Server
     pServer = BLEDevice::createServer();
@@ -172,7 +175,7 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
             #ifdef BLEdebug
                 Serial.println("Codigo DTC apagado");
             #endif
-            cleanDTC();
+            //cleanDTC();
         }
     }
 }

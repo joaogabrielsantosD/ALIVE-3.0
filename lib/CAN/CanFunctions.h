@@ -1,11 +1,11 @@
-#ifndef CAN_DEFS_H
-#define CAN_DEFS_H
+#ifndef CANFUNCTIONS_H
+#define CANFUNCTIONS_H
 
 #include <Arduino.h>
 #include <SPI.h>
 #include <mcp2515_can.h>
-#include "ALIVE_defs.h"
-#include  "Messages.hpp"
+#include "Definitions/ALIVE_defs.h"
+#include "CanMsgHandling/MsgHandling.hpp"
 
 #define CAN_2515
 #define SPI_CS_PIN    GPIO_NUM_5  // Pin CS to the MCP2515 module
@@ -30,5 +30,7 @@ int Check_bin_for_state(int pid_order);
 int Verify_odometer_exist(void);
 
 void debug_print(unsigned char *message, bool response);
+void send_OBDmsg(int PID, bool CANidType);
 
+BLE_packet_t updatePacket();
 #endif
