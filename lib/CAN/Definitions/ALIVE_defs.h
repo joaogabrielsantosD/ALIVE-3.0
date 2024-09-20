@@ -7,7 +7,7 @@
 
 /*====================== CAN DEFINITIONS ============================ */
 #define SerialGPS           Serial2
-#define CAN_2515
+
 #define BUFFER_SIZE         200
 #define CAN_ID_EXTENDED     0x18DB33F1
 #define CAN_ID_NORMAL       0x7DF
@@ -27,16 +27,11 @@
 #define Accelerometer_ST    0x01
 #define GPS_ST              0x02
 
-#define PID_to_index_1      0   
-#define PID_to_index_2      4
-#define PID_to_index_3      8
-#define PID_to_index_4      12
 #define PID_to_index_5      16
 
 /*====================== HARDWARE DEFINITIONS ============================ */
 #define CAN_DEBUG_LED GPIO_NUM_25 // Pin to debug led of CAN communication 
 #define BLE_DEBUG_LED GPIO_NUM_26 // Pin to debug led of BLE communication 
-#define SPI_CS_PIN    GPIO_NUM_5  // Pin CS to the MCP2515 module
-#define CAN_INT_PIN   GPIO_NUM_27 // Pin used to generate the interrupt by the MCP2515 module
+
 
 #endif

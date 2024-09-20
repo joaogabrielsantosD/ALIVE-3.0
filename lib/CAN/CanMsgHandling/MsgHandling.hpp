@@ -1,7 +1,7 @@
 #ifndef MESSAGES_H
 #define MESSAGES_H
 
-#include "AcquisitionData.h"
+#include "CollectedData/CollectedDataStruct.h"
 
 #define verify_char(c) (c == 10 ? 'A' : c == 11 ? 'B' \
                                       : c == 12 ? 'C' \
@@ -200,29 +200,12 @@ class CAN_Messages
 
         ~CAN_Messages() {};
 
+        
         void Handling_Message(uint8_t *PID, BLE_packet_t *packet)
         {
             switch (*(PID + 2))
             {
-                case 0x41:
-                { // case for PID support
-                    if (*(PID + 0) == 0x10)
-                    {
-                        if (*(PID + 3) == PIDs1)
-                            Storage_PIDenable_bit(PID, PID_to_index_1);
-                        else if (*(PID + 3) == PIDs2)
-                            Storage_PIDenable_bit(PID, PID_to_index_2);
-                        else if (*(PID + 3) == PIDs3)
-                            Storage_PIDenable_bit(PID, PID_to_index_3);
-                        else if (*(PID + 3) == PIDs4)
-                            Storage_PIDenable_bit(PID, PID_to_index_4);
-                        else if (*(PID + 3) == PIDs5)
-                            Storage_PIDenable_bit(PID, PID_to_index_5);
-                    }
-            
-                    break;
-                }
-
+               
                 case EngineLoad:
                 {
                     float A = *(PID + 3);
