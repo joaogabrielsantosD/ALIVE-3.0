@@ -14,7 +14,7 @@ void init_tickers()
   ticker5secs.attach(5.0f, ticker_5sec_ISR);
   ticker1secs.attach(1.0f, ticker_1sec_ISR);
   ticker_05sec.attach(0.5f, ticker_05sec_ISR);
-  ticker_01sec.attach(0.1f, ticker_01sec_ISR);
+  //ticker_01sec.attach(0.1f, ticker_01sec_ISR);
 }
 
 void Call_DTC_mode3(void)
@@ -39,6 +39,7 @@ void PIDs_once()
 void ticker_5min_ISR()
 {
   insert(DistanceTraveledSinceCodeCleared);
+
   insert(DistanceTraveledMIL); 
   insert(Odometer_PID);
   insert(EthanolFuel);

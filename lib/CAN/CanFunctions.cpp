@@ -4,7 +4,7 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-#define Print_Msg_PIDSuported
+//#define Print_Msg_PIDSuported
 //#define debug_when_receive_byte
 //#define Print_Sended_Msg
 
@@ -75,7 +75,7 @@ bool TestIF_StdExt()
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  Serial.println("Testing can ID type...");
+  //Serial.println("Testing can ID type...");
 
   while (CAN.checkReceive() != CAN_MSGAVAIL)
   {
@@ -83,12 +83,12 @@ bool TestIF_StdExt()
     {
       extended = false;
       send_msg(MsgRequest, extended);
-      Serial.println("Testing Standart...");
+      //Serial.println("Testing Standart...");
     }
     else
     {
       extended = true;
-      Serial.println("Testing Extended...");
+      //Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
       if ((millis() - ext_tstart) >= 400)
       {
@@ -96,9 +96,7 @@ bool TestIF_StdExt()
       }
     }
 
-#ifdef Print_Msg_PIDSuported
-    debug_print(MsgRequest, true);
-#endif
+
 
     vTaskDelay(100);
 
@@ -120,6 +118,7 @@ bool checkPID(bool ext)
   {
 #ifdef Print_Msg_PIDSuported
     Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+    debug_print(MsgRequest, true);
 #endif
 
     MsgRequest[2] = Pids[i];
@@ -172,6 +171,7 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
 /*Return Binary Array with vehicle PID's availables*/
 int Check_bin_for_state(int pid_order)
 {
+  Serial.printf(" BIN: %d", PID_Enables_bin[pid_order - 1]);
   return PID_Enables_bin[pid_order - 1] & 0x01;
 }
 
@@ -250,7 +250,7 @@ void send_OBDmsg(int PID, bool CANidType)
 
   // timeout
     if (millis() - initialTime >= 1000)
-      break;    
+      return;    
   }
 
   Read_CANmsgBuf(messageData);  

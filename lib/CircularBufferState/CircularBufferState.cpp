@@ -14,7 +14,9 @@ int CircularBuffer_state()
   else
   {
     if (!state_buffer.isEmpty())
-      current_pid = state_buffer.pop();
+    {
+      current_pid = state_buffer.pop();      
+    }
     else
       current_pid = IDLE_ST;
   }
@@ -22,7 +24,7 @@ int CircularBuffer_state()
   return current_pid;
 }
 
-bool insert(int ST)
+int insert(int ST)
 {
   switch (ST)
   {
@@ -35,7 +37,9 @@ bool insert(int ST)
     break;
 
   default:
-    return Check_bin_for_state(ST) ? state_buffer.push(ST) : 0;
+    Serial.printf("\r\n ST is %d", ST);
+    Serial.printf(" Push ok? %d\r\n", Check_bin_for_state(ST) ? state_buffer.push(ST) : -1);
+    return -1;
     break;
   }
 }

@@ -7,7 +7,7 @@
 
 /* Circular Buffer Functions */
 int CircularBuffer_state(void);
-bool insert(int ST);
+int insert(int ST);
 void debug_print(unsigned char *message);
 /* Bit analyze and storage Functions */
 void save_flag_imu_parameter(bool _flag);
