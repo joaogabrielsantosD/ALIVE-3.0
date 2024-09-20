@@ -6,6 +6,20 @@ Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs,
 /* Initialize all tickers to insert the messages in the circular buffer */
 void init_tickers()
 {
+  #ifdef Print_in_serial
+    Serial.println("Check the PID support...");
+    if (!checkPID())
+    {
+      Serial.println("OBD NOT connected");
+      esp_restart();
+    }
+
+    else
+      Serial.println("OBD connected");
+  #else
+    checkPID();
+  #endif
+
   tickerONCE.once(1.0f, PIDs_once);           // one time
   ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
   ticker1min.attach(60.0f, ticker_1min_ISR);
