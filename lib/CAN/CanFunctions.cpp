@@ -4,8 +4,8 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-//#define Print_Msg_PIDSuported
-//#define debug_when_receive_byte
+#define Print_Msg_PIDSuported
+#define debug_when_receive_byte
 //#define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
@@ -47,10 +47,17 @@ void set_mask_filt()
   // set mask and filter to STANDART Can frame receive [0x7E8 - 0x7EF]
   CAN.init_Mask(0, 0, 0x7E0);
   CAN.init_Filt(0, 0, 0x7E8);
-
+  //
   // set mask and filter to EXTENDED Can frame receive [0x18DAF100 - 0x18DAF1FF]
-  CAN.init_Mask(1, 1, 0x18DAF100);
-  CAN.init_Filt(1, 1, 0x18DAF100);
+  //CAN.init_Mask(1, 1, 0x18DAF100);
+  //CAN.init_Filt(1, 1, 0x18DAF100);
+
+  CAN.init_Mask(0, 1, 0x1FFFFFFF);
+  CAN.init_Mask(1, 1, 0x1FFFFFFF);
+
+  // set filter, we can receive id from 0x04 ~ 0x09
+  for (int i = 1; i < 6; i++)
+   CAN.init_Filt(i, 1, 0x18DAF110);
 }
 
 /* CAN interrupt Callback*/
@@ -69,26 +76,25 @@ bool checkReceive()
 /*Return CAN ID type, Stardart(0) or Extended (1)*/
 bool TestIF_StdExt()
 {
-  bool extended = true;
+  bool extended = true, TestIDOnce = false;
   unsigned char MsgRequest[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
-
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  //Serial.println("Testing can ID type...");
+  // Serial.println("Testing can ID type...");
 
-  while (CAN.checkReceive() != CAN_MSGAVAIL)
+  while (CAN.checkReceive() != CAN_MSGAVAIL && !TestIDOnce)
   {
     if ((millis() - ext_tstart) <= 200)
     {
       extended = false;
       send_msg(MsgRequest, extended);
-      //Serial.println("Testing Standart...");
+      Serial.println("Testing Standart...");
     }
     else
     {
       extended = true;
-      //Serial.println("Testing Extended...");
+      Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
       if ((millis() - ext_tstart) >= 400)
       {
@@ -96,23 +102,25 @@ bool TestIF_StdExt()
       }
     }
 
-
-
     vTaskDelay(100);
-
+    TestIDOnce = true;
+    
     if ((millis() - obd_tstart) >= OBD_timout)
       Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
   }
 
   Serial.println("saiu");
+  _ext = extended;
   return extended;
 }
 
 /*Request which PID's are available to read */
-bool checkPID(bool ext)
+bool checkPID()
 {
+  bool CheckPIDFail = false;
+  unsigned long obd_tstart = millis(), OBD_timeout2 = 3000;
   unsigned char MsgRequest[] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
-  uint8_t Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  unsigned char Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
@@ -123,12 +131,21 @@ bool checkPID(bool ext)
 
     MsgRequest[2] = Pids[i];
 
-    while (!receive_message)
+    // while (CAN.checkReceive() == CAN_NOMSG || (CAN.getCanId() != 0x7E8) || CAN.getCanId() != 0x18DAF100)
+    while (CAN.checkReceive() != CAN_MSGAVAIL)
     {
-      send_msg(MsgRequest, ext);
+      send_msg(MsgRequest, _ext);
+#ifdef Print_Sended_Msg
+      debug_print(MsgRequest, true);
+#endif
       vTaskDelay(100);
+
+      if (millis() - obd_tstart >= OBD_timeout2)
+        CheckPIDFail = true;
     }
-    Read_CANmsgBuf(Data_can);
+
+    //if (CAN.getCanId() == 0x7E8 || CAN.getCanId() == 0x18DAF100)
+      Read_CANmsgBuf(Data_can);
 
     Storage_PIDenable_bit(Data_can, i * 4);
   }
@@ -137,7 +154,7 @@ bool checkPID(bool ext)
   {
     Serial.print(PID_Enables_bin[i]);
   }
-  //Serial.printf("\t%d\r\n", odometer_pid_enable);
+  Serial.printf("\t%d\r\n", odometer_pid_enable);
 
   return true;
 }
@@ -164,6 +181,7 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
       }
     }
   }
+
   else if (position == PID_to_index_5)
     odometer_pid_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
@@ -182,7 +200,7 @@ bool send_msg(unsigned char *msg, bool extended)
 }
 
 /*Read messageData and ID from Can buffer*/
-void Read_CANmsgBuf(uint8_t *Data_can)
+void Read_CANmsgBuf(unsigned char *Data_can)
 {
   uint8_t length = 8;
   uint32_t ID = 0;
@@ -192,7 +210,6 @@ void Read_CANmsgBuf(uint8_t *Data_can)
     receive_message = false;
     ID = CAN.getCanId();
     CAN.readMsgBuf(&length, Data_can);
-
 #ifdef debug_when_receive_byte
     debug_print(Data_can, false);
 #endif
@@ -208,8 +225,7 @@ int Verify_odometer_exist()
 void debug_print(unsigned char *message, bool response)
 {
   Serial.printf("%s CAN: id 0x", response ? "Send to" : "Received by");
-  Serial.print(CAN.getCanId(), HEX);
-  Serial.print("  ");
+  Serial.printf("%ld  ", response ? CAN_ID(_ext) : CAN.getCanId());
   for (int i = 0; i < 8; i++)
   {
     Serial.print(*(message + i), HEX);
@@ -219,11 +235,12 @@ void debug_print(unsigned char *message, bool response)
 }
 
 /*Send CANmsg to get data from vehicle*/
-void send_OBDmsg(int PID, bool CANidType)
+void send_OBDmsg(int PID)
 {
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
+
   if (PID != DTC_mode_3)
   {
     messageData[0] = 0x02;               // Lenght
@@ -240,21 +257,21 @@ void send_OBDmsg(int PID, bool CANidType)
   initialTime = millis();
   while (CAN.checkReceive() != CAN_MSGAVAIL) // Wait the response
   {
-    send_msg(messageData, CANidType); // Send the resquest
+    send_msg(messageData, _ext); // Send the resquest
 
-    #ifdef Print_Sended_Msg
-        debug_print(messageData, true);
-    #endif
+#ifdef Print_Sended_Msg
+    debug_print(messageData, true);
+#endif
 
     vTaskDelay(100);
 
-  // timeout
+    // timeout
     if (millis() - initialTime >= 1000)
-      return;    
+      return;
   }
 
-  Read_CANmsgBuf(messageData);  
-  CAN_msg.Handling_Message(messageData, &packet);
+  Read_CANmsgBuf(messageData);
+  CAN_msg.Handling_Message((uint8_t *)messageData, &packet);
 }
 
 /*================================== Packet Message Functions ==================================*/

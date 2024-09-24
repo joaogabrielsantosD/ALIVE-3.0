@@ -25,7 +25,7 @@ void setup()
 
   start_CAN_device();
 
-  init_tickers();
+  //init_tickers();
 
   /* Set the new WDT timer */
   set_wdt_timer();
@@ -47,15 +47,15 @@ void CANprocessTask(void *arg)
 {
   int circularbuffer_State = IDLE_ST;
 
-  bool CanIDtype = TestIF_StdExt();
-  Serial.println(CanIDtype);
-  checkPID(CanIDtype);  
+  TestIF_StdExt();
+  checkPID();  
+  init_tickers();
 
   while (1)
   {
     circularbuffer_State = CircularBuffer_state(); 
-    Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
-    send_OBDmsg(circularbuffer_State, CanIDtype);
+    //Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
+    send_OBDmsg(circularbuffer_State);
     vTaskDelay(10);
   }
 }

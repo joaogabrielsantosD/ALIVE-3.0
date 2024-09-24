@@ -13,10 +13,10 @@
 
 void start_CAN_device();
 void set_mask_filt(void);
-bool checkPID(bool ext);
+bool checkPID();
 void SaveParameters_extended(bool ext);
 bool send_msg(unsigned char *msg, bool extended);
-void Read_CANmsgBuf(uint8_t *Data_can);
+void Read_CANmsgBuf(unsigned char *Data_can);
 bool TestIF_StdExt();
 uint32_t get_CAN_ID(void);
 
@@ -30,7 +30,7 @@ int Check_bin_for_state(int pid_order);
 int Verify_odometer_exist(void);
 
 void debug_print(unsigned char *message, bool response);
-void send_OBDmsg(int PID, bool CANidType);
+void send_OBDmsg(int PID);
 
 BLE_packet_t updatePacket();
 #endif
