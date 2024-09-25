@@ -12,7 +12,6 @@
 /* WatchDog timer libraries */
 #include <wdt.h>
 
-boolean flagCANInit = false; // If false, indicate that the CAN module was not initialized successfully
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
 void CANprocessTask(void *arg);
@@ -23,9 +22,8 @@ void setup()
   Serial.begin(115200);
   Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
 
+  /* Start the MCP2515 to CAN communication */
   start_CAN_device();
-
-  //init_tickers();
 
   /* Set the new WDT timer */
   set_wdt_timer();
@@ -54,9 +52,9 @@ void CANprocessTask(void *arg)
   while (1)
   {
     circularbuffer_State = CircularBuffer_state(); 
-    //Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
+    Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
     send_OBDmsg(circularbuffer_State);
-    vTaskDelay(10);
+    vTaskDelay(1);
   }
 }
 

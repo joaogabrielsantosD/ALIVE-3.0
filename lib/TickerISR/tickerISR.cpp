@@ -39,7 +39,6 @@ void PIDs_once()
 void ticker_5min_ISR()
 {
   insert(DistanceTraveledSinceCodeCleared);
-
   insert(DistanceTraveledMIL); 
   insert(Odometer_PID);
   insert(EthanolFuel);

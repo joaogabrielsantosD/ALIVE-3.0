@@ -1,11 +1,11 @@
 #include "CircularBufferState.h"
 
-/* Variables for Circular Buffer*/
+/* Variables for Circular Buffer */
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_pid = IDLE_ST;
 bool imu_flag = false, gps_flag = false;
 
-/*Return the PID in the queue*/
+/* Return the PID in the queue */
 int CircularBuffer_state()
 {
   if (state_buffer.isFull())
@@ -14,9 +14,7 @@ int CircularBuffer_state()
   else
   {
     if (!state_buffer.isEmpty())
-    {
       current_pid = state_buffer.pop();      
-    }
     else
       current_pid = IDLE_ST;
   }
@@ -24,23 +22,24 @@ int CircularBuffer_state()
   return current_pid;
 }
 
+/* Insert the PID in the queue */
 int insert(int ST)
 {
   switch (ST)
   {
-  case DTC_mode_3:
-    return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
-    break;
+    case DTC_mode_3:
+      return state_buffer.unshift(ST); // marks the DTC as priority in the buffer, placing it first
+      break;
 
-  case Odometer_PID:
-    return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
-    break;
+    case Odometer_PID:
+      return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+      break;
 
-  default:
-    Serial.printf("\r\n ST is %d", ST);
-    Serial.printf(" Push ok? %d\r\n", Check_bin_for_state(ST) ? state_buffer.push(ST) : -1);
-    return -1;
-    break;
+    default:
+      Serial.printf("\r\n ST is %d", ST);
+      Serial.printf(" Push ok? %d\r\n", Check_bin_for_state(ST) ? state_buffer.push(ST) : -1);
+      return -1;
+      break;
   }
 }
 
