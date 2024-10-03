@@ -68,8 +68,8 @@ void set_mask_filt(bool Extended_Type_ID_CAN)
   {
     Serial.println("Filter to extended ID");
     // set mask, set both the mask to 0x3ff
-    CAN.init_Mask(0, 1, 0);
-    CAN.init_Mask(1, 1, 0);
+    CAN.init_Mask(0, 1, 0x1FFFFFFF);
+    CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
     // set filter, we can receive id from 0x04 ~ 0x09
     for (int i = 0; i < 6; i++)
@@ -79,8 +79,8 @@ void set_mask_filt(bool Extended_Type_ID_CAN)
   else
   {
     Serial.println("Filter to normal ID");
-    CAN.init_Mask(0, 0, 0);
-    CAN.init_Mask(1, 0, 0);
+    CAN.init_Mask(0, 0, 0x7FF);
+    CAN.init_Mask(1, 0, 0x7FF);
 
     // set filter, we can receive id from 0x04 ~ 0x09
     for (int i = 0; i < 6; i++)
@@ -110,12 +110,12 @@ bool TestIF_StdExt()
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   bool extended = true, TestIDOnce = false;
 
-  while (CAN.getCanId() != 0x18DAF100 || CAN.getCanId() != 0x7E8  /*&& !TestIDOnce*/)
+  while (CAN.checkReceive() != CAN_MSGAVAIL  /*&& !TestIDOnce*/)
   {
+      set_mask_filt(extended);
     if ((millis() - ext_tstart) <= 500)
     {
       extended = false;
-      //set_mask_filt(extended);
       send_msg(MsgRequest, extended);
       Serial.println("Testing Standart...");
     }
@@ -123,7 +123,6 @@ bool TestIF_StdExt()
     else
     {
       extended = true;
-      //set_mask_filt(extended);
       Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
       if ((millis() - ext_tstart) >= 1000)
@@ -258,7 +257,9 @@ int Verify_odometer_exist()
 void debug_print(unsigned char *message, bool response)
 {
   Serial.printf("%s CAN: id 0x", response ? "Send to" : "Received by");
-  Serial.printf("%ld  ", response ? CAN_ID(_ext) : CAN.getCanId());
+  unsigned long id = response ? CAN_ID(_ext) : CAN.getCanId();
+  Serial.print(id, HEX);
+  Serial.print("   ");
   for (int i = 0; i < 8; i++)
   {
     Serial.print(*(message + i), HEX);
