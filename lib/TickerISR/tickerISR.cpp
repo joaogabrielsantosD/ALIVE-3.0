@@ -1,10 +1,9 @@
 #include "tickerISR.h"
 
-#define Print_in_serial // discomment to enable SerialPrint of checkPID
-const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
 Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs, 
     ticker5secs, ticker1secs, ticker_05sec, ticker_01sec;
 
+/* Initialize all tickers to insert the messages in the circular buffer */
 void init_tickers()
 {
   #ifdef Print_in_serial
@@ -29,72 +28,7 @@ void init_tickers()
   ticker5secs.attach(5.0f, ticker_5sec_ISR);
   ticker1secs.attach(1.0f, ticker_1sec_ISR);
   ticker_05sec.attach(0.5f, ticker_05sec_ISR);
-  ticker_01sec.attach(0.1f, ticker_01sec_ISR);
-}
-
-bool checkPID()
-{
-  bool extended = false;
-  // Flag to check if you received the PID support message
-  bool check_receive_pid = false;
-  unsigned char Data[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-  for (int i = 0; i < sizeof(Pids); i++)
-  {
-    #ifdef Print_in_serial
-     Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
-    #endif
-    check_receive_pid = false;
-    Data[2] = Pids[i];
-
-    while (!check_receive_pid)
-    {
-      if (i == 0)
-      {
-        unsigned long obd_connection = millis();
-        const unsigned long OBD_timout = 3000; // 3 seconds
-        while (!checkReceive())
-        {
-          #ifdef Print_in_serial
-            if (send_msg(Data, extended))
-              debug_print(Data);
-          #else
-            send_msg(Data, extended)
-          #endif
-          extended = !extended;
-
-          // timeout for OBD II connection failed
-          if ((millis() - obd_connection) >= OBD_timout)
-            return false;
-
-          vTaskDelay(10);
-        }
-        SaveParameters_extended(!extended);
-        acq_function(Save_PIDs_Enable); 
-        check_receive_pid = true;
-      }
-
-      else
-      {
-        while (!checkReceive())
-        {
-          #ifdef Print_in_serial
-            if (send_msg(Data))
-              debug_print(Data);
-          #else
-            send_msg(Data)
-          #endif
-          vTaskDelay(10);
-        }
-        acq_function(Save_PIDs_Enable);
-        check_receive_pid = true;
-      }
-
-      vTaskDelay(10);
-    }
-  }
-
-  return true;
+  //ticker_01sec.attach(0.1f, ticker_01sec_ISR);
 }
 
 void Call_DTC_mode3(void)
@@ -119,6 +53,7 @@ void PIDs_once()
 void ticker_5min_ISR()
 {
   insert(DistanceTraveledSinceCodeCleared);
+
   insert(DistanceTraveledMIL); 
   insert(Odometer_PID);
   insert(EthanolFuel);
@@ -141,7 +76,7 @@ void ticker_1min_ISR()
 
 void ticker_30sec_ISR()
 {
-  insert(GPS_ST);
+  //insert(GPS_ST);
   insert(ControlModuleVoltage);
   insert(AbsoluteLoadValue);
   insert(AbsoluteFuelRailPressure);
@@ -243,7 +178,7 @@ void ticker_1sec_ISR()
 
 void ticker_05sec_ISR()
 { 
-  insert(Accelerometer_ST); 
+  //insert(Accelerometer_ST); 
   insert(EngineRPM);
   insert(VehicleSpeed);
 }

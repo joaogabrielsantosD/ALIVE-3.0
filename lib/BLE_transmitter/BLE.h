@@ -3,7 +3,7 @@
 
 #include <BLEDevice.h>
 #include <ArduinoJson.h>
-#include "AcquisitionData.h"
+#include "CanFunctions.h"
 #include "tickerISR.h"
 
 #define SERVICE_UUID        "acc1f4ef-4fcf-4f90-882e-0a666da9f321"

@@ -1,6 +1,8 @@
 #include "wdt.h"
 
 // example from: https://www.youtube.com/watch?v=yOwg1EMby2g&t=240s
+
+/* Config and Init the WDT */
 void set_wdt_timer()
 {
   static bool first_exec = true;
@@ -20,6 +22,7 @@ void set_wdt_timer()
   rtc_wdt_protect_on();
 }
 
+/* Reset WDT */
 void reset_rtc_wdt()
 {
   esp_task_wdt_reset(); // Reset the ESP task watchdog timer
