@@ -79,7 +79,7 @@ void imu_acq_function()
     Serial.printf("%.2f\r\n", gValue.z);  
     
     Serial.print("Temperature in °C: ");
-    Serial.printf("%.2f\r\n", MPU9250.getTemperature());
+    Serial.printf("%.2f\r\n", volatile_packet.acctemp);
     
     Serial.print("Angles X Y Z: ");
     Serial.printf("%.2f, ",angles.x);      
