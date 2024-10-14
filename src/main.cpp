@@ -23,9 +23,7 @@ void setup()
   Serial.begin(115200);
   Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
 
-  start_CAN_device();
-
-  init_tickers();
+  start_CAN_device();  
 
   /* Set the new WDT timer */
   set_wdt_timer();
@@ -48,13 +46,14 @@ void CANprocessTask(void *arg)
   int circularbuffer_State = IDLE_ST;
 
   bool CanIDtype = TestIF_StdExt();
-  Serial.println(CanIDtype);
-  checkPID(CanIDtype);  
+  //Serial.println(CanIDtype);
+  checkPID(CanIDtype);
+  init_tickers();  
 
   while (1)
   {
     circularbuffer_State = CircularBuffer_state(); 
-    Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
+    //Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
     send_OBDmsg(circularbuffer_State, CanIDtype);
     vTaskDelay(10);
   }

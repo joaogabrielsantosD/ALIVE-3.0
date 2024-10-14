@@ -16,19 +16,12 @@ void set_mask_filt(void);
 bool checkPID(bool ext);
 void SaveParameters_extended(bool ext);
 bool send_msg(unsigned char *msg, bool extended);
-void Read_CANmsgBuf(uint8_t *Data_can);
+uint32_t Read_CANmsgBuf(uint8_t *Data_can);
 bool TestIF_StdExt();
-uint32_t get_CAN_ID(void);
-
-void get_msg(unsigned char messageData[], uint32_t &id, uint8_t &len);
-void canISR(void);
-
-void Handling_PID(uint8_t *PID);
+void canISR();
 void Storage_PIDenable_bit(unsigned char *bit_data, int position);
-void Convert_Dec2Bin(void);
 int Check_bin_for_state(int pid_order);
 int Verify_odometer_exist(void);
-
 void debug_print(unsigned char *message, bool response);
 void send_OBDmsg(int PID, bool CANidType);
 

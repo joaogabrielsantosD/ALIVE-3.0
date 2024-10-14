@@ -4,9 +4,9 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-//#define Print_Msg_PIDSuported
-//#define debug_when_receive_byte
-//#define Print_Sended_Msg
+// #define Print_Msg_PIDSuported
+#define debug_when_receive_byte
+// #define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
@@ -51,6 +51,9 @@ void set_mask_filt()
   // set mask and filter to EXTENDED Can frame receive [0x18DAF100 - 0x18DAF1FF]
   CAN.init_Mask(1, 1, 0x18DAF100);
   CAN.init_Filt(1, 1, 0x18DAF100);
+
+  // CAN.init_Mask(1, 1, 0xFFFFFFFF);
+  // CAN.init_Filt(1, 1, 0x18DAF100);
 }
 
 /* CAN interrupt Callback*/
@@ -70,49 +73,52 @@ bool checkReceive()
 bool TestIF_StdExt()
 {
   bool extended = true;
+  bool TestIDonce = false;
   unsigned char MsgRequest[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  //Serial.println("Testing can ID type...");
+  // Serial.println("Testing can ID type...");
 
-  while (CAN.checkReceive() != CAN_MSGAVAIL)
+  while (CAN.checkReceive() == CAN_NOMSG && TestIDonce == false)
   {
     if ((millis() - ext_tstart) <= 200)
     {
       extended = false;
       send_msg(MsgRequest, extended);
-      //Serial.println("Testing Standart...");
+      Serial.println("Testing Standart...");
     }
     else
     {
       extended = true;
-      //Serial.println("Testing Extended...");
+      Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
       if ((millis() - ext_tstart) >= 400)
       {
         ext_tstart = millis();
       }
     }
-
-
-
     vTaskDelay(100);
+    TestIDonce = true;
 
     if ((millis() - obd_tstart) >= OBD_timout)
       Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
   }
 
-  Serial.println("saiu");
   return extended;
 }
 
 /*Request which PID's are available to read */
 bool checkPID(bool ext)
 {
+  bool CheckPIDFail = false;
+
   unsigned char MsgRequest[] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
   uint8_t Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+  unsigned long obd_tstart = millis();
+  const unsigned long OBD_timout2 = 5000; // 5 seconds
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
@@ -123,12 +129,20 @@ bool checkPID(bool ext)
 
     MsgRequest[2] = Pids[i];
 
-    while (!receive_message)
+    while (CAN.checkReceive() == CAN_NOMSG || (CAN.getCanId() != 0x7E8 && CAN.getCanId() != 0x18DAF100))
     {
       send_msg(MsgRequest, ext);
       vTaskDelay(100);
+      // Serial.println("Trying to receive correct pid message!!!");
+
+      if ((millis() - obd_tstart) >= OBD_timout2)
+        CheckPIDFail = true;
     }
-    Read_CANmsgBuf(Data_can);
+
+    if (CheckPIDFail)
+      memset((Data_can + 3), 0xFF, 5);
+    else
+      Read_CANmsgBuf(Data_can);
 
     Storage_PIDenable_bit(Data_can, i * 4);
   }
@@ -137,7 +151,7 @@ bool checkPID(bool ext)
   {
     Serial.print(PID_Enables_bin[i]);
   }
-  //Serial.printf("\t%d\r\n", odometer_pid_enable);
+  // Serial.printf("\t%d\r\n", odometer_pid_enable);
 
   return true;
 }
@@ -182,7 +196,7 @@ bool send_msg(unsigned char *msg, bool extended)
 }
 
 /*Read messageData and ID from Can buffer*/
-void Read_CANmsgBuf(uint8_t *Data_can)
+uint32_t Read_CANmsgBuf(uint8_t *Data_can)
 {
   uint8_t length = 8;
   uint32_t ID = 0;
@@ -197,6 +211,7 @@ void Read_CANmsgBuf(uint8_t *Data_can)
     debug_print(Data_can, false);
 #endif
   }
+  return ID;
 }
 
 int Verify_odometer_exist()
@@ -221,6 +236,7 @@ void debug_print(unsigned char *message, bool response)
 /*Send CANmsg to get data from vehicle*/
 void send_OBDmsg(int PID, bool CANidType)
 {
+  uint32_t id = 0;
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
@@ -242,19 +258,21 @@ void send_OBDmsg(int PID, bool CANidType)
   {
     send_msg(messageData, CANidType); // Send the resquest
 
-    #ifdef Print_Sended_Msg
-        debug_print(messageData, true);
-    #endif
+#ifdef Print_Sended_Msg
+    debug_print(messageData, true);
+#endif
 
     vTaskDelay(100);
 
-  // timeout
+    // timeout
     if (millis() - initialTime >= 1000)
-      return;    
+      return;
   }
 
-  Read_CANmsgBuf(messageData);  
-  CAN_msg.Handling_Message(messageData, &packet);
+  id = Read_CANmsgBuf(messageData);
+
+  if (id == 0x7E8 || id == 0x18DAF100)
+    CAN_msg.Handling_Message(messageData, &packet);
 }
 
 /*================================== Packet Message Functions ==================================*/
