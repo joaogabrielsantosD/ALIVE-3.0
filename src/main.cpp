@@ -43,18 +43,37 @@ void loop() { reset_rtc_wdt(); }
 
 void CANprocessTask(void *arg)
 {
+  static bool run_once_time = false;
   int circularbuffer_State = IDLE_ST;
 
-  TestIF_StdExt();
-  checkPID();  
-  init_tickers();
+  uint8_t can_flag = TestIF_StdExt();
+  if (can_flag != 2 && !run_once_time)
+  {
+    checkPID();
+    init_tickers();
+    run_once_time = true;
+  }
 
   while (1)
   {
-    circularbuffer_State = CircularBuffer_state(); 
-    Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
-    send_OBDmsg(circularbuffer_State);
-    vTaskDelay(1);
+    if (can_flag == 2)
+      can_flag = TestIF_StdExt();
+
+    if (can_flag != 2 && !run_once_time)
+    {
+      checkPID();
+      init_tickers();
+      run_once_time = true;
+    }
+
+    if ((can_flag == 0 || can_flag == 1) && run_once_time)
+    {
+      circularbuffer_State = CircularBuffer_state();
+      Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
+      send_OBDmsg(circularbuffer_State);
+    }
+
+    vTaskDelay(can_flag == 2 ? 1000 : 1);
   }
 }
 

@@ -1,13 +1,13 @@
 #include "CanFunctions.h"
 
 #ifdef CAN_2515
-  mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
+mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
 /* Debugs */
 #define Print_Msg_PIDSuported
 #define debug_when_receive_byte
-//#define Print_Sended_Msg
+// #define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
@@ -27,9 +27,9 @@ void start_CAN_device()
   while ((millis() - tcanStart) < cantimeOut) // wait timeout
   {
     if (CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
-    { 
+    {
       Serial.println("CAN init ok!!!");
-      //set_mask_filt();
+      set_mask_filt();
       attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
       pinMode(CAN_DEBUG_LED, OUTPUT);
     }
@@ -46,73 +46,31 @@ void start_CAN_device()
 void set_mask_filt()
 {
   // set mask and filter to STANDART Can frame receive [0x7E8 - 0x7EF]
-  //CAN.init_Mask(0, 0, 0x7FF);
-  //CAN.init_Filt(0, 0, 0x7E8);
+  CAN.init_Mask(0, 0, 0x7E0);
+  CAN.init_Filt(0, 0, 0x7E8);
 
   // set mask and filter to EXTENDED Can frame receive [0x18DAF100 - 0x18DAF1FF]
-  //CAN.init_Mask(1, 1, 0x1FFFFFFF);
-  //CAN.init_Filt(1, 1, 0x18DAF100);
-
-  CAN.init_Mask(0, 1, 0x1FFFFFFF);
-  CAN.init_Mask(1, 1, 0x1FFFFFFF);
-
-  // set filter, we can receive id from 0x04 ~ 0x09
-  for (int i = 1; i < 6; i++)
-   CAN.init_Filt(i, 1, 0x18DAF110);
+  CAN.init_Mask(1, 1, 0x18DAF110);
+  CAN.init_Filt(1, 1, 0x18DAF110);
 }
 
-void set_mask_filt(bool Extended_Type_ID_CAN)
-{
-  Serial.println(_ext);
-  if (Extended_Type_ID_CAN)
-  {
-    Serial.println("Filter to extended ID");
-    // set mask, set both the mask to 0x3ff
-    CAN.init_Mask(0, 1, 0x1FFFFFFF);
-    CAN.init_Mask(1, 1, 0x1FFFFFFF);
-
-    // set filter, we can receive id from 0x04 ~ 0x09
-    for (int i = 0; i < 6; i++)
-        CAN.init_Filt(i, 1, 0x18DAF110);
-  }
-
-  else
-  {
-    Serial.println("Filter to normal ID");
-    CAN.init_Mask(0, 0, 0x7FF);
-    CAN.init_Mask(1, 0, 0x7FF);
-
-    // set filter, we can receive id from 0x04 ~ 0x09
-    for (int i = 0; i < 6; i++)
-     CAN.init_Filt(i, 0, 0x7E8);  
-  }
-}
-
-/* CAN interrupt Callback*/
+/* CAN interrupt Callback */
 void canISR()
 {
   digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 1); // Blink Can Led
   receive_message = true;                                      // Flag that indicates that a message was received via CAN
 }
 
-/* TODO: Maybe delete this later */
-bool checkReceive()
-{
-  return receive_message;
-}
-
 /* Return CAN ID type, Stardart(0) or Extended (1) */
-bool TestIF_StdExt()
+uint8_t TestIF_StdExt()
 {
-  const unsigned long OBD_timout = 3000*2; // 3 seconds
-  unsigned char MsgRequest[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00},
-  db[] = {0,0,0,0,0,0,0,0};
+  const unsigned long OBD_timout = 3000; // 3 seconds
+  unsigned char MsgRequest[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
   unsigned long obd_tstart = millis(), ext_tstart = millis();
-  bool extended = true, TestIDOnce = false;
+  bool extended = true;
 
-  while (CAN.checkReceive() != CAN_MSGAVAIL  /*&& !TestIDOnce*/)
+  while (!receive_message)
   {
-      set_mask_filt(extended);
     if ((millis() - ext_tstart) <= 500)
     {
       extended = false;
@@ -125,25 +83,22 @@ bool TestIF_StdExt()
       extended = true;
       Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
+
       if ((millis() - ext_tstart) >= 1000)
-      {
         ext_tstart = millis();
-      }
     }
 
-    if (CAN.checkReceive() == CAN_MSGAVAIL)
-      Read_CANmsgBuf(db);
-    vTaskDelay(100);
-    TestIDOnce = true;
-    
     if ((millis() - obd_tstart) >= OBD_timout)
+    {
       Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
+      return 2;                                                                  // Error in the ID test
+    }
   }
 
   Serial.println("saiu");
-  set_mask_filt(extended);
   _ext = extended;
-  return extended;
+
+  return (uint8_t)extended; // Return 0(false) or 1(true)
 }
 
 /* Request which PID's are available to read */
@@ -156,35 +111,30 @@ bool checkPID()
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
-    #ifdef Print_Msg_PIDSuported
-      Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
-    #endif
+#ifdef Print_Msg_PIDSuported
+    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+#endif
 
     MsgRequest[2] = Pids[i];
 
     // while (CAN.checkReceive() == CAN_NOMSG || (CAN.getCanId() != 0x7E8) || CAN.getCanId() != 0x18DAF100)
-    while (CAN.checkReceive() != CAN_MSGAVAIL)
+    while (!receive_message)
     {
       send_msg(MsgRequest, _ext);
-      #ifdef Print_Sended_Msg
-        debug_print(MsgRequest, true);
-      #endif
-      vTaskDelay(200);
-
-      //if (millis() - obd_tstart >= OBD_timeout2)
-      //  CheckPIDFail = true;
+#ifdef Print_Sended_Msg
+      debug_print(MsgRequest, true);
+#endif
+      vTaskDelay(500);
     }
 
-    //if (CAN.getCanId() == 0x7E8 || CAN.getCanId() == 0x18DAF100)
-      Read_CANmsgBuf(Data_can);
+    Read_CANmsgBuf(Data_can);
 
     Storage_PIDenable_bit(Data_can, i * 4);
+    Serial.println(i * 4);
   }
 
   for (size_t i = 0; i < sizeof(PID_Enables_bin); i++)
-  {
     Serial.print(PID_Enables_bin[i]);
-  }
   Serial.printf("\t%d\r\n", odometer_pid_enable);
 
   return true;
@@ -206,7 +156,7 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
       int k = (i + 1) * 8 - 1;
 
       for (int j = 0; j < 8; j++)
-      { 
+      {
         // loop for complete the 8 bits of the uint8_t variable
         PID_Enables_bin[k--] = Aux % 2;
         Aux /= 2;
@@ -235,16 +185,27 @@ bool send_msg(unsigned char *msg, bool extended)
 void Read_CANmsgBuf(unsigned char *Data_can)
 {
   uint8_t length = 8;
-  uint32_t ID = 0;
+  unsigned long ID = 0;
 
   while (CAN.checkReceive() == CAN_MSGAVAIL)
   {
     receive_message = false;
+    CAN.readMsgBufID(&ID, &length, Data_can);
+
+
     ID = CAN.getCanId();
-    CAN.readMsgBuf(&length, Data_can);
-    #ifdef debug_when_receive_byte
-      debug_print(Data_can, false);
-    #endif
+    if(ID == 0x18DAF110){
+      
+#ifdef debug_when_receive_byte
+    debug_print(Data_can, false);
+#endif
+
+      break;
+    }
+     else{
+        Serial.println("id errado");
+      }
+
   }
 }
 
@@ -294,9 +255,9 @@ void send_OBDmsg(int PID)
   {
     send_msg(messageData, _ext); // Send the resquest
 
-    #ifdef Print_Sended_Msg
-        debug_print(messageData, true);
-    #endif
+#ifdef Print_Sended_Msg
+    debug_print(messageData, true);
+#endif
 
     vTaskDelay(200);
 
@@ -306,7 +267,7 @@ void send_OBDmsg(int PID)
   }
 
   Read_CANmsgBuf(messageData);
-  CAN_msg.Handling_Message((uint8_t*)messageData, &packet);
+  CAN_msg.Handling_Message((uint8_t *)messageData, &packet);
 }
 
 /*================================== Packet Message Functions ==================================*/

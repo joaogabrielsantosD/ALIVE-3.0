@@ -15,7 +15,7 @@ void Init_BLE_Server()
     // Create the BLE Device
     BLEDevice::init("ALIVE");
 
-    //Set maximum MTU (512 bytes)
+    // Set maximum MTU (512 bytes)
     BLEDevice::setMTU(512);
 
     // Create the BLE Server
