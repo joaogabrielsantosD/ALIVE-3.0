@@ -6,13 +6,13 @@ Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs,
 /* Initialize all tickers to insert the messages in the circular buffer */
 void init_tickers()
 {
-  tickerONCE.once(1.0f, PIDs_once);           // one time
-  ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
-  ticker1min.attach(60.0f, ticker_1min_ISR);
-  ticker30secs.attach(30.0f, ticker_30sec_ISR);
-  ticker10secs.attach(10.0f, ticker_10sec_ISR);
-  ticker5secs.attach(5.0f, ticker_5sec_ISR);
-  ticker1secs.attach(1.0f, ticker_1sec_ISR);
+  //tickerONCE.once(1.0f, PIDs_once);           // one time
+  //ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
+  //ticker1min.attach(60.0f, ticker_1min_ISR);
+  //ticker30secs.attach(30.0f, ticker_30sec_ISR);
+  //ticker10secs.attach(10.0f, ticker_10sec_ISR);
+  //ticker5secs.attach(5.0f, ticker_5sec_ISR);
+  //ticker1secs.attach(1.0f, ticker_1sec_ISR);
   ticker_05sec.attach(0.5f, ticker_05sec_ISR);
   //ticker_01sec.attach(0.1f, ticker_01sec_ISR);
 }

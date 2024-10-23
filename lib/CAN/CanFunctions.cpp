@@ -4,18 +4,19 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-/* Debugs */
 #define Print_Msg_PIDSuported
 #define debug_when_receive_byte
-// #define Print_Sended_Msg
+//#define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
 BLE_packet_t packet;
-uint8_t PID_enable_bit[16] = {0}, PID_Enables_bin[128] = {0}, odometer_pid_enable = 0;
+uint8_t PID_enable_bit[16] = {0};
+uint8_t PID_Enables_bin[128] = {0};
+uint8_t odometer_pid_enable = 0;
+volatile bool receive_message = false; // flag to enable or disable the message treatment
 const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
 bool _ext = false;
-volatile bool receive_message = false; // flag to enable or disable the message treatment
 
 /* Init CAN MCP2515 */
 void start_CAN_device()
@@ -28,10 +29,11 @@ void start_CAN_device()
   {
     if (CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
     {
-      Serial.println("CAN init ok!!!");
+      // Serial.println("CAN init ok!!!");
       set_mask_filt();
       attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
       pinMode(CAN_DEBUG_LED, OUTPUT);
+      return;
     }
 
     else
@@ -45,33 +47,33 @@ void start_CAN_device()
 /* Set Filter and masks to receive only OBD2 Messages */
 void set_mask_filt()
 {
-  // set mask and filter to STANDART Can frame receive [0x7E8 - 0x7EF]
-  CAN.init_Mask(0, 0, 0x7E0);
-  CAN.init_Filt(0, 0, 0x7E8);
+  // set mask, set both the mask to 0x3ff
+  CAN.init_Mask(0, 1, 0x1FFFFFFF);
+  CAN.init_Mask(1, 1, 0x1FFFFFFF);
 
-  // set mask and filter to EXTENDED Can frame receive [0x18DAF100 - 0x18DAF1FF]
-  CAN.init_Mask(1, 1, 0x18DAF110);
-  CAN.init_Filt(1, 1, 0x18DAF110);
+  // set filter, we can receive id from 0x04 ~ 0x09
+  for (int i = 0; i < 6; i++)
+    CAN.init_Filt(i, 1, 0x18DAF110);
 }
 
-/* CAN interrupt Callback */
+/* CAN interrupt Callback*/
 void canISR()
 {
   digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 1); // Blink Can Led
-  receive_message = true;                                      // Flag that indicates that a message was received via CAN
+  // receive_message = true;                                      // Flag that indicates that a message was received via CAN
 }
 
 /* Return CAN ID type, Stardart(0) or Extended (1) */
 uint8_t TestIF_StdExt()
 {
-  const unsigned long OBD_timout = 3000; // 3 seconds
-  unsigned char MsgRequest[8] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
-  unsigned long obd_tstart = millis(), ext_tstart = millis();
   bool extended = true;
+  unsigned char MsgRequest[8] = {0x02, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
+  unsigned long obd_tstart = millis(), ext_tstart = millis();
+  const unsigned long OBD_timout = 3000; // 3 seconds
 
-  while (!receive_message)
+  while (CAN.checkReceive() == CAN_NOMSG)
   {
-    if ((millis() - ext_tstart) <= 500)
+    if ((millis() - ext_tstart) <= 200)
     {
       extended = false;
       send_msg(MsgRequest, extended);
@@ -84,58 +86,51 @@ uint8_t TestIF_StdExt()
       Serial.println("Testing Extended...");
       send_msg(MsgRequest, extended);
 
-      if ((millis() - ext_tstart) >= 1000)
+      if ((millis() - ext_tstart) >= 400)
         ext_tstart = millis();
     }
+
+    vTaskDelay(100);
 
     if ((millis() - obd_tstart) >= OBD_timout)
     {
       Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
-      return 2;                                                                  // Error in the ID test
+      return 2;                                                                  // Error flag
     }
   }
 
-  Serial.println("saiu");
   _ext = extended;
-
-  return (uint8_t)extended; // Return 0(false) or 1(true)
+  return (uint8_t)extended;
 }
 
 /* Request which PID's are available to read */
 bool checkPID()
 {
-  bool CheckPIDFail = false;
-  unsigned long obd_tstart = millis(), OBD_timeout2 = 3000;
   unsigned char MsgRequest[] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
-  unsigned char Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
 #ifdef Print_Msg_PIDSuported
     Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+    debug_print(MsgRequest, true);
 #endif
 
     MsgRequest[2] = Pids[i];
 
-    // while (CAN.checkReceive() == CAN_NOMSG || (CAN.getCanId() != 0x7E8) || CAN.getCanId() != 0x18DAF100)
-    while (!receive_message)
+    while (CAN.checkReceive() == CAN_NOMSG)
     {
       send_msg(MsgRequest, _ext);
-#ifdef Print_Sended_Msg
-      debug_print(MsgRequest, true);
-#endif
-      vTaskDelay(500);
+      vTaskDelay(400);
     }
 
     Read_CANmsgBuf(Data_can);
 
     Storage_PIDenable_bit(Data_can, i * 4);
-    Serial.println(i * 4);
   }
 
-  for (size_t i = 0; i < sizeof(PID_Enables_bin); i++)
+  for (int i = 0; i < 32; i++)
     Serial.print(PID_Enables_bin[i]);
-  Serial.printf("\t%d\r\n", odometer_pid_enable);
 
   return true;
 }
@@ -156,22 +151,19 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
       int k = (i + 1) * 8 - 1;
 
       for (int j = 0; j < 8; j++)
-      {
-        // loop for complete the 8 bits of the uint8_t variable
+      { // loop for complete the 8 bits of the uint8_t variable
         PID_Enables_bin[k--] = Aux % 2;
         Aux /= 2;
       }
     }
   }
-
   else if (position == PID_to_index_5)
-    odometer_pid_enable = ((bit_data[4] >> 2) & ~0xFE); // move to 1 and disable the others bit
+    odometer_pid_enable = ((*(bit_data + 4) >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
 
-/* Return Binary Array with vehicle PID's availables */
+/*Return Binary Array with vehicle PID's availables*/
 int Check_bin_for_state(int pid_order)
 {
-  Serial.printf(" BIN: %d", PID_Enables_bin[pid_order - 1]);
   return PID_Enables_bin[pid_order - 1] & 0x01;
 }
 
@@ -182,30 +174,20 @@ bool send_msg(unsigned char *msg, bool extended)
 }
 
 /* Read messageData and ID from Can buffer */
-void Read_CANmsgBuf(unsigned char *Data_can)
+void Read_CANmsgBuf(uint8_t *Data_can)
 {
   uint8_t length = 8;
-  unsigned long ID = 0;
+  uint32_t ID = 0;
 
   while (CAN.checkReceive() == CAN_MSGAVAIL)
   {
     receive_message = false;
-    CAN.readMsgBufID(&ID, &length, Data_can);
-
-
     ID = CAN.getCanId();
-    if(ID == 0x18DAF110){
-      
+    CAN.readMsgBuf(&length, Data_can);
+
 #ifdef debug_when_receive_byte
     debug_print(Data_can, false);
 #endif
-
-      break;
-    }
-     else{
-        Serial.println("id errado");
-      }
-
   }
 }
 
@@ -218,9 +200,8 @@ int Verify_odometer_exist()
 void debug_print(unsigned char *message, bool response)
 {
   Serial.printf("%s CAN: id 0x", response ? "Send to" : "Received by");
-  unsigned long id = response ? CAN_ID(_ext) : CAN.getCanId();
-  Serial.print(id, HEX);
-  Serial.print("   ");
+  Serial.print(CAN.getCanId(), HEX);
+  Serial.print("  ");
   for (int i = 0; i < 8; i++)
   {
     Serial.print(*(message + i), HEX);
@@ -234,7 +215,7 @@ void send_OBDmsg(int PID)
 {
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
+                                /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
 
   if (PID != DTC_mode_3)
   {
@@ -251,7 +232,7 @@ void send_OBDmsg(int PID)
   }
 
   initialTime = millis();
-  while (CAN.checkReceive() != CAN_MSGAVAIL) // Wait the response
+  while (CAN.checkReceive() == CAN_NOMSG) // Wait the response
   {
     send_msg(messageData, _ext); // Send the resquest
 
@@ -259,7 +240,7 @@ void send_OBDmsg(int PID)
     debug_print(messageData, true);
 #endif
 
-    vTaskDelay(200);
+    vTaskDelay(300);
 
     // timeout
     if (millis() - initialTime >= 1000)
@@ -267,7 +248,7 @@ void send_OBDmsg(int PID)
   }
 
   Read_CANmsgBuf(messageData);
-  CAN_msg.Handling_Message((uint8_t *)messageData, &packet);
+  CAN_msg.Handling_Message(messageData, &packet);
 }
 
 /*================================== Packet Message Functions ==================================*/

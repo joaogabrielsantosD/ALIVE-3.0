@@ -32,48 +32,51 @@ void setup()
   Init_BLE_Server();
 
   /* Init the Modules */
-  start_module_device();
+  // start_module_device();
 
   /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE) management */
-  xTaskCreatePinnedToCore(CANprocessTask, "CANstatemachine", 4096, NULL, 5, &CANtask, 0);
-  xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 4, &BLEtask, 1);
+  xTaskCreatePinnedToCore(CANprocessTask, "CANstatemachine", 4096, NULL, 3, &CANtask, 1);
+  xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 2, &BLEtask, 0);
 }
 
 void loop() { reset_rtc_wdt(); }
 
 void CANprocessTask(void *arg)
 {
-  static bool run_once_time = false;
+  static bool run_time_once = false;
   int circularbuffer_State = IDLE_ST;
+  uint8_t CanIDtype = TestIF_StdExt();
 
-  uint8_t can_flag = TestIF_StdExt();
-  if (can_flag != 2 && !run_once_time)
+  if (CanIDtype != 2 && !run_time_once)
   {
     checkPID();
     init_tickers();
-    run_once_time = true;
+    run_time_once = true;
   }
 
   while (1)
   {
-    if (can_flag == 2)
-      can_flag = TestIF_StdExt();
+    if (CanIDtype == 2)
+      CanIDtype = TestIF_StdExt();
 
-    if (can_flag != 2 && !run_once_time)
+    if (CanIDtype != 2 && !run_time_once)
     {
       checkPID();
       init_tickers();
-      run_once_time = true;
+      run_time_once = true;
     }
 
-    if ((can_flag == 0 || can_flag == 1) && run_once_time)
+    if (CanIDtype < 2 && run_time_once)
     {
       circularbuffer_State = CircularBuffer_state();
-      Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
-      send_OBDmsg(circularbuffer_State);
+      if (circularbuffer_State != 0)
+      {
+        Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
+        send_OBDmsg(circularbuffer_State);
+      }
     }
 
-    vTaskDelay(can_flag == 2 ? 1000 : 1);
+    vTaskDelay(CanIDtype == 2 ? 1000 : 1);
   }
 }
 

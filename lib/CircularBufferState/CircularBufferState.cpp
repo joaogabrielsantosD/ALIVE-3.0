@@ -36,9 +36,7 @@ int insert(int ST)
       break;
 
     default:
-      Serial.printf("\r\n ST is %d", ST);
-      Serial.printf(" Push ok? %d\r\n", Check_bin_for_state(ST) ? state_buffer.push(ST) : -1);
-      return -1;
+      return Check_bin_for_state(ST) ? state_buffer.push(ST) : -1;
       break;
   }
 }
