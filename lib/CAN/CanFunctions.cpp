@@ -6,7 +6,7 @@ mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 
 #define Print_Msg_PIDSuported
 #define debug_when_receive_byte
-//#define Print_Sended_Msg
+// #define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
@@ -129,9 +129,6 @@ bool checkPID()
     Storage_PIDenable_bit(Data_can, i * 4);
   }
 
-  for (int i = 0; i < 32; i++)
-    Serial.print(PID_Enables_bin[i]);
-
   return true;
 }
 
@@ -139,8 +136,15 @@ bool checkPID()
 void Storage_PIDenable_bit(unsigned char *bit_data, int position)
 {
   if (position < sizeof(PID_enable_bit))
-    for (int i = 0; i < 4; i++)
-      PID_enable_bit[position + i] = bit_data[4 + i];
+  {
+    if (*(bit_data + 2) == Pids[position / 4])
+      for (int i = 0; i < 4; i++)
+        PID_enable_bit[position + i] = bit_data[4 + i - 1];
+
+    else if (*(bit_data + 3) == Pids[position / 4])
+      for (int i = 0; i < 4; i++)
+        PID_enable_bit[position + i] = bit_data[4 + i];
+  }
 
   // Convert Dec to Bin
   if (position == 12)
@@ -215,7 +219,7 @@ void send_OBDmsg(int PID)
 {
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-                                /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
+  /*{0x00, 0x00, PID, 0x00, 0x00, 0x00, 0x00, 0x00}*/
 
   if (PID != DTC_mode_3)
   {

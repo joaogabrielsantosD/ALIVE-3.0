@@ -32,7 +32,7 @@ int insert(int ST)
       break;
 
     case Odometer_PID:
-      return Verify_odometer_exist() ? state_buffer.push(ST) : 0;
+      return Verify_odometer_exist() ? state_buffer.push(ST) : -1;
       break;
 
     default:
