@@ -32,6 +32,7 @@ void Call_DTC_mode3(void)
 /*=========================== ISRs ====================================*/
 void PIDs_once()
 {
+  insert(DTC_mode_3);
   insert(FuelType);
   insert(HybridBatteryLife);
 }

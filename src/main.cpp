@@ -71,7 +71,7 @@ void CANprocessTask(void *arg)
       circularbuffer_State = CircularBuffer_state();
       
       if (circularbuffer_State != 0)
-        send_OBDmsg(circularbuffer_State);
+        send_OBDmsg(DTC_mode_3);
     }
 
     vTaskDelay(CanIDtype == 2 ? 1000 : 1);

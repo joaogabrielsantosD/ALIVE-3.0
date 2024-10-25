@@ -4,9 +4,9 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-//#define Print_Msg_PIDSuported
-//#define debug_when_receive_byte
-//#define Print_Sended_Msg
+#define Print_Msg_PIDSuported
+#define debug_when_receive_byte
+#define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
@@ -252,7 +252,11 @@ void send_OBDmsg(int PID)
   }
 
   Read_CANmsgBuf(messageData);
-  CAN_msg.Handling_Message(messageData, &packet);
+
+  if (PID != DTC_mode_3)
+    CAN_msg.Handling_Message(messageData, &packet);
+  else
+    CAN_msg.Read_DTC(messageData, &packet);
 }
 
 /*================================== Packet Message Functions ==================================*/

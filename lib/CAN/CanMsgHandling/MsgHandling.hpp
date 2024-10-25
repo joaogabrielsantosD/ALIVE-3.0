@@ -14,7 +14,7 @@
  * 2 - Print apenas DTC
  * 4 - Print DTC + mensagens CAN
  */
-#define debug_message 0
+#define debug_message 2
 
 class CAN_Messages
 {
@@ -200,6 +200,15 @@ class CAN_Messages
 
         ~CAN_Messages() {};
 
+        void Read_DTC(uint8_t *PID, BLE_packet_t *packet)
+        {
+            packet->DTC = this->make_DTC_code(*(PID + 3), *(PID + 4));
+
+            #if debug_message == 2 || debug_message == 4
+                Serial.print("Codigo de leitura de falhas: ");
+                Serial.println(packet->DTC);
+            #endif 
+        }
         
         void Handling_Message(uint8_t *PID, BLE_packet_t *packet)
         {
@@ -1497,9 +1506,9 @@ class CAN_Messages
                     break;
                 }
             
-                default:
+                /* default:
                 {
-                    if (*(PID + 1) == 0x43)
+                    if (*(PID + 2) == 0x43)
                     {
                         packet->DTC = this->make_DTC_code(*(PID + 3), *(PID + 4));
             
@@ -1510,7 +1519,7 @@ class CAN_Messages
                     }
             
                     break;
-                }
+                } */
             }
         };
 };
