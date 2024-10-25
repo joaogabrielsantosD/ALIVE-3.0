@@ -69,11 +69,9 @@ void CANprocessTask(void *arg)
     if (CanIDtype < 2 && run_time_once)
     {
       circularbuffer_State = CircularBuffer_state();
+      
       if (circularbuffer_State != 0)
-      {
-        Serial.printf("\r\n Current_PID is %d", circularbuffer_State);
         send_OBDmsg(circularbuffer_State);
-      }
     }
 
     vTaskDelay(CanIDtype == 2 ? 1000 : 1);

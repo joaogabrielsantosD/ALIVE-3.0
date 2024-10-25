@@ -13,5 +13,6 @@ void debug_print(unsigned char *message);
 void save_flag_imu_parameter(bool _flag);
 void save_flag_gps_parameter(bool _flag_);
 String verify_message_is_null(int id, double msg);
+void printBuffer();
 
 #endif

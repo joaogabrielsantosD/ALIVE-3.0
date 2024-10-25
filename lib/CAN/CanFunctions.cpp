@@ -4,9 +4,9 @@
 mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-#define Print_Msg_PIDSuported
-#define debug_when_receive_byte
-// #define Print_Sended_Msg
+//#define Print_Msg_PIDSuported
+//#define debug_when_receive_byte
+//#define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 

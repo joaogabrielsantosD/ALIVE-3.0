@@ -1,75 +1,75 @@
 #include "tickerISR.h"
 
-Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs, 
+Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker10secs,
     ticker5secs, ticker1secs, ticker_05sec, ticker_01sec;
 
 /* Initialize all tickers to insert the messages in the circular buffer */
 void init_tickers()
 {
-  //tickerONCE.once(1.0f, PIDs_once);           // one time
-  //ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min  
-  //ticker1min.attach(60.0f, ticker_1min_ISR);
-  //ticker30secs.attach(30.0f, ticker_30sec_ISR);
-  //ticker10secs.attach(10.0f, ticker_10sec_ISR);
-  //ticker5secs.attach(5.0f, ticker_5sec_ISR);
-  //ticker1secs.attach(1.0f, ticker_1sec_ISR);
-  ticker_05sec.attach(0.5f, ticker_05sec_ISR);
-  //ticker_01sec.attach(0.1f, ticker_01sec_ISR);
+  tickerONCE.once(1.0f, PIDs_once);           // one time
+  ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min
+  ticker1min.attach(60.0f, ticker_1min_ISR);
+  ticker30secs.attach(30.0f / 30, ticker_30sec_ISR);
+  ticker10secs.attach(10.0f * 2, ticker_10sec_ISR);
+  ticker5secs.attach(5.0f * 2, ticker_5sec_ISR);
+  ticker1secs.attach(1.0f * 3, ticker_1sec_ISR);
+  ticker_05sec.attach(0.5f * 2, ticker_05sec_ISR);
+  // ticker_01sec.attach(0.1f * 5, ticker_01sec_ISR);
 }
 
 void Call_DTC_mode3(void)
 {
-  #ifdef Print_in_serial
-    if (insert(DTC_mode_3))
-      Serial.println("DTC enviado com sucesso");
-    else
-      Serial.println("Erro ao enviar o DTC");
-  #else
-    insert(DTC_mode_3);
-  #endif
+#ifdef Print_in_serial
+  if (insert(DTC_mode_3))
+    Serial.println("DTC enviado com sucesso");
+  else
+    Serial.println("Erro ao enviar o DTC");
+#else
+  insert(DTC_mode_3);
+#endif
 }
 
 /*=========================== ISRs ====================================*/
 void PIDs_once()
 {
   insert(FuelType);
-  insert(HybridBatteryLife);  
+  insert(HybridBatteryLife);
 }
 
 void ticker_5min_ISR()
 {
   insert(DistanceTraveledSinceCodeCleared);
-  insert(DistanceTraveledMIL); 
+  insert(DistanceTraveledMIL);
   insert(Odometer_PID);
   insert(EthanolFuel);
 }
 
 void ticker_1min_ISR()
 {
-  insert(FuelPressure);  
+  insert(FuelPressure);
 
   insert(TimeRun_MIL);
   insert(TimeSinceTroubleCodesCleared);
-  //insert(CommandedEGR_ERROR);
+  // insert(CommandedEGR_ERROR);
   insert(EngineRunTime);
 
-  insert(ShortTermFuel_Bank1);                                       
-  insert(LongTermFuel_Bank1);                                        
-  insert(ShortTermFuel_Bank2);                                       
+  insert(ShortTermFuel_Bank1);
+  insert(LongTermFuel_Bank1);
+  insert(ShortTermFuel_Bank2);
   insert(LongTermFuel_Bank2);
 }
 
 void ticker_30sec_ISR()
 {
-  //insert(GPS_ST);
+  // insert(GPS_ST);
   insert(ControlModuleVoltage);
   insert(AbsoluteLoadValue);
   insert(AbsoluteFuelRailPressure);
-  //insert(FuelPressureControlSystem);
-  //insert(FuelLevelInput);
-  //insert(InjectionPressureControl);
-  //insert(DPF1);
-  //insert(DPF2);
+  // insert(FuelPressureControlSystem);
+  insert(FuelLevelInput);
+  // insert(InjectionPressureControl);
+  // insert(DPF1);
+  // insert(DPF2);
 }
 
 void ticker_10sec_ISR()
@@ -90,23 +90,23 @@ void ticker_10sec_ISR()
   insert(EngineOilTemperature);
 
   insert(EngineCoolantTemperature);
-  insert(IntakeAirTemperatureSensor); 
-  //insert(ExhaustGasRecircuilationTemperature);
+  insert(IntakeAirTemperatureSensor);
+  // insert(ExhaustGasRecircuilationTemperature);
 
-  //insert(TurboChargerCompressorPressure);
-  //insert(BoostPressureControl);
-  //insert(VGT);
-  //insert(WastegateControl);
-  //insert(ExhaustPressure);
+  // insert(TurboChargerCompressorPressure);
+  // insert(BoostPressureControl);
+  // insert(VGT);
+  // insert(WastegateControl);
+  // insert(ExhaustPressure);
 
-  //insert(TurbochargerTemperature1);
-  //insert(TurbochargerTemperature2);
-  //insert(ChargeAIR_CACT);
-  //insert(EGT_Bank1);
-  //insert(EGT_Bank2);
+  // insert(TurbochargerTemperature1);
+  // insert(TurbochargerTemperature2);
+  // insert(ChargeAIR_CACT);
+  // insert(EGT_Bank1);
+  // insert(EGT_Bank2);
   insert(DPF_Temperature);
-  //insert(NOxNTE);
-  //insert(PMxNTE);
+  // insert(NOxNTE);
+  // insert(PMxNTE);
 }
 
 void ticker_5sec_ISR()
@@ -120,15 +120,15 @@ void ticker_5sec_ISR()
   insert(O2S7_WR_lambda2);
   insert(O2S8_WR_lambda2);
 
-  //insert(OxygenSensorsPresent);                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1);                           
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2);                                                  
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3);                                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4);                                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1);                                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2);                                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3);                                              
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4);    
+  // insert(OxygenSensorsPresent);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3);
+  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4);
 
   insert(CommandEquivalenceRatio);
 
@@ -137,15 +137,15 @@ void ticker_5sec_ISR()
   insert(ShortTermSecondaryOxygenSensor_bank2bank4);
   insert(LongTermSecondaryOxygenSensor_bank2bank4);
 
-  insert(FuelRailPressure_vac);                                                 
-  insert(FuelRailPressure_dis); 
+  insert(FuelRailPressure_vac);
+  insert(FuelRailPressure_dis);
 }
 
 void ticker_1sec_ISR()
 {
   insert(EngineLoad);
   insert(IntakeManifoldAbsolutePressure);
-  insert(MAFairFlowRate);  
+  insert(MAFairFlowRate);
 
   insert(VaporPressure);
   insert(MaximumValueForEquivalenceRatio);
@@ -156,16 +156,28 @@ void ticker_1sec_ISR()
   insert(EnginePercentTorque);
 
   insert(MassAirFlowSensor);
-  //insert(CommandedDiesel);
-  //insert(TurbochargerRPM);
+  // insert(CommandedDiesel);
+  // insert(TurbochargerRPM);
   insert(RunTimeSinceEngineStart);
 }
 
 void ticker_05sec_ISR()
-{ 
-  //insert(Accelerometer_ST); 
+{
+  // insert(Accelerometer_ST);
   insert(EngineRPM);
   insert(VehicleSpeed);
+
+  insert(TimingAdvance);
+  insert(ThrottlePosition);
+  insert(RelativeThrottlePosition);
+  insert(AbsoluteThrottlePositionB);
+  insert(AbsoluteThrottlePositionC);
+  insert(AcceleratorPedalPositionD);
+  insert(AcceleratorPedalPositionE);
+  insert(AcceleratorPedalPositionF);
+  insert(CommandedThrottleActuator);
+  insert(RelativeAcceleratorPedalPosition);
+  // insert(CommandedThrottleActuator2Position);
 }
 
 void ticker_01sec_ISR()
@@ -174,11 +186,11 @@ void ticker_01sec_ISR()
   insert(ThrottlePosition);
   insert(RelativeThrottlePosition);
   insert(AbsoluteThrottlePositionB);
-  insert(AbsoluteThrottlePositionC); 
+  insert(AbsoluteThrottlePositionC);
   insert(AcceleratorPedalPositionD);
   insert(AcceleratorPedalPositionE);
   insert(AcceleratorPedalPositionF);
   insert(CommandedThrottleActuator);
   insert(RelativeAcceleratorPedalPosition);
-  //insert(CommandedThrottleActuator2Position);
+  // insert(CommandedThrottleActuator2Position);
 }
