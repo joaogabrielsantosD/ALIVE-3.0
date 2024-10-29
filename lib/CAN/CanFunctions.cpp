@@ -240,10 +240,10 @@ void send_OBDmsg(int PID, BLE_packet_t *packet)
       debug_print(messageData, true);
     #endif
 
-    vTaskDelay(300);
+    vTaskDelay(100);
 
     // timeout
-    if (millis() - initialTime >= 1000)
+    if (millis() - initialTime >= 500)
       return;
   }
 
