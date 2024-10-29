@@ -12,15 +12,19 @@
 /* WatchDog timer libraries */
 #include <wdt.h>
 
+BLE_packet_t packet;
 TaskHandle_t CANtask = NULL, BLEtask = NULL;
 
-void CANprocessTask(void *arg);
+void CANprocess_Task(void *arg);
 void BLEsenderData(void *arg);
 
 void setup()
 {
   Serial.begin(115200);
   Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
+
+  memset(&packet, 0, sizeof(BLE_packet_t));
+  packet.DTC = "null";
 
   /* Start the MCP2515 to CAN communication */
   start_CAN_device();
@@ -32,63 +36,45 @@ void setup()
   Init_BLE_Server();
 
   /* Init the Modules */
-  // start_module_device();
+  start_module_device();
 
-  /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) and Connectivity(BLE) management */
-  xTaskCreatePinnedToCore(CANprocessTask, "CANstatemachine", 4096, NULL, 3, &CANtask, 1);
-  xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 2, &BLEtask, 0);
+  /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) */
+  xTaskCreatePinnedToCore(CANprocess_Task, "CANstatemachine", 2048, NULL, 4, &CANtask, 1);
+  
+  /* Create the task responsible to the Connectivity(BLE + ESPNOW) management */
+  xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 5, &BLEtask, 0);
 }
 
 void loop() { reset_rtc_wdt(); }
 
-void CANprocessTask(void *arg)
+/* Core 1: Acquisition Threads */
+void CANprocess_Task(void *arg)
 {
-  static bool run_time_once = false;
-  int circularbuffer_State = IDLE_ST;
-  uint8_t CanIDtype = TestIF_StdExt();
-
-  if (CanIDtype != 2 && !run_time_once)
-  {
-    checkPID();
-    init_tickers();
-    run_time_once = true;
-  }
+  static int circularbuffer_State = IDLE_ST;
+  
+  TestIF_StdExt();
+  checkPID();
+  init_tickers();
 
   while (1)
   {
-    if (CanIDtype == 2)
-      CanIDtype = TestIF_StdExt();
+    circularbuffer_State = CircularBuffer_state();
 
-    if (CanIDtype != 2 && !run_time_once)
-    {
-      checkPID();
-      init_tickers();
-      run_time_once = true;
-    }
+    if (circularbuffer_State != IDLE_ST)
+      send_OBDmsg(circularbuffer_State, &packet);
 
-    if (CanIDtype < 2 && run_time_once)
-    {
-      circularbuffer_State = CircularBuffer_state();
-      
-      if (circularbuffer_State != 0)
-        send_OBDmsg(DTC_mode_3);
-    }
-
-    vTaskDelay(CanIDtype == 2 ? 1000 : 1);
+    vTaskDelay(1);
   }
 }
 
+/* Core 0: Telemetry Threads */
 void BLEsenderData(void *arg)
 {
   for (;;)
   {
-    while (BLE_connected())
-    {
-      Send_BLE_msg();
+    if (BLE_connected())
+      Send_BLE_msg(packet);
 
-      vTaskDelay(MAX_BLE_DELAY + 10);
-    }
-
-    vTaskDelay(10);
+    vTaskDelay(MAX_BLE_DELAY + 10);
   }
 }
