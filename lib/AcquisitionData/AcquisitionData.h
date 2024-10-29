@@ -12,12 +12,7 @@
 void start_module_device(void);
 
 /* Accelerometer && GPS functions */
-void imu_acq_function(void);
-void gps_acq_function(void);
-
-/* CAN Acquisition functions */
-void cleanDTC(void);
-
-
+void imu_acq_function(BLE_packet_t *packet);
+void gps_acq_function(BLE_packet_t *packet);
 
 #endif
