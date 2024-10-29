@@ -14,7 +14,7 @@ uint8_t PID_enable_bit[16] = {0};
 uint8_t PID_Enables_bin[128] = {0};
 uint8_t odometer_pid_enable = 0x00;
 const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
-bool _ext = false;
+bool _ext = false, receive_message = false;
 
 /* Init CAN MCP2515 */
 void start_CAN_device()
@@ -54,11 +54,11 @@ void set_mask_filt()
     CAN.init_Filt(i, 1, 0x18DAF110);
 }
 
-/* CAN interrupt Callback*/
+/* CAN interrupt Callback */
 void canISR()
 {
   digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 1); // Blink Can Led
-  // receive_message = true;                                   // Flag that indicates that a message was received via CAN
+  receive_message = true;                                      // Flag that indicates that a message was received via CAN
 }
 
 /* Return CAN ID type, Stardart(0) or Extended (1) */
@@ -69,7 +69,7 @@ uint8_t TestIF_StdExt()
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  while (CAN.checkReceive() == CAN_NOMSG && !digitalRead(CAN_DEBUG_LED))
+  while (CAN.checkReceive() == CAN_NOMSG && !receive_message)
   {
     if ((millis() - ext_tstart) <= 200)
     {
