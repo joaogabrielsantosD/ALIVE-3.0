@@ -7,7 +7,7 @@
 
 /* Circular Buffer Functions */
 int CircularBuffer_state(void);
-int insert(int ST);
+int insert(int ST, bool slow_msg = true);
 
 /* Debug the CircularBuffer */
 void printBuffer();

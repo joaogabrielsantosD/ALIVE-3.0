@@ -28,7 +28,7 @@ int CircularBuffer_state()
 }
 
 /* Insert the PID in the queue */
-int insert(int ST)
+int insert(int ST, bool slow_msg)
 {
   switch (ST)
   {
@@ -41,11 +41,14 @@ int insert(int ST)
     break;
 
   default:
-    return Check_bin_for_state(ST) ? state_buffer.push(ST) : -1;
+    if (slow_msg)
+      return Check_bin_for_state(ST) ? state_buffer.unshift(ST) : -1;
+    else
+      return Check_bin_for_state(ST) ? state_buffer.push(ST) : -1;
     break;
   }
 
-  vTaskDelay(3);
+  vTaskDelay(5);
 }
 
 /* Print the CircularBuffer */
