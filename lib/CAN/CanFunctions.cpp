@@ -1,20 +1,18 @@
 #include "CanFunctions.h"
 
 #ifdef CAN_2515
-mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
+  mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
 #endif
 
-#define Print_Msg_PIDSuported
-#define debug_when_receive_byte
-#define Print_Sended_Msg
+//#define Print_Msg_PIDSuported
+//#define debug_when_receive_byte
+//#define Print_Sended_Msg
 
 CAN_Messages CAN_msg;
 
-BLE_packet_t packet;
 uint8_t PID_enable_bit[16] = {0};
 uint8_t PID_Enables_bin[128] = {0};
-uint8_t odometer_pid_enable = 0;
-volatile bool receive_message = false; // flag to enable or disable the message treatment
+uint8_t odometer_pid_enable = 0x00;
 const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
 bool _ext = false;
 
@@ -60,7 +58,7 @@ void set_mask_filt()
 void canISR()
 {
   digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 1); // Blink Can Led
-  // receive_message = true;                                      // Flag that indicates that a message was received via CAN
+  // receive_message = true;                                   // Flag that indicates that a message was received via CAN
 }
 
 /* Return CAN ID type, Stardart(0) or Extended (1) */
@@ -71,7 +69,7 @@ uint8_t TestIF_StdExt()
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  while (CAN.checkReceive() == CAN_NOMSG)
+  while (CAN.checkReceive() == CAN_NOMSG && !digitalRead(CAN_DEBUG_LED))
   {
     if ((millis() - ext_tstart) <= 200)
     {
@@ -93,10 +91,7 @@ uint8_t TestIF_StdExt()
     vTaskDelay(100);
 
     if ((millis() - obd_tstart) >= OBD_timout)
-    {
       Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
-      return 2;                                                                  // Error flag
-    }
   }
 
   _ext = extended;
@@ -111,10 +106,10 @@ bool checkPID()
 
   for (int i = 0; i < sizeof(Pids); i++)
   {
-#ifdef Print_Msg_PIDSuported
-    Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
-    debug_print(MsgRequest, true);
-#endif
+    #ifdef Print_Msg_PIDSuported
+      Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
+      debug_print(MsgRequest, true);
+    #endif
 
     MsgRequest[2] = Pids[i];
 
@@ -161,14 +156,9 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
       }
     }
   }
+  
   else if (position == PID_to_index_5)
     odometer_pid_enable = ((*(bit_data + 4) >> 2) & ~0xFE); // move to 1 and disable the others bit
-}
-
-/*Return Binary Array with vehicle PID's availables*/
-int Check_bin_for_state(int pid_order)
-{
-  return PID_Enables_bin[pid_order - 1] & 0x01;
 }
 
 /* Send Can message to BUS */
@@ -185,16 +175,22 @@ void Read_CANmsgBuf(uint8_t *Data_can)
 
   while (CAN.checkReceive() == CAN_MSGAVAIL)
   {
-    receive_message = false;
-    ID = CAN.getCanId();
     CAN.readMsgBuf(&length, Data_can);
+    ID = CAN.getCanId();
 
-#ifdef debug_when_receive_byte
-    debug_print(Data_can, false);
-#endif
+    #ifdef debug_when_receive_byte
+      debug_print(Data_can, false);
+    #endif
   }
 }
 
+/* Return Binary Array with vehicle PID's availables */
+int Check_bin_for_state(int pid_order)
+{
+  return PID_Enables_bin[pid_order - 1] & 0x01;
+}
+
+/* Return Binary flag with vehicle Odometer available */
 int Verify_odometer_exist()
 {
   return odometer_pid_enable & 0x01;
@@ -215,7 +211,7 @@ void debug_print(unsigned char *message, bool response)
 }
 
 /* Send CANmsg to get data from vehicle */
-void send_OBDmsg(int PID)
+void send_OBDmsg(int PID, BLE_packet_t *packet)
 {
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -240,9 +236,9 @@ void send_OBDmsg(int PID)
   {
     send_msg(messageData, _ext); // Send the resquest
 
-#ifdef Print_Sended_Msg
-    debug_print(messageData, true);
-#endif
+    #ifdef Print_Sended_Msg
+      debug_print(messageData, true);
+    #endif
 
     vTaskDelay(300);
 
@@ -254,13 +250,7 @@ void send_OBDmsg(int PID)
   Read_CANmsgBuf(messageData);
 
   if (PID != DTC_mode_3)
-    CAN_msg.Handling_Message(messageData, &packet);
+    CAN_msg.Handling_Message(messageData, packet);
   else
-    CAN_msg.Read_DTC(messageData, &packet);
-}
-
-/*================================== Packet Message Functions ==================================*/
-BLE_packet_t updatePacket()
-{
-  return packet;
+    CAN_msg.Read_DTC(messageData, packet);
 }
