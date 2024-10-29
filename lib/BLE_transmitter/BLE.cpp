@@ -29,8 +29,7 @@ void Init_BLE_Server()
     pCharacteristic = pService->createCharacteristic( \
         CHARACTERISTIC_UUID,                          \
         BLECharacteristic::PROPERTY_NOTIFY |          \
-        BLECharacteristic::PROPERTY_WRITE  |          \
-        BLECharacteristic::PROPERTY_READ              \
+        BLECharacteristic::PROPERTY_WRITE             \
         );
 
     // Create a BLE Descriptor
@@ -48,7 +47,7 @@ void Init_BLE_Server()
     // pCharacteristic_2->addDescriptor(pBLE2902_2);
 
     // add callback functions here:
-    pCharacteristic->setCallbacks(new CharacteristicCallbacks());
+    //pCharacteristic->setCallbacks(new CharacteristicCallbacks());
 
     // Start the service
     pCharacteristic->setValue(" ");
@@ -93,9 +92,8 @@ bool BLE_connected()
     return deviceConnected;
 }
 
-void Send_BLE_msg()
+void Send_BLE_msg(BLE_packet_t msg_packet)
 {
-    BLE_packet_t msg_packet = updatePacket();
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
     doc["Engine_Load"]            = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
@@ -153,29 +151,29 @@ void ServerCallbacks::onDisconnect(BLEServer *pServer)
     deviceConnected = false;
 }
 
-void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
-{
-    std::string value = SenderCharacteristic->getValue();
+// void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)
+// {
+//     std::string value = SenderCharacteristic->getValue();
 
-    if (SenderCharacteristic->getLength() > 0)
-    {
-        for (int i = 0; i < SenderCharacteristic->getLength(); i++)
-            value[i] = toupper(value[i]);
+//     if (SenderCharacteristic->getLength() > 0)
+//     {
+//         for (int i = 0; i < SenderCharacteristic->getLength(); i++)
+//             value[i] = toupper(value[i]);
 
-        if (value.compare("DTC") == 0)
-        {
-            #ifdef BLEdebug
-                Serial.println("DTC requisitado");
-            #endif
-            Call_DTC_mode3();
-        }
+//         if (value.compare("DTC") == 0)
+//         {
+//             #ifdef BLEdebug
+//                 Serial.println("DTC requisitado");
+//             #endif
+//             Call_DTC_mode3();
+//         }
 
-        else if (value.compare("APAGAR DTC") == 0)
-        {
-            #ifdef BLEdebug
-                Serial.println("Codigo DTC apagado");
-            #endif
-            //cleanDTC();
-        }
-    }
-}
+//         else if (value.compare("APAGAR DTC") == 0)
+//         {
+//             #ifdef BLEdebug
+//                 Serial.println("Codigo DTC apagado");
+//             #endif
+//             //cleanDTC();
+//         }
+//     }
+// }

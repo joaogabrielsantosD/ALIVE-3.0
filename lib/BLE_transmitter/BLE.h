@@ -15,7 +15,7 @@
 
 void Init_BLE_Server(void);
 bool BLE_connected(void);
-void Send_BLE_msg(void);
+void Send_BLE_msg(BLE_packet_t msg_packet);
 
 // Callback to receive device connection events
 class ServerCallbacks : public BLEServerCallbacks
@@ -26,10 +26,10 @@ class ServerCallbacks : public BLEServerCallbacks
         void onDisconnect(BLEServer *pServer);
 };
 
-class CharacteristicCallbacks : public BLECharacteristicCallbacks
-{
-    public:
-        void onWrite(BLECharacteristic *SenderCharacteristic);
-};
+// class CharacteristicCallbacks : public BLECharacteristicCallbacks
+// {
+//     public:
+//         void onWrite(BLECharacteristic *SenderCharacteristic);
+// };
 
 #endif
