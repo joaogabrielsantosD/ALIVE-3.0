@@ -1,14 +1,18 @@
 #include "CircularBufferState.h"
 
+//#define CIRCULAR_BUFFER_DEBUG
+
 /* Variables for Circular Buffer */
 CircularBuffer<int, BUFFER_SIZE> state_buffer;
 int current_pid = IDLE_ST;
-bool imu_flag = false, gps_flag = false;
 
 /* Return the PID in the queue */
 int CircularBuffer_state()
 {
-  //printBuffer();
+  #ifdef CIRCULAR_BUFFER_DEBUG
+    printBuffer();
+  #endif
+
   if (state_buffer.isFull())
     current_pid = state_buffer.shift();
 
@@ -41,17 +45,34 @@ int insert(int ST)
     break;
   }
 
-  vTaskDelay(5);
+  vTaskDelay(3);
 }
 
-void save_flag_imu_parameter(bool _flag)
+/* Print the CircularBuffer */
+void printBuffer()
 {
-  imu_flag = _flag;
-}
+  if (state_buffer.isEmpty())
+    Serial.println("empty");
 
-void save_flag_gps_parameter(bool _flag_)
-{
-  gps_flag = _flag_;
+  else
+  {
+    Serial.print("[");
+    for (decltype(state_buffer)::index_t i = 0; i < state_buffer.size() - 1; i++)
+    {
+      Serial.print(state_buffer[i], HEX);
+      Serial.print(",");
+    }
+    Serial.print(state_buffer[state_buffer.size() - 1]);
+    Serial.print("] (");
+
+    Serial.print(state_buffer.size());
+    Serial.print("/");
+    Serial.print(state_buffer.size() + state_buffer.available());
+    if (state_buffer.isFull())
+      Serial.print(" full");
+
+    Serial.println(")");
+  }
 }
 
 String verify_message_is_null(int id, double msg)
@@ -75,35 +96,4 @@ String verify_message_is_null(int id, double msg)
   //     return Check_bin_for_state(id) ? String(msg) : "null";
   //     break;
   // }
-}
-
-#define CIRCULAR_BUFFER_DEBUG
-
-void printBuffer()
-{
-  if (state_buffer.isEmpty())
-  {
-    Serial.println("empty");
-  }
-  else
-  {
-    Serial.print("[");
-    for (decltype(state_buffer)::index_t i = 0; i < state_buffer.size() - 1; i++)
-    {
-      Serial.print(state_buffer[i], HEX);
-      Serial.print(",");
-    }
-    Serial.print(state_buffer[state_buffer.size() - 1]);
-    Serial.print("] (");
-
-    Serial.print(state_buffer.size());
-    Serial.print("/");
-    Serial.print(state_buffer.size() + state_buffer.available());
-    if (state_buffer.isFull())
-    {
-      Serial.print(" full");
-    }
-
-    Serial.println(")");
-  }
 }
