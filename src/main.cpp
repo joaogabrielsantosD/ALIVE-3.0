@@ -79,7 +79,7 @@ void ModulesProcess_Task(void *arg)
   {
     gps_counter_per_seconds++;
 
-    if (gps_counter_per_seconds == Time_to_get_gps_data + 1)
+    if (gps_counter_per_seconds == Time_to_get_gps_data)
     {
       gps_acq_function(&packet);
       gps_counter_per_seconds = 0;
