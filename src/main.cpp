@@ -72,8 +72,8 @@ void CANprocess_Task(void *arg)
 
 void ModulesProcess_Task(void *arg)
 {
-  static uint8_t gps_counter_per_seconds = 0; // Each second will be incremented
-  static uint8_t Time_to_get_gps_data = 30;   // Expected time to get/update the gps data (in seconds)
+  static uint8_t gps_counter_per_seconds = 0;     // Each second will be incremented
+  const static uint8_t Time_to_get_gps_data = 30; // Expected time to get/update the gps data (in seconds)
 
   while (1)
   {
