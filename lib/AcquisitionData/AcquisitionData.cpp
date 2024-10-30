@@ -89,13 +89,13 @@ void gps_acq_function(BLE_packet_t *packet)
     while (SerialGPS.available() > 0)
       NEO_M8N.encode(SerialGPS.read());
 
-    if (NEO_M8N.satellites.isValid() && NEO_M8N.location.isValid())
+    if (NEO_M8N.satellites.isUpdated() || NEO_M8N.location.isUpdated())
     {
       packet->gps_data.LAT = NEO_M8N.location.lat();
       packet->gps_data.LNG = NEO_M8N.location.lng();
 
       #ifdef debug_GPS
-        Serial.printf("Satellites: %d\r\n", NEO_M8N.satellites.value());
+        Serial.printf("\r\nSatellites: %d\r\n", NEO_M8N.satellites.value());
         Serial.printf("Latitude: %lf\r\n", packet->gps_data.LAT);
         Serial.printf("Longitude: %lf\r\n", packet->gps_data.LNG);      
       #endif
