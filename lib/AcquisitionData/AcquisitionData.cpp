@@ -50,7 +50,6 @@ void imu_acq_function(BLE_packet_t *packet)
 
     //float resultantG = MPU9250.getResultantG(gValue); 
 
-    /* BLE PACKET ACC */
     packet->imu_acc.acc_x = gValue.x;
     packet->imu_acc.acc_y = gValue.y;
     packet->imu_acc.acc_z = gValue.z;
@@ -62,7 +61,7 @@ void imu_acq_function(BLE_packet_t *packet)
     packet->acctemp = MPU9250.getTemperature();
 
     #ifdef debug_acc
-      Serial.print("Acceleration in g (x,y,z):  ");
+      Serial.print("\r\nAcceleration in g (x,y,z):  ");
       Serial.printf("%.2f, ", packet->imu_acc.acc_x);      
       Serial.printf("%.2f, ", packet->imu_acc.acc_y);       
       Serial.printf("%.2f\r\n", packet->imu_acc.acc_z);  
@@ -84,24 +83,22 @@ void imu_acq_function(BLE_packet_t *packet)
 
 void gps_acq_function(BLE_packet_t *packet)
 {
-  static bool first_conection = false;
-
-  // This ensures that the gps object is being "fed".
-  while (SerialGPS.available() > 0)
-    NEO_M8N.encode(SerialGPS.read());
-
-  if (NEO_M8N.satellites.isValid() && NEO_M8N.location.isValid())
+  if (SerialGPS.available() > 0)  
   {
-    packet->gps_data.LAT = NEO_M8N.location.lat();
-    packet->gps_data.LNG = NEO_M8N.location.lng();
+    // This ensures that the gps object is being "fed".
+    while (SerialGPS.available() > 0)
+      NEO_M8N.encode(SerialGPS.read());
 
-    #ifdef debug_GPS
-      Serial.printf("Satellites: %d\r\n", NEO_M8N.satellites.value());
-      Serial.printf("Latitude: %lf\r\n", packet->gps_data.LAT);
-      Serial.printf("Longitude: %lf\r\n", packet->gps_data.LNG);      
-    #endif
-    
-    if (!first_conection)
-      first_conection = true;
+    if (NEO_M8N.satellites.isValid() && NEO_M8N.location.isValid())
+    {
+      packet->gps_data.LAT = NEO_M8N.location.lat();
+      packet->gps_data.LNG = NEO_M8N.location.lng();
+
+      #ifdef debug_GPS
+        Serial.printf("Satellites: %d\r\n", NEO_M8N.satellites.value());
+        Serial.printf("Latitude: %lf\r\n", packet->gps_data.LAT);
+        Serial.printf("Longitude: %lf\r\n", packet->gps_data.LNG);      
+      #endif
+    }
   }
 }
