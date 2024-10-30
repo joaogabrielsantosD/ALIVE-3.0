@@ -13,9 +13,11 @@
 #include <wdt.h>
 
 BLE_packet_t packet;
-TaskHandle_t CANtask = NULL, BLEtask = NULL;
+TaskHandle_t CANtask = NULL, Modulestask = NULL, BLEtask = NULL;
 
+/* Taks */
 void CANprocess_Task(void *arg);
+void ModulesProcess_Task(void *arg);
 void BLEsenderData(void *arg);
 
 void setup()
@@ -40,7 +42,8 @@ void setup()
 
   /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) */
   xTaskCreatePinnedToCore(CANprocess_Task, "CANstatemachine", 2048, NULL, 4, &CANtask, 1);
-  
+  xTaskCreatePinnedToCore(ModulesProcess_Task, "Modulesstatemachine", 2048, NULL, 3, &Modulestask, 1);
+
   /* Create the task responsible to the Connectivity(BLE + ESPNOW) management */
   xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 5, &BLEtask, 0);
 }
@@ -51,7 +54,7 @@ void loop() { reset_rtc_wdt(); }
 void CANprocess_Task(void *arg)
 {
   static int circularbuffer_State = IDLE_ST;
-  
+
   TestIF_StdExt();
   checkPID();
   init_tickers();
@@ -64,6 +67,27 @@ void CANprocess_Task(void *arg)
       send_OBDmsg(circularbuffer_State, &packet);
 
     vTaskDelay(1);
+  }
+}
+
+void ModulesProcess_Task(void *arg)
+{
+  static uint8_t gps_counter_per_seconds = 0; // Each second will be incremented
+  static uint8_t Time_to_get_gps_data = 30;   // Expected time to get/update the gps data (in seconds)
+
+  while (1)
+  {
+    gps_counter_per_seconds++;
+
+    if (gps_counter_per_seconds == Time_to_get_gps_data + 1)
+    {
+      gps_acq_function(&packet);
+      gps_counter_per_seconds = 0;
+    }
+
+    imu_acq_function(&packet);
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
 
