@@ -104,18 +104,22 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
     doc["Speed"]                  = verify_message_is_null(VehicleSpeed, msg_packet.Speed);
     doc["Throttle_Position"]      = verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
     doc["Run_Time"]               = verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
-    doc["Distance_traveled_MIL"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled);
+    doc["Distance_traveled_MIL"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled_with_MIL_on);
     doc["Fuel_Level"]             = verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
-    doc["Distance_traveled"]      = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled_with_MIL_on);
+    doc["Distance_traveled"]      = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled);
     doc["Ambient_Temperature"]    = verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
     doc["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
     doc["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
     doc["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
-    doc["Ang_X"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
-    doc["Ang_Y"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
-    doc["Temp_Intern"]            = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);
-    doc["Latitude"]               = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
-    doc["Longitude"]              = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);    
+    doc["Acc_X"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
+    doc["Acc_Y"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
+    doc["Acc_Z"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
+    //doc["Ang_X"]            = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
+    //doc["Ang_Y"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
+    //doc["Ang_Z"]              = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_z);
+    doc["Latitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
+    doc["Longitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
+    //doc["Temp_Intern"]              = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);    
     doc["DTC"]                    = msg_packet.DTC;
 
     /* Make the JSON packet in the std::string format */
