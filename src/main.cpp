@@ -99,6 +99,6 @@ void BLEsenderData(void *arg)
     if (BLE_connected())
       Send_BLE_msg(packet);
 
-    vTaskDelay(MAX_BLE_DELAY + 10);
+    vTaskDelay(MAX_BLE_DELAY);
   }
 }
