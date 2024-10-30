@@ -75,13 +75,17 @@ uint8_t TestIF_StdExt()
     {
       extended = false;
       send_msg(MsgRequest, extended);
-      Serial.println("Testing Standart...");
+      #ifdef Print_Msg_PIDSuported
+        Serial.println("Testing Standart...");
+      #endif
     }
 
     else
     {
       extended = true;
-      Serial.println("Testing Extended...");
+      #ifdef Print_Msg_PIDSuported
+        Serial.println("Testing Extended...");
+      #endif
       send_msg(MsgRequest, extended);
 
       if ((millis() - ext_tstart) >= 400)
@@ -91,7 +95,11 @@ uint8_t TestIF_StdExt()
     vTaskDelay(100);
 
     if ((millis() - obd_tstart) >= OBD_timout)
-      Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
+    {
+      #ifdef Print_Msg_PIDSuported
+        Serial.println("Trying to connect with CAN BUS, turn on your vehicle!!!"); // timeout for OBD II connection failed
+      #endif
+    }
   }
 
   _ext = extended;
