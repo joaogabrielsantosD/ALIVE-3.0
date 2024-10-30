@@ -7,8 +7,8 @@ MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
 bool init_ACC = false;
 
 /* Debug Variables */
-//#define debug_acc             // Print on Serial  paramenters
-//#define debug_GPS             // Print on Serial the paramenters
+//#define debug_acc             // Print on Serial ACC data
+//#define debug_GPS             // Print on Serial GPS data
 
 void start_module_device()
 {
