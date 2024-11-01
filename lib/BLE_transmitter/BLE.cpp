@@ -4,6 +4,7 @@
 #define PrintJSON
 #define BLEdebug
 
+std::string msgBLE = "";
 bool deviceConnected = false, oldDeviceConnected = false;
 BLEServer *pServer = NULL;
 BLEService *pService = NULL;
@@ -22,7 +23,7 @@ void Init_BLE_Server()
     pServer->setCallbacks(new ServerCallbacks());
 
     // Create the BLE Service
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+    pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic( \
@@ -89,36 +90,10 @@ bool BLE_connected()
 
 void Send_BLE_msg(BLE_packet_t msg_packet)
 {
-    std::string msgBLE = "";
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
-    doc["Engine_Load"]            = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
-    doc["Engine_Coolant"]         = verify_message_is_null(EngineCollantTemp, msg_packet.Engine_Coolant_Temperature);
-    doc["Fuel_Pressure"]          = verify_message_is_null(FuelPressure, msg_packet.Fuel_Pressure);
-    doc["MAP_SENSOR"]             = verify_message_is_null(IntakeManifoldAbsolutePressure, msg_packet.Intake_Manifold__MAP);
-    doc["Engine_RPM"]             = verify_message_is_null(EngineRPM, msg_packet.Engine_RPM);
-    doc["Speed"]                  = verify_message_is_null(VehicleSpeed, msg_packet.Speed);
-    doc["Throttle_Position"]      = verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
-    doc["Run_Time"]               = verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
-    doc["Distance_traveled_MIL"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled_with_MIL_on);
-    doc["Fuel_Level"]             = verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
-    doc["Distance_traveled"]      = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled);
-    doc["Ambient_Temperature"]    = verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
-    doc["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
-    doc["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
-    doc["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
-    doc["Acc_X"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
-    doc["Acc_Y"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
-    doc["Acc_Z"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
-    //doc["Ang_X"]            = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
-    //doc["Ang_Y"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
-    //doc["Ang_Z"]              = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_z);
-    doc["Latitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
-    doc["Longitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
-    //doc["Temp_Intern"]              = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);    
-    doc["DTC"]                    = msg_packet.DTC;
-
     /* Make the JSON packet in the std::string format */
+    Make_JSON_packet(doc, msg_packet);
     msgBLE.clear();
     serializeJson(doc, msgBLE);
 
@@ -133,6 +108,35 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
     pCharacteristic->setValue(msgBLE);
     pCharacteristic->notify();
     digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 1);
+}
+
+void Make_JSON_packet(StaticJsonDocument<DOC_SIZE_JSON> &JSON, BLE_packet_t &msg_packet)
+{
+    JSON["Engine_Load"]            = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
+    JSON["Engine_Coolant"]         = verify_message_is_null(EngineCollantTemp, msg_packet.Engine_Coolant_Temperature);
+    JSON["Fuel_Pressure"]          = verify_message_is_null(FuelPressure, msg_packet.Fuel_Pressure);
+    JSON["MAP_SENSOR"]             = verify_message_is_null(IntakeManifoldAbsolutePressure, msg_packet.Intake_Manifold__MAP);
+    JSON["Engine_RPM"]             = verify_message_is_null(EngineRPM, msg_packet.Engine_RPM);
+    JSON["Speed"]                  = verify_message_is_null(VehicleSpeed, msg_packet.Speed);
+    JSON["Throttle_Position"]      = verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
+    JSON["Run_Time"]               = verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
+    JSON["Distance_traveled_MIL"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled_with_MIL_on);
+    JSON["Fuel_Level"]             = verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
+    JSON["Distance_traveled"]      = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled);
+    JSON["Ambient_Temperature"]    = verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
+    JSON["Engine_Oil_Temperature"] = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
+    JSON["Engine_fuel_rate"]       = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
+    JSON["Odometer"]               = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
+    JSON["Acc_X"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
+    JSON["Acc_Y"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
+    JSON["Acc_Z"]                  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
+    //JSON["Ang_X"]            = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
+    //JSON["Ang_Y"]               = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
+    //JSON["Ang_Z"]              = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_z);
+    JSON["Latitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
+    JSON["Longitude"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
+    //JSON["Temp_Intern"]              = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);    
+    JSON["DTC"]                    = msg_packet.DTC;
 }
 
 void ServerCallbacks::onConnect(BLEServer *pServer)
