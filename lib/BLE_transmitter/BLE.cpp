@@ -102,6 +102,7 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
         Serial.print("JSON document Size: "); Serial.println(doc.size());
         Serial.println(msgBLE.data());  
         Serial.print("JSON in std::string size: "); Serial.println(msgBLE.length());
+        Serial.println();
     #endif
 
     /* Set and send the value */
