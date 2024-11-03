@@ -18,7 +18,7 @@ TaskHandle_t CANtask = NULL, Modulestask = NULL, BLEtask = NULL;
 /* Taks */
 void CANprocess_Task(void *arg);
 void ModulesProcess_Task(void *arg);
-void BLEsenderData(void *arg);
+void BLEsenderData_Task(void *arg);
 
 void setup()
 {
@@ -45,7 +45,7 @@ void setup()
   xTaskCreatePinnedToCore(ModulesProcess_Task, "Modulesstatemachine", 2048, NULL, 3, &Modulestask, 1);
 
   /* Create the task responsible to the Connectivity(BLE + ESPNOW) management */
-  xTaskCreatePinnedToCore(BLEsenderData, "BLEstatemachine", 4096, NULL, 5, &BLEtask, 0);
+  xTaskCreatePinnedToCore(BLEsenderData_Task, "BLEstatemachine", 4096, NULL, 5, &BLEtask, 0);
 }
 
 void loop() { reset_rtc_wdt(); }
@@ -92,7 +92,7 @@ void ModulesProcess_Task(void *arg)
 }
 
 /* Core 0: Telemetry Threads */
-void BLEsenderData(void *arg)
+void BLEsenderData_Task(void *arg)
 {
   for (;;)
   {
