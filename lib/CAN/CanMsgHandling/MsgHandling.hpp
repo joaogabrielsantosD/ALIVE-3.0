@@ -14,7 +14,7 @@
  * 2 - Print apenas DTC
  * 4 - Print DTC + mensagens CAN
  */
-#define debug_message 0
+#define debug_message 4
 
 class CAN_Messages
 {
