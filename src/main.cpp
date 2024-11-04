@@ -12,6 +12,9 @@
 /* WatchDog timer libraries */
 #include <wdt.h>
 
+#include <esp_now.h>            // Biblioteca para utilizar o protocolo de comunicação ESP-NOW
+#include <WiFi.h>               // Biblioteca para conectar em redes Wi-Fi
+
 BLE_packet_t packet;
 TaskHandle_t CANtask = NULL, Modulestask = NULL, BLEtask = NULL;
 
@@ -19,11 +22,46 @@ TaskHandle_t CANtask = NULL, Modulestask = NULL, BLEtask = NULL;
 void CANprocess_Task(void *arg);
 void ModulesProcess_Task(void *arg);
 void BLEsenderData_Task(void *arg);
+void TaskESPNow(void *pvParameters);
+
+typedef struct DataStruct {  // Define a estrutura DataStruct para troca de informações
+  float temperature;   
+  float voltage;   
+  float current;
+} DataStruct;
+
+DataStruct message;
+bool newDataReceived = false;  // Flag para indicar novos dados recebidos
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&message, incomingData, sizeof(message));
+
+  //Serial.print("Bytes received: ");
+  //Serial.println(len);
+  newDataReceived = true; 
+  
+}
 
 void setup()
 {
   Serial.begin(115200);
   Serial.println("\r\nINICIANDO ALIVE 3.0\r\n");
+
+  
+  // Desconecta de alguma conexão WiFi anterior e define o modo estação (STA)
+ WiFi.disconnect();
+ WiFi.mode(WIFI_STA);
+ Serial.print("Endereço MAC: ");
+ Serial.println(WiFi.macAddress()); // retorna o endereço MAC do dispositivo
+
+ // Inicia a biblioteca ESP-NOW e, caso ocorra algum erro, reinicia o dispositivo
+ if (esp_now_init() != ESP_OK) {    
+   Serial.print("ESP-NOW com Erro");
+   //ESP.restart();
+ }
+ // Registra a função OnDataRecv como a função a ser chamada quando receber dados via ESP-NOW
+  esp_now_register_recv_cb(OnDataRecv);
+
 
   memset(&packet, 0, sizeof(BLE_packet_t));
   packet.DTC = "null";
@@ -45,7 +83,9 @@ void setup()
   xTaskCreatePinnedToCore(ModulesProcess_Task, "Modulesstatemachine", 2048, NULL, 3, &Modulestask, 1);
 
   /* Create the task responsible to the Connectivity(BLE + ESPNOW) management */
-  xTaskCreatePinnedToCore(BLEsenderData_Task, "BLEstatemachine", 4096, NULL, 5, &BLEtask, 0);
+  xTaskCreatePinnedToCore(BLEsenderData_Task, "BLEstatemachine", 4096, NULL, 1, &BLEtask, 0);
+
+  xTaskCreatePinnedToCore(TaskESPNow, "ESPNow Task", 4096, NULL, 1, NULL, 0);
 }
 
 void loop() { reset_rtc_wdt(); }
@@ -100,5 +140,25 @@ void BLEsenderData_Task(void *arg)
       Send_BLE_msg(packet);
 
     vTaskDelay(MAX_BLE_DELAY);
+  }
+}
+
+// Tarefa FreeRTOS para lidar com a recepção de dados via ESP-NOW
+void TaskESPNow(void *pvParameters) {
+  for (;;) {
+    //Serial.println("TASK ESPNOW");
+    //Serial.printf("ESPNOW received?: %d",newDataReceived);
+
+    if(newDataReceived) {    
+     
+      Serial.print("Temperature: ");
+      Serial.println(message.temperature);
+      Serial.print("Voltage: ");
+      Serial.println(message.voltage);
+      newDataReceived = false;  // Reseta a flag
+      // Processamento adicional dos dados recebidos, se necessário
+      
+    }
+    vTaskDelay(1000 / portTICK_PERIOD_MS);  // Pequeno delay para não ocupar toda a CPU
   }
 }
