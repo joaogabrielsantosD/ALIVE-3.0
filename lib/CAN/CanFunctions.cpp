@@ -61,7 +61,7 @@ void canISR()
   receive_message = true;                                      // Flag that indicates that a message was received via CAN
 }
 
-/* Return CAN ID type, Stardart(0) or Extended (1) */
+/* Return CAN ID type, Stardart(0) or Extended(1) */
 uint8_t TestIF_StdExt()
 {
   bool extended = true;
