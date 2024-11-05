@@ -10,6 +10,7 @@ bool init_ACC = false;
 //#define debug_acc             // Print on Serial ACC data
 //#define debug_GPS             // Print on Serial GPS data
 
+/* Initialize the GPS and Accelerometer modules */
 void start_module_device()
 {
   // Init the gps serial communication with GPS module
@@ -38,7 +39,7 @@ void start_module_device()
   #endif
 }
 
-/*================================ Accelerometer && GPS functions ================================*/
+/* Update accelerometer data */
 void imu_acq_function(BLE_packet_t *packet)
 {
   if (init_ACC)
@@ -81,6 +82,7 @@ void imu_acq_function(BLE_packet_t *packet)
   }
 }   
 
+/* Update GPS data */
 void gps_acq_function(BLE_packet_t *packet)
 {
   if (SerialGPS.available() > 0)  

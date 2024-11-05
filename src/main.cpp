@@ -62,7 +62,7 @@ void setup()
  // Registra a função OnDataRecv como a função a ser chamada quando receber dados via ESP-NOW
   esp_now_register_recv_cb(OnDataRecv);
 
-
+  /* Set all package values to 0 */
   memset(&packet, 0, sizeof(BLE_packet_t));
   packet.DTC = "null";
 

@@ -10,6 +10,7 @@ BLEServer *pServer = NULL;
 BLEService *pService = NULL;
 BLECharacteristic *pCharacteristic = NULL;
 
+/* Start the BLE host connection */
 void Init_BLE_Server()
 {
     // Create the BLE Device
@@ -65,6 +66,7 @@ void Init_BLE_Server()
     #endif
 }
 
+/* If there is any device connected to BLE @return true */
 bool BLE_connected()
 {
     if (deviceConnected)
@@ -88,6 +90,7 @@ bool BLE_connected()
     return deviceConnected;
 }
 
+/* Send the packet over BLE */
 void Send_BLE_msg(BLE_packet_t msg_packet)
 {
     StaticJsonDocument<DOC_SIZE_JSON> doc;
@@ -111,6 +114,7 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
     digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 1);
 }
 
+/* Format the message packet in JSON to be sent */
 void Make_JSON_packet(StaticJsonDocument<DOC_SIZE_JSON> &JSON, BLE_packet_t &msg_packet)
 {
     JSON["Engine_Load"]            = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
@@ -140,6 +144,7 @@ void Make_JSON_packet(StaticJsonDocument<DOC_SIZE_JSON> &JSON, BLE_packet_t &msg
     JSON["DTC"]                    = msg_packet.DTC;
 }
 
+/* Callback when the device connects to BLE */
 void ServerCallbacks::onConnect(BLEServer *pServer)
 {
     #ifdef BLEdebug
@@ -148,6 +153,7 @@ void ServerCallbacks::onConnect(BLEServer *pServer)
     deviceConnected = true;
 }
 
+/* Callback when the device disconnects to BLE */
 void ServerCallbacks::onDisconnect(BLEServer *pServer)
 {
     #ifdef BLEdebug
