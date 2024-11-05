@@ -18,7 +18,7 @@
 BLE_packet_t packet;
 TaskHandle_t CANtask = NULL, Modulestask = NULL, BLEtask = NULL;
 
-/* Taks */
+/* Tasks */
 void CANprocess_Task(void *arg);
 void ModulesProcess_Task(void *arg);
 void BLEsenderData_Task(void *arg);
