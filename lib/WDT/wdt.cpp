@@ -1,5 +1,6 @@
 #include "wdt.h"
 
+// Change the system reset time in rtc_wdt_set_time(RTC_WDT_STAGE0, TIME_IN_MILLISECONDS)
 // example from: https://www.youtube.com/watch?v=yOwg1EMby2g&t=240s
 
 /* Config and Init the WDT */
