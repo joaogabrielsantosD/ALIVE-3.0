@@ -80,23 +80,24 @@ void printBuffer()
 
 String verify_message_is_null(int id, double msg)
 {
-  return String(msg);
-  // switch (id)
-  // {
-  //   case GPS_ST:
-  //     return gps_flag ? String(msg) : "null";
-  //     break;
+  switch (id)
+  {
+    case GPS_ST:
+      //return gps_flag ? String(msg) : "null";
+      return String(msg);
+      break;
 
-  //   case Accelerometer_ST:
-  //     return imu_flag ? String(msg) : "null";
-  //     break;
+    case Accelerometer_ST:
+      //return imu_flag ? String(msg) : "null";
+      return String(msg);
+      break;
 
-  //   case Odometer_PID:
-  //     return Verify_odometer_exist() ? String(msg) : "null";
-  //     break;
+    case Odometer_PID:
+      return Verify_odometer_exist() ? String(msg) : "null";
+      break;
 
-  //   default:
-  //     return Check_bin_for_state(id) ? String(msg) : "null";
-  //     break;
-  // }
+    default:
+      return Check_bin_for_state(id) ? String(msg) : "null";
+      break;
+  }
 }
