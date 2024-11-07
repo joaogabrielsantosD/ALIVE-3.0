@@ -78,18 +78,17 @@ void printBuffer()
   }
 }
 
+/* Verify if the message exists, if dont return null or IND */
 String verify_message_is_null(int id, double msg)
 {
   switch (id)
   {
     case GPS_ST:
-      //return gps_flag ? String(msg) : "null";
-      return String(msg);
+      return GPS_is_available() ? String(msg) : "IND";
       break;
 
     case Accelerometer_ST:
-      //return imu_flag ? String(msg) : "null";
-      return String(msg);
+      return ACC_is_available() ? String(msg) : "IND";
       break;
 
     case Odometer_PID:

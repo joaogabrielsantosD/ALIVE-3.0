@@ -2,6 +2,7 @@
 #define STATEMACHINE_H
 
 #include <CircularBuffer.hpp>
+#include "AcquisitionData.h"
 #include "Definitions/ALIVE_defs.h"
 #include "CanFunctions.h"
 
