@@ -45,13 +45,13 @@ void start_CAN_device()
 /* Set Filter and masks to receive only OBD2 Messages */
 void set_mask_filt()
 {
-  // set mask, set both the mask to 0x3ff
-  CAN.init_Mask(0, 1, 0x1FFFFFFF);
-  CAN.init_Mask(1, 1, 0x1FFFFFFF);
+  // Set mask to accept only 11-bit standard IDs.
+  CAN.init_Mask(0, 0, 0x7FF);  // Mask for standard ID (11 bits)
+  CAN.init_Filt(0, 0, 0x7E8);  // Filter for standard ID 0x7E8
 
-  // set filter, we can receive id from 0x04 ~ 0x09
-  for (int i = 0; i < 6; i++)
-    CAN.init_Filt(i, 1, 0x18DAF110);
+  // Set mask to accept only extended IDs (29 bits).
+  CAN.init_Mask(1, 1, 0x1FFFFFFF);  // Full mask for extended ID (29 bits)
+  CAN.init_Filt(1, 1, 0x18DAF110);  // Filter for extended ID 0x18DAF110
 }
 
 /* CAN interrupt Callback */
@@ -179,12 +179,12 @@ bool send_msg(unsigned char *msg, bool extended)
 void Read_CANmsgBuf(uint8_t *Data_can)
 {
   uint8_t length = 8;
-  uint32_t ID = 0;
+  unsigned long ID = 0;
 
   while (CAN.checkReceive() == CAN_MSGAVAIL)
   {
-    CAN.readMsgBuf(&length, Data_can);
-    ID = CAN.getCanId();
+    CAN.readMsgBufID(&ID, &length, Data_can);
+    //ID = CAN.getCanId;
 
     #ifdef debug_when_receive_byte
       debug_print(Data_can, false);
