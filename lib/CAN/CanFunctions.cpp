@@ -166,7 +166,7 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
   }
   
   else if (position == PID_to_index_5)
-    odometer_pid_enable = ((*(bit_data + 4) >> 2) & ~0xFE); // move to 1 and disable the others bit
+    odometer_pid_enable = ((*(bit_data + 3) >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
 
 /* Send Can message to BUS */
