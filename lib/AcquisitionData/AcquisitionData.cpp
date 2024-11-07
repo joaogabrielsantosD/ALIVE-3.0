@@ -82,6 +82,12 @@ void imu_acq_function(BLE_packet_t *packet)
   }
 }   
 
+/* If ACC exists @return true */
+bool ACC_is_available()
+{
+  return init_ACC;
+}
+
 /* Update GPS data */
 void gps_acq_function(BLE_packet_t *packet)
 {
@@ -103,4 +109,10 @@ void gps_acq_function(BLE_packet_t *packet)
       #endif
     }
   }
+}
+
+/* If GPS exists @return true */
+bool GPS_is_available()
+{
+  return SerialGPS.available() > 0;
 }

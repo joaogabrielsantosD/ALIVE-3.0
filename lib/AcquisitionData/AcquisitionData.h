@@ -13,6 +13,8 @@ void start_module_device(void);
 
 /* Accelerometer && GPS functions */
 void imu_acq_function(BLE_packet_t *packet);
+bool ACC_is_available(void);
 void gps_acq_function(BLE_packet_t *packet);
+bool GPS_is_available(void);
 
 #endif
