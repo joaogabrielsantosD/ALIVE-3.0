@@ -112,14 +112,14 @@ void CANprocess_Task(void *arg)
 
 void ModulesProcess_Task(void *arg)
 {
-  static uint8_t gps_counter_per_seconds = 0;     // Each second will be incremented
-  const static uint8_t Time_to_get_gps_data = 30; // Expected time to get/update the gps data (in seconds)
+  static uint8_t gps_counter_per_seconds = 0;  // Each second will be incremented
+  constexpr uint8_t Time_to_get_gps_data = 30; // Expected time to get/update the gps data (in seconds)
 
   while (1)
   {
     gps_counter_per_seconds++;
 
-    if (gps_counter_per_seconds == Time_to_get_gps_data)
+    if (gps_counter_per_seconds >= Time_to_get_gps_data)
     {
       modules.gps_acq_function(&packet);
       gps_counter_per_seconds = 0;
@@ -127,7 +127,7 @@ void ModulesProcess_Task(void *arg)
 
     modules.imu_acq_function(&packet);
 
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
