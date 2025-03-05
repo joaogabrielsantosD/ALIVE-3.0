@@ -1,16 +1,12 @@
 #include "AcquisitionData.h"
 
-/* Module variables */
-TinyGPSPlus NEO_M8N;
-MPU9250_WE MPU9250 = MPU9250_WE(MPU9250_ADDR);
-
-bool init_ACC = false;
-
 /* Debug Variables */
-//#define debug_acc             // Print on Serial  paramenters
-//#define debug_GPS             // Print on Serial the paramenters
+// #define debug_acc             // Print on Serial  paramenters
+// #define debug_GPS             // Print on Serial the paramenters
 
-void start_module_device()
+ModulesHandler modules;
+
+void ModulesHandler::start_module_device()
 {
   // Init the gps serial communication with GPS module
   SerialGPS.begin(GPSBaudRate);
@@ -29,7 +25,7 @@ void start_module_device()
     MPU9250.autoOffsets();
     MPU9250.setMagOpMode(AK8963_CONT_MODE_100HZ);
     vTaskDelay(100);
-    init_ACC = true;
+    this->init_ACC = true;
   }
   
   #ifdef debug_acc
@@ -39,9 +35,10 @@ void start_module_device()
 }
 
 /*================================ Accelerometer && GPS functions ================================*/
-void imu_acq_function(BLE_packet_t *packet)
+
+void ModulesHandler::imu_acq_function(BLE_packet_t *packet)
 {
-  if (init_ACC)
+  if (this->init_ACC)
   {
     xyzFloat gValue = MPU9250.getGValues();
     //xyzFloat gyr = MPU9250.getGyrValues();
@@ -81,7 +78,7 @@ void imu_acq_function(BLE_packet_t *packet)
   }
 }   
 
-void gps_acq_function(BLE_packet_t *packet)
+void ModulesHandler::gps_acq_function(BLE_packet_t *packet)
 {
   if (SerialGPS.available() > 0)  
   {

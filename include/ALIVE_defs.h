@@ -6,9 +6,6 @@
 #include "CAN_PIDs.h"
 
 /*====================== CAN DEFINITIONS ============================ */
-#define SerialGPS           Serial2
-
-#define BUFFER_SIZE         200
 #define CAN_ID_EXTENDED     0x18DB33F1
 #define CAN_ID_NORMAL       0x7DF
 #define CAN_ID(EXT)         ((EXT) ? (CAN_ID_EXTENDED) : (CAN_ID_NORMAL))      
@@ -28,10 +25,5 @@
 #define GPS_ST              0x02
 
 #define PID_to_index_5      16
-
-/*====================== HARDWARE DEFINITIONS ============================ */
-#define CAN_DEBUG_LED GPIO_NUM_25 // Pin to debug led of CAN communication 
-#define BLE_DEBUG_LED GPIO_NUM_26 // Pin to debug led of BLE communication 
-
 
 #endif

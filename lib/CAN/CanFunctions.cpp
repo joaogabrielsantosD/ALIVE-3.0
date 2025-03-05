@@ -1,23 +1,13 @@
 #include "CanFunctions.h"
 
-#ifdef CAN_2515
-  mcp2515_can CAN(SPI_CS_PIN); // Set CS pin
-#endif
+// #define Print_Msg_PIDSuported
+// #define debug_when_receive_byte
+// #define Print_Sended_Msg
 
-//#define Print_Msg_PIDSuported
-//#define debug_when_receive_byte
-//#define Print_Sended_Msg
+CANHandler CAN;
+static bool receive_message = false;
 
-CAN_Messages CAN_msg;
-
-uint8_t PID_enable_bit[16] = {0};
-uint8_t PID_Enables_bin[128] = {0};
-uint8_t odometer_pid_enable = 0x00;
-const unsigned char Pids[] = {PIDs1, PIDs2, PIDs3, PIDs4, PIDs5};
-bool _ext = false, receive_message = false;
-
-/* Init CAN MCP2515 */
-void start_CAN_device()
+bool CANHandler::start_CAN_device()
 {
   unsigned long tcanStart = millis();
   const unsigned long cantimeOut = 1000; // (1 second)
@@ -25,56 +15,55 @@ void start_CAN_device()
   Serial.println("Connecting CAN...");
   while ((millis() - tcanStart) < cantimeOut) // wait timeout
   {
-    if (CAN.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
+    if (canShield.begin(CAN_500KBPS, MCP_8MHz) == CAN_OK)
     {
       // Serial.println("CAN init ok!!!");
-      set_mask_filt();
+      this->set_mask_filt();
       attachInterrupt(digitalPinToInterrupt(CAN_INT_PIN), canISR, FALLING);
       pinMode(CAN_DEBUG_LED, OUTPUT);
-      return;
+      return true;
     }
 
     else
     {
       Serial.println("MCP2515 error!!!");
       // digitalWrite(CAN_DEBUG_LED, 1);
+      return false;
     }
   }
+  return false;
 }
 
-/* Set Filter and masks to receive only OBD2 Messages */
-void set_mask_filt()
+void CANHandler::set_mask_filt()
 {
   // set mask, set both the mask to 0x3ff
-  CAN.init_Mask(0, 1, 0x1FFFFFFF);
-  CAN.init_Mask(1, 1, 0x1FFFFFFF);
+  canShield.init_Mask(0, 1, 0x1FFFFFFF);
+  canShield.init_Mask(1, 1, 0x1FFFFFFF);
 
   // set filter, we can receive id from 0x04 ~ 0x09
   for (int i = 0; i < 6; i++)
-    CAN.init_Filt(i, 1, 0x18DAF110);
+    canShield.init_Filt(i, 1, 0x18DAF110);
 }
 
-/* CAN interrupt Callback */
-void canISR()
+void CANHandler::canISR()
 {
   digitalWrite(CAN_DEBUG_LED, digitalRead(CAN_DEBUG_LED) ^ 1); // Blink Can Led
-  receive_message = true;                                      // Flag that indicates that a message was received via CAN
+  receive_message = true; // Flag that indicates that a message was received via CAN
 }
 
-/* Return CAN ID type, Stardart(0) or Extended (1) */
-uint8_t TestIF_StdExt()
+uint8_t CANHandler::TestIF_StdExt()
 {
   bool extended = true;
   unsigned char MsgRequest[8] = {0x02, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
   unsigned long obd_tstart = millis(), ext_tstart = millis();
   const unsigned long OBD_timout = 3000; // 3 seconds
 
-  while (CAN.checkReceive() == CAN_NOMSG && !receive_message)
+  while (canShield.checkReceive() == CAN_NOMSG && !receive_message)
   {
     if ((millis() - ext_tstart) <= 200)
     {
       extended = false;
-      send_msg(MsgRequest, extended);
+      this->send_msg(MsgRequest, extended);
       #ifdef Print_Msg_PIDSuported
         Serial.println("Testing Standart...");
       #endif
@@ -86,7 +75,7 @@ uint8_t TestIF_StdExt()
       #ifdef Print_Msg_PIDSuported
         Serial.println("Testing Extended...");
       #endif
-      send_msg(MsgRequest, extended);
+      this->send_msg(MsgRequest, extended);
 
       if ((millis() - ext_tstart) >= 400)
         ext_tstart = millis();
@@ -102,51 +91,49 @@ uint8_t TestIF_StdExt()
     }
   }
 
-  _ext = extended;
+  this->_ext = extended;
   return (uint8_t)extended;
 }
 
-/* Request which PID's are available to read */
-bool checkPID()
+bool CANHandler::checkPID()
 {
   unsigned char MsgRequest[] = {0x04, 0x01, 0x00 /*=ID*/, 0x00, 0x00, 0x00, 0x00, 0x00};
   uint8_t Data_can[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-  for (int i = 0; i < sizeof(Pids); i++)
+  for (auto i = 0; i < sizeof(Pids); i++)
   {
     #ifdef Print_Msg_PIDSuported
       Serial.printf("Trying to send PID[%d] support, please turn on the car electronics\r\n", i + 1);
-      debug_print(MsgRequest, true);
+      this->debug_print(MsgRequest, true);
     #endif
 
-    MsgRequest[2] = Pids[i];
+    MsgRequest[2] = this->Pids[i];
 
-    while (CAN.checkReceive() == CAN_NOMSG)
+    while (canShield.checkReceive() == CAN_NOMSG)
     {
-      send_msg(MsgRequest, _ext);
+      this->send_msg(MsgRequest, _ext);
       vTaskDelay(400);
     }
 
-    Read_CANmsgBuf(Data_can);
+    this->Read_CANmsgBuf(Data_can);
 
-    Storage_PIDenable_bit(Data_can, i * 4);
+    this->Storage_PIDenable_bit(Data_can, i * 4);
   }
 
   return true;
 }
 
-/* Storage Binary Array with vehicle PID's availables */
-void Storage_PIDenable_bit(unsigned char *bit_data, int position)
+void CANHandler::Storage_PIDenable_bit(unsigned char *bit_data, int position)
 {
   if (position < sizeof(PID_enable_bit))
   {
     if (*(bit_data + 2) == Pids[position / 4])
       for (int i = 0; i < 4; i++)
-        PID_enable_bit[position + i] = bit_data[4 + i - 1];
+        this->PID_enable_bit[position + i] = bit_data[4 + i - 1];
 
     else if (*(bit_data + 3) == Pids[position / 4])
       for (int i = 0; i < 4; i++)
-        PID_enable_bit[position + i] = bit_data[4 + i];
+        this->PID_enable_bit[position + i] = bit_data[4 + i];
   }
 
   // Convert Dec to Bin
@@ -154,72 +141,48 @@ void Storage_PIDenable_bit(unsigned char *bit_data, int position)
   {
     for (int i = 0; i < 16; i++)
     {
-      uint8_t Aux = PID_enable_bit[i];
+      uint8_t Aux = this->PID_enable_bit[i];
       int k = (i + 1) * 8 - 1;
 
       for (int j = 0; j < 8; j++)
       { // loop for complete the 8 bits of the uint8_t variable
-        PID_Enables_bin[k--] = Aux % 2;
+        this->PID_Enables_bin[k--] = Aux % 2;
         Aux /= 2;
       }
     }
   }
   
   else if (position == PID_to_index_5)
-    odometer_pid_enable = ((*(bit_data + 4) >> 2) & ~0xFE); // move to 1 and disable the others bit
+    this->odometer_pid_enable = ((*(bit_data + 4) >> 2) & ~0xFE); // move to 1 and disable the others bit
 }
 
-/* Send Can message to BUS */
-bool send_msg(unsigned char *msg, bool extended)
-{
-  return CAN.sendMsgBuf(CAN_ID(extended), extended, 8, msg) == CAN_OK ? true : false;
-}
-
-/* Read messageData and ID from Can buffer */
-void Read_CANmsgBuf(uint8_t *Data_can)
+void CANHandler::Read_CANmsgBuf(uint8_t *Data_can)
 {
   uint8_t length = 8;
   uint32_t ID = 0;
 
-  while (CAN.checkReceive() == CAN_MSGAVAIL)
+  while (canShield.checkReceive() == CAN_MSGAVAIL)
   {
-    CAN.readMsgBuf(&length, Data_can);
-    ID = CAN.getCanId();
+    canShield.readMsgBuf(&length, Data_can);
+    ID = canShield.getCanId();
 
     #ifdef debug_when_receive_byte
-      debug_print(Data_can, false);
+      this->debug_print(Data_can, false);
     #endif
   }
 }
 
-/* Return Binary Array with vehicle PID's availables */
-int Check_bin_for_state(int pid_order)
+int CANHandler::Check_bin_for_state(int pid_order)
 {
   return PID_Enables_bin[pid_order - 1] & 0x01;
 }
 
-/* Return Binary flag with vehicle Odometer available */
-int Verify_odometer_exist()
+int CANHandler::Verify_odometer_exist()
 {
   return odometer_pid_enable & 0x01;
 }
 
-/* If pass: True - Print Send  False - Print Received */
-void debug_print(unsigned char *message, bool response)
-{
-  Serial.printf("%s CAN: id 0x", response ? "Send to" : "Received by");
-  Serial.print(CAN.getCanId(), HEX);
-  Serial.print("  ");
-  for (int i = 0; i < 8; i++)
-  {
-    Serial.print(*(message + i), HEX);
-    Serial.print("\t");
-  }
-  Serial.println();
-}
-
-/* Send CANmsg to get data from vehicle */
-void send_OBDmsg(int PID, BLE_packet_t *packet)
+void CANHandler::send_OBDmsg(int PID, BLE_packet_t *packet)
 {
   unsigned long initialTime = 0;
   unsigned char messageData[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -240,12 +203,12 @@ void send_OBDmsg(int PID, BLE_packet_t *packet)
   }
 
   initialTime = millis();
-  while (CAN.checkReceive() == CAN_NOMSG) // Wait the response
+  while (canShield.checkReceive() == CAN_NOMSG) // Wait the response
   {
-    send_msg(messageData, _ext); // Send the resquest
+    this->send_msg(messageData, _ext); // Send the resquest
 
     #ifdef Print_Sended_Msg
-      debug_print(messageData, true);
+      this->debug_print(messageData, true);
     #endif
 
     vTaskDelay(100);
@@ -255,10 +218,28 @@ void send_OBDmsg(int PID, BLE_packet_t *packet)
       return;
   }
 
-  Read_CANmsgBuf(messageData);
+  this->Read_CANmsgBuf(messageData);
 
   if (PID != DTC_mode_3)
     CAN_msg.Handling_Message(messageData, packet);
   else
     CAN_msg.Read_DTC(messageData, packet);
+}
+
+bool CANHandler::send_msg(unsigned char *msg, bool extended)
+{
+  return canShield.sendMsgBuf(CAN_ID(extended), extended, 8, msg) == CAN_OK;
+}
+
+void CANHandler::debug_print(unsigned char *message, bool response)
+{
+  Serial.printf("%s CAN: id 0x", response ? "Send to" : "Received by");
+  Serial.print(canShield.getCanId(), HEX);
+  Serial.print("  ");
+  for (int i = 0; i < 8; i++)
+  {
+    Serial.print(*(message + i), HEX);
+    Serial.print("\t");
+  }
+  Serial.println();
 }

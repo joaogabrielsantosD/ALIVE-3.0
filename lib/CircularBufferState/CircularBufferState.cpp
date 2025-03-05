@@ -4,7 +4,6 @@
 
 CircularBufferStateHandler CircularBufferState;
 
-/* Return the PID in the queue */
 int CircularBufferStateHandler::CircularBuffer_state()
 {
 #ifdef CIRCULAR_BUFFER_DEBUG
@@ -25,7 +24,6 @@ int CircularBufferStateHandler::CircularBuffer_state()
   return current_pid;
 }
 
-/* Insert the PID in the queue */
 int CircularBufferStateHandler::insert(int ST, bool slow_msg)
 {
   switch (ST)
@@ -35,21 +33,20 @@ int CircularBufferStateHandler::insert(int ST, bool slow_msg)
     break;
 
   case Odometer_PID:
-    return Verify_odometer_exist() ? state_buffer.push(ST) : -1;
+    return CAN.Verify_odometer_exist() ? state_buffer.push(ST) : -1;
     break;
 
   default:
     if (slow_msg)
-      return Check_bin_for_state(ST) ? state_buffer.unshift(ST) : -1;
+      return CAN.Check_bin_for_state(ST) ? state_buffer.unshift(ST) : -1;
     else
-      return Check_bin_for_state(ST) ? state_buffer.push(ST) : -1;
+      return CAN.Check_bin_for_state(ST) ? state_buffer.push(ST) : -1;
     break;
   }
 
   vTaskDelay(5);
 }
 
-/* Print the CircularBuffer */
 void CircularBufferStateHandler::printBuffer()
 {
   if (this->state_buffer.isEmpty())
@@ -91,11 +88,11 @@ String CircularBufferStateHandler::verify_message_is_null(int id, double msg)
   //     break;
 
   //   case Odometer_PID:
-  //     return Verify_odometer_exist() ? String(msg) : "null";
+  //     return CAN.Verify_odometer_exist() ? String(msg) : "null";
   //     break;
 
   //   default:
-  //     return Check_bin_for_state(id) ? String(msg) : "null";
+  //     return CAN.Check_bin_for_state(id) ? String(msg) : "null";
   //     break;
   // }
 }

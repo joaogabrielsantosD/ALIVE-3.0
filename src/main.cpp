@@ -67,16 +67,16 @@ void setup()
   packet.DTC = "null";
 
   /* Start the MCP2515 to CAN communication */
-  start_CAN_device();
+  CAN.start_CAN_device();
 
   /* Set the new WDT timer */
   WDT.set_wdt_timer();
 
   /* Init the BLE host connection */
-  Init_BLE_Server();
+  BLE.Init_BLE_Server();
 
   /* Init the Modules */
-  start_module_device();
+  modules.start_module_device();
 
   /* Create the task responsible to the Acquisition(CAN + Accelerometer + GPS) */
   xTaskCreatePinnedToCore(CANprocess_Task, "CANstatemachine", 2048, NULL, 4, &CANtask, 1);
@@ -95,8 +95,8 @@ void CANprocess_Task(void *arg)
 {
   static int circularbuffer_State = IDLE_ST;
 
-  TestIF_StdExt();
-  checkPID();
+  CAN.TestIF_StdExt();
+  CAN.checkPID();
   TickerISR.init_tickers();
 
   while (1)
@@ -104,7 +104,7 @@ void CANprocess_Task(void *arg)
     circularbuffer_State = CircularBufferState.CircularBuffer_state();
 
     if (circularbuffer_State != IDLE_ST)
-      send_OBDmsg(circularbuffer_State, &packet);
+      CAN.send_OBDmsg(circularbuffer_State, &packet);
 
     vTaskDelay(1);
   }
@@ -121,11 +121,11 @@ void ModulesProcess_Task(void *arg)
 
     if (gps_counter_per_seconds == Time_to_get_gps_data)
     {
-      gps_acq_function(&packet);
+      modules.gps_acq_function(&packet);
       gps_counter_per_seconds = 0;
     }
 
-    imu_acq_function(&packet);
+    modules.imu_acq_function(&packet);
 
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
@@ -136,8 +136,8 @@ void BLEsenderData(void *arg)
 {
   for (;;)
   {
-    if (BLE_connected())
-      Send_BLE_msg(packet);
+    if (BLE.BLE_connected())
+      BLE.Send_BLE_msg(packet);
 
     vTaskDelay(MAX_BLE_DELAY + 10);
   }

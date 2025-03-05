@@ -1,16 +1,12 @@
 #include "BLE.h"
 
 /* Defines for debug */
-//#define PrintJSON
-//#define BLEdebug
+// #define PrintJSON
+// #define BLEdebug
 
-bool deviceConnected = false, oldDeviceConnected = false;
-std::string msgBLE = "";
-BLEServer *pServer = NULL;
-BLEService *pService = NULL;
-BLECharacteristic *pCharacteristic = NULL;
+BLEHandler BLE;
 
-void Init_BLE_Server()
+void BLEHandler::Init_BLE_Server()
 {
     // Create the BLE Device
     BLEDevice::init("ALIVE");
@@ -19,11 +15,11 @@ void Init_BLE_Server()
     BLEDevice::setMTU(512);
 
     // Create the BLE Server
-    pServer = BLEDevice::createServer();
-    pServer->setCallbacks(new ServerCallbacks());
+    this->pServer = BLEDevice::createServer();
+    pServer->setCallbacks(new BLEHandler());
 
     // Create the BLE Service
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+    this->pService = pServer->createService(SERVICE_UUID);
 
     // Create a BLE Characteristic
     pCharacteristic = pService->createCharacteristic( \
@@ -60,14 +56,14 @@ void Init_BLE_Server()
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06); // set value to 0x00 to not advertise this parameter
     BLEDevice::startAdvertising();
-    #ifdef BLEdebug
-     Serial.println("Waiting a client connection to notify...");
-    #endif
+#ifdef BLEdebug
+    Serial.println("Waiting a client connection to notify...");
+#endif
 }
 
-bool BLE_connected()
+bool BLEHandler::BLE_connected()
 {
-    if (deviceConnected)
+    if (this->deviceConnected)
     {
         oldDeviceConnected = true;
     }
@@ -92,7 +88,7 @@ bool BLE_connected()
     return deviceConnected;
 }
 
-void Send_BLE_msg(BLE_packet_t msg_packet)
+void BLEHandler::Send_BLE_msg(BLE_packet_t msg_packet)
 {
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
@@ -139,20 +135,20 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
     digitalWrite(BLE_DEBUG_LED, digitalRead(BLE_DEBUG_LED) ^ 1);
 }
 
-void ServerCallbacks::onConnect(BLEServer *pServer)
+void BLEHandler::onConnect(BLEServer *pServer)
 {
     #ifdef BLEdebug
         Serial.println("Client connected");
     #endif
-    deviceConnected = true;
+    this->deviceConnected = true;
 }
 
-void ServerCallbacks::onDisconnect(BLEServer *pServer)
+void BLEHandler::onDisconnect(BLEServer *pServer)
 {
     #ifdef BLEdebug
         Serial.println("Disconnected");
     #endif
-    deviceConnected = false;
+    this->deviceConnected = false;
 }
 
 // void CharacteristicCallbacks::onWrite(BLECharacteristic *SenderCharacteristic)

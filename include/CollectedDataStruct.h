@@ -2,6 +2,7 @@
 #define PACKETS_H
 
 #include <sys/_stdint.h>
+#include <WString.h>
 
 typedef struct
 {

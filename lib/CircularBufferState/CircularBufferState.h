@@ -4,8 +4,10 @@
 #pragma once
 
 #include <CircularBuffer.hpp>
-#include "Definitions/ALIVE_defs.h"
+#include "ALIVE_defs.h"
 #include "CanFunctions.h"
+
+#define BUFFER_SIZE 200
 
 class CircularBufferStateHandler
 {
