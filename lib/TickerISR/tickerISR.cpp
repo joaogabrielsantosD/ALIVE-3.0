@@ -17,148 +17,148 @@ void TickerISRHandler::init_tickers()
 void TickerISRHandler::PIDs_once()
 {
   for (int i = MonitorStatus; i <= DPF_Temperature; i++)
-    insert(i, false);
+    CircularBufferState.insert(i, false);
   
-  insert(Odometer_PID, false);
-  insert(DTC_mode_3, false);
+  CircularBufferState.insert(Odometer_PID, false);
+  CircularBufferState.insert(DTC_mode_3, false);
 }
 
 void TickerISRHandler::ticker_5min_ISR()
 {
-  insert(DistanceTraveledSinceCodeCleared);
-  insert(DistanceTraveledMIL);
-  insert(Odometer_PID);
-  insert(EthanolFuel);
-  insert(FuelLevelInput);
+  CircularBufferState.insert(DistanceTraveledSinceCodeCleared);
+  CircularBufferState.insert(DistanceTraveledMIL);
+  CircularBufferState.insert(Odometer_PID);
+  CircularBufferState.insert(EthanolFuel);
+  CircularBufferState.insert(FuelLevelInput);
 }
 
 void TickerISRHandler::ticker_1min_ISR()
 {
-  insert(ControlModuleVoltage);
-  insert(FuelPressure);
-  insert(AbsoluteFuelRailPressure);
+  CircularBufferState.insert(ControlModuleVoltage);
+  CircularBufferState.insert(FuelPressure);
+  CircularBufferState.insert(AbsoluteFuelRailPressure);
 
-  insert(TimeRun_MIL);
-  insert(TimeSinceTroubleCodesCleared);
-  // insert(CommandedEGR_ERROR);
-  insert(EngineRunTime);
+  CircularBufferState.insert(TimeRun_MIL);
+  CircularBufferState.insert(TimeSinceTroubleCodesCleared);
+  // CircularBufferState.insert(CommandedEGR_ERROR);
+  CircularBufferState.insert(EngineRunTime);
 
-  insert(ShortTermFuel_Bank1);
-  insert(LongTermFuel_Bank1);
-  insert(ShortTermFuel_Bank2);
-  insert(LongTermFuel_Bank2);
+  CircularBufferState.insert(ShortTermFuel_Bank1);
+  CircularBufferState.insert(LongTermFuel_Bank1);
+  CircularBufferState.insert(ShortTermFuel_Bank2);
+  CircularBufferState.insert(LongTermFuel_Bank2);
 }
 
 void TickerISRHandler::ticker_30sec_ISR()
 {
-  // insert(GPS_ST);
-  insert(EngineCollantTemp);
-  insert(IntakeAirTemperature);
+  // CircularBufferState.insert(GPS_ST);
+  CircularBufferState.insert(EngineCollantTemp);
+  CircularBufferState.insert(IntakeAirTemperature);
 
-  insert(CatalystTemperature_Bank1Sensor1);
-  insert(CatalystTemperature_Bank2Sensor1);
-  insert(CatalystTemperature_Bank1Sensor2);
-  insert(CatalystTemperature_Bank2Sensor2);
+  CircularBufferState.insert(CatalystTemperature_Bank1Sensor1);
+  CircularBufferState.insert(CatalystTemperature_Bank2Sensor1);
+  CircularBufferState.insert(CatalystTemperature_Bank1Sensor2);
+  CircularBufferState.insert(CatalystTemperature_Bank2Sensor2);
 
-  insert(BarometricPressure);
-  insert(AmbientAirTemperature);
+  CircularBufferState.insert(BarometricPressure);
+  CircularBufferState.insert(AmbientAirTemperature);
 
-  insert(AbsoluteVapourPressure);
-  insert(EvapSystemVaporPressure);
-  insert(EngineOilTemperature);
+  CircularBufferState.insert(AbsoluteVapourPressure);
+  CircularBufferState.insert(EvapSystemVaporPressure);
+  CircularBufferState.insert(EngineOilTemperature);
 
-  insert(EngineCoolantTemperature);
-  insert(IntakeAirTemperatureSensor);
-  // insert(ExhaustGasRecircuilationTemperature);
+  CircularBufferState.insert(EngineCoolantTemperature);
+  CircularBufferState.insert(IntakeAirTemperatureSensor);
+  // CircularBufferState.insert(ExhaustGasRecircuilationTemperature);
 
-  // insert(TurboChargerCompressorPressure);
-  // insert(BoostPressureControl);
-  // insert(VGT);
-  // insert(WastegateControl);
-  // insert(ExhaustPressure);
+  // CircularBufferState.insert(TurboChargerCompressorPressure);
+  // CircularBufferState.insert(BoostPressureControl);
+  // CircularBufferState.insert(VGT);
+  // CircularBufferState.insert(WastegateControl);
+  // CircularBufferState.insert(ExhaustPressure);
 
-  // insert(TurbochargerTemperature1);
-  // insert(TurbochargerTemperature2);
-  // insert(ChargeAIR_CACT);
-  // insert(EGT_Bank1);
-  // insert(EGT_Bank2);
-  insert(DPF_Temperature);
-  // insert(NOxNTE);
-  // insert(PMxNTE);
+  // CircularBufferState.insert(TurbochargerTemperature1);
+  // CircularBufferState.insert(TurbochargerTemperature2);
+  // CircularBufferState.insert(ChargeAIR_CACT);
+  // CircularBufferState.insert(EGT_Bank1);
+  // CircularBufferState.insert(EGT_Bank2);
+  CircularBufferState.insert(DPF_Temperature);
+  // CircularBufferState.insert(NOxNTE);
+  // CircularBufferState.insert(PMxNTE);
 
-  // insert(FuelPressureControlSystem);
+  // CircularBufferState.insert(FuelPressureControlSystem);
   
-  // insert(InjectionPressureControl);
-  // insert(DPF1);
-  // insert(DPF2);
+  // CircularBufferState.insert(InjectionPressureControl);
+  // CircularBufferState.insert(DPF1);
+  // CircularBufferState.insert(DPF2);
 }
 
 void TickerISRHandler::ticker_5sec_ISR()
 {
-  insert(O2S1_WR_lambda2, false);
-  insert(O2S2_WR_lambda2, false);
-  insert(O2S3_WR_lambda2, false);
-  insert(O2S4_WR_lambda2, false);
-  insert(O2S5_WR_lambda2, false);
-  insert(O2S6_WR_lambda2, false);
-  insert(O2S7_WR_lambda2, false);
-  insert(O2S8_WR_lambda2, false);
+  CircularBufferState.insert(O2S1_WR_lambda2, false);
+  CircularBufferState.insert(O2S2_WR_lambda2, false);
+  CircularBufferState.insert(O2S3_WR_lambda2, false);
+  CircularBufferState.insert(O2S4_WR_lambda2, false);
+  CircularBufferState.insert(O2S5_WR_lambda2, false);
+  CircularBufferState.insert(O2S6_WR_lambda2, false);
+  CircularBufferState.insert(O2S7_WR_lambda2, false);
+  CircularBufferState.insert(O2S8_WR_lambda2, false);
 
-  // insert(OxygenSensorsPresent);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3, false);
-  insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4, false);
+  // CircularBufferState.insert(OxygenSensorsPresent);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor1, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor2, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor3, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank1Sensor4, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor1, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor2, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor3, false);
+  CircularBufferState.insert(OxygenSensorVolt_ShortTermFuelTrim_Bank2Sensor4, false);
 
-  insert(CommandEquivalenceRatio, false);
+  CircularBufferState.insert(CommandEquivalenceRatio, false);
 
-  insert(ShortTermSecondaryOxygenSensor_bank1bank3, false);
-  insert(LongTermSecondaryOxygenSensor_bank1bank3, false);
-  insert(ShortTermSecondaryOxygenSensor_bank2bank4, false);
-  insert(LongTermSecondaryOxygenSensor_bank2bank4, false);
+  CircularBufferState.insert(ShortTermSecondaryOxygenSensor_bank1bank3, false);
+  CircularBufferState.insert(LongTermSecondaryOxygenSensor_bank1bank3, false);
+  CircularBufferState.insert(ShortTermSecondaryOxygenSensor_bank2bank4, false);
+  CircularBufferState.insert(LongTermSecondaryOxygenSensor_bank2bank4, false);
 
-  insert(FuelRailPressure_vac, false);
-  insert(FuelRailPressure_dis, false);
+  CircularBufferState.insert(FuelRailPressure_vac, false);
+  CircularBufferState.insert(FuelRailPressure_dis, false);
 }
 
 void TickerISRHandler::ticker_1sec_ISR()
 {
-  // insert(Accelerometer_ST);
-  insert(EngineRPM, false);
-  insert(VehicleSpeed, false);
+  // CircularBufferState.insert(Accelerometer_ST);
+  CircularBufferState.insert(EngineRPM, false);
+  CircularBufferState.insert(VehicleSpeed, false);
 
-  insert(TimingAdvance, false);
-  insert(ThrottlePosition, false);
-  insert(RelativeThrottlePosition, false);
-  insert(AbsoluteThrottlePositionB, false);
-  insert(AbsoluteThrottlePositionC, false);
-  insert(AcceleratorPedalPositionD, false);
-  insert(AcceleratorPedalPositionE, false);
-  insert(AcceleratorPedalPositionF, false);
-  insert(CommandedThrottleActuator, false);
-  insert(RelativeAcceleratorPedalPosition, false);
-  // insert(CommandedThrottleActuator2Position);
+  CircularBufferState.insert(TimingAdvance, false);
+  CircularBufferState.insert(ThrottlePosition, false);
+  CircularBufferState.insert(RelativeThrottlePosition, false);
+  CircularBufferState.insert(AbsoluteThrottlePositionB, false);
+  CircularBufferState.insert(AbsoluteThrottlePositionC, false);
+  CircularBufferState.insert(AcceleratorPedalPositionD, false);
+  CircularBufferState.insert(AcceleratorPedalPositionE, false);
+  CircularBufferState.insert(AcceleratorPedalPositionF, false);
+  CircularBufferState.insert(CommandedThrottleActuator, false);
+  CircularBufferState.insert(RelativeAcceleratorPedalPosition, false);
+  // CircularBufferState.insert(CommandedThrottleActuator2Position);
 
-  insert(EngineLoad, false);
-  insert(IntakeManifoldAbsolutePressure, false);
-  insert(MAFairFlowRate, false);
+  CircularBufferState.insert(EngineLoad, false);
+  CircularBufferState.insert(IntakeManifoldAbsolutePressure, false);
+  CircularBufferState.insert(MAFairFlowRate, false);
 
-  insert(VaporPressure, false);
-  insert(MaximumValueForEquivalenceRatio, false);
-  insert(MaximumValueForAirFlowRate, false);
-  insert(DriverDemandEngine, false);
-  insert(ActualEngine_PercentTorque, false);
-  insert(EngineReferenceTorque, false);
-  insert(EnginePercentTorque, false);
+  CircularBufferState.insert(VaporPressure, false);
+  CircularBufferState.insert(MaximumValueForEquivalenceRatio, false);
+  CircularBufferState.insert(MaximumValueForAirFlowRate, false);
+  CircularBufferState.insert(DriverDemandEngine, false);
+  CircularBufferState.insert(ActualEngine_PercentTorque, false);
+  CircularBufferState.insert(EngineReferenceTorque, false);
+  CircularBufferState.insert(EnginePercentTorque, false);
 
-  insert(MassAirFlowSensor, false);
-  // insert(CommandedDiesel);
-  // insert(TurbochargerRPM);
-  insert(RunTimeSinceEngineStart, false);
+  CircularBufferState.insert(MassAirFlowSensor, false);
+  // CircularBufferState.insert(CommandedDiesel);
+  // CircularBufferState.insert(TurbochargerRPM);
+  CircularBufferState.insert(RunTimeSinceEngineStart, false);
 
-  insert(AbsoluteLoadValue, false);
+  CircularBufferState.insert(AbsoluteLoadValue, false);
 }

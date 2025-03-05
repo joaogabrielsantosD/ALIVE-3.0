@@ -1,17 +1,15 @@
 #include "CircularBufferState.h"
 
-//#define CIRCULAR_BUFFER_DEBUG
+// #define CIRCULAR_BUFFER_DEBUG
 
-/* Variables for Circular Buffer */
-CircularBuffer<int, BUFFER_SIZE> state_buffer;
-int current_pid = IDLE_ST;
+CircularBufferStateHandler CircularBufferState;
 
 /* Return the PID in the queue */
-int CircularBuffer_state()
+int CircularBufferStateHandler::CircularBuffer_state()
 {
-  #ifdef CIRCULAR_BUFFER_DEBUG
-    printBuffer();
-  #endif
+#ifdef CIRCULAR_BUFFER_DEBUG
+  this->printBuffer();
+#endif
 
   if (state_buffer.isFull())
     current_pid = state_buffer.shift();
@@ -28,7 +26,7 @@ int CircularBuffer_state()
 }
 
 /* Insert the PID in the queue */
-int insert(int ST, bool slow_msg)
+int CircularBufferStateHandler::insert(int ST, bool slow_msg)
 {
   switch (ST)
   {
@@ -52,33 +50,34 @@ int insert(int ST, bool slow_msg)
 }
 
 /* Print the CircularBuffer */
-void printBuffer()
+void CircularBufferStateHandler::printBuffer()
 {
-  if (state_buffer.isEmpty())
+  if (this->state_buffer.isEmpty())
     Serial.println("empty");
 
   else
   {
     Serial.print("[");
-    for (decltype(state_buffer)::index_t i = 0; i < state_buffer.size() - 1; i++)
+    for (decltype(this->state_buffer)::index_t i = 0; i < this->state_buffer.size() - 1; i++)
     {
-      Serial.print(state_buffer[i], HEX);
+      Serial.print(this->state_buffer[i], HEX);
       Serial.print(",");
     }
-    Serial.print(state_buffer[state_buffer.size() - 1]);
+    Serial.print(this->state_buffer[this->state_buffer.size() - 1]);
     Serial.print("] (");
 
-    Serial.print(state_buffer.size());
+    Serial.print(this->state_buffer.size());
     Serial.print("/");
-    Serial.print(state_buffer.size() + state_buffer.available());
-    if (state_buffer.isFull())
+    Serial.print(this->state_buffer.size() + this->state_buffer.available());
+    if (this->state_buffer.isFull())
       Serial.print(" full");
 
     Serial.println(")");
   }
 }
 
-String verify_message_is_null(int id, double msg)
+/* DEPRECAPTED  */
+String CircularBufferStateHandler::verify_message_is_null(int id, double msg)
 {
   return String(msg);
   // switch (id)

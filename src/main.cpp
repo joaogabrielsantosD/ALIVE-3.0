@@ -101,7 +101,7 @@ void CANprocess_Task(void *arg)
 
   while (1)
   {
-    circularbuffer_State = CircularBuffer_state();
+    circularbuffer_State = CircularBufferState.CircularBuffer_state();
 
     if (circularbuffer_State != IDLE_ST)
       send_OBDmsg(circularbuffer_State, &packet);

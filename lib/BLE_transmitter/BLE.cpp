@@ -96,30 +96,30 @@ void Send_BLE_msg(BLE_packet_t msg_packet)
 {
     StaticJsonDocument<DOC_SIZE_JSON> doc;
 
-    doc["x04"]  = verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
-    doc["x05"]  = verify_message_is_null(EngineCollantTemp, msg_packet.Engine_Coolant_Temperature);
-    doc["x0A"]  = verify_message_is_null(FuelPressure, msg_packet.Fuel_Pressure);
-    doc["x0B"]  = verify_message_is_null(IntakeManifoldAbsolutePressure, msg_packet.Intake_Manifold__MAP);
-    doc["x0C"]  = verify_message_is_null(EngineRPM, msg_packet.Engine_RPM);
-    doc["x0D"]  = verify_message_is_null(VehicleSpeed, msg_packet.Speed);
-    doc["x11"]  = verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
-    doc["x1F"]  = verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
-    doc["x21"]  = verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled_with_MIL_on);
-    doc["x2F"]  = verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
-    doc["x31"]  = verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled);
-    doc["x46"]  = verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
-    doc["x5C"]  = verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
-    doc["x5E"]  = verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
-    doc["xA6"]  = verify_message_is_null(Odometer_PID, msg_packet.Odometer);
-    doc["AcX"] = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
-    doc["AcY"] = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
-    doc["AcZ"] = verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
-    //doc["AgX"]  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
-    //doc["AgY"]  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
-    //doc["AgZ"]  = verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_z);
-    doc["Lat"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
-    doc["Lon"] = verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
-    //doc["Temp_Intern"]              = verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);    
+    doc["x04"] = CircularBufferState.verify_message_is_null(EngineLoad, msg_packet.Calculated_Engine_Load);
+    doc["x05"] = CircularBufferState.verify_message_is_null(EngineCollantTemp, msg_packet.Engine_Coolant_Temperature);
+    doc["x0A"] = CircularBufferState.verify_message_is_null(FuelPressure, msg_packet.Fuel_Pressure);
+    doc["x0B"] = CircularBufferState.verify_message_is_null(IntakeManifoldAbsolutePressure, msg_packet.Intake_Manifold__MAP);
+    doc["x0C"] = CircularBufferState.verify_message_is_null(EngineRPM, msg_packet.Engine_RPM);
+    doc["x0D"] = CircularBufferState.verify_message_is_null(VehicleSpeed, msg_packet.Speed);
+    doc["x11"] = CircularBufferState.verify_message_is_null(ThrottlePosition, msg_packet.Throttle_Position);
+    doc["x1F"] = CircularBufferState.verify_message_is_null(RunTimeSinceEngineStart, msg_packet.Run_Time);
+    doc["x21"] = CircularBufferState.verify_message_is_null(DistanceTraveledMIL, msg_packet.Distance_traveled_with_MIL_on);
+    doc["x2F"] = CircularBufferState.verify_message_is_null(FuelLevelInput, msg_packet.Fuel_Level_input);
+    doc["x31"] = CircularBufferState.verify_message_is_null(DistanceTraveledSinceCodeCleared, msg_packet.Distance_traveled);
+    doc["x46"] = CircularBufferState.verify_message_is_null(AmbientAirTemperature, msg_packet.Ambient_Air_Temperature);
+    doc["x5C"] = CircularBufferState.verify_message_is_null(EngineOilTemperature, msg_packet.Engine_Oil_Temperature);
+    doc["x5E"] = CircularBufferState.verify_message_is_null(EngineFuelRate, msg_packet.Engine_fuel_rate);
+    doc["xA6"] = CircularBufferState.verify_message_is_null(Odometer_PID, msg_packet.Odometer);
+    doc["AcX"] = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_x);
+    doc["AcY"] = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_y);
+    doc["AcZ"] = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_acc.acc_z);
+    //doc["AgX"]  = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_x);
+    //doc["AgY"]  = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_y);
+    //doc["AgZ"]  = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.imu_ang.ang_z);
+    doc["Lat"] = CircularBufferState.verify_message_is_null(GPS_ST, msg_packet.gps_data.LAT);
+    doc["Lon"] = CircularBufferState.verify_message_is_null(GPS_ST, msg_packet.gps_data.LNG);
+    //doc["Temp_Intern"]              = CircularBufferState.verify_message_is_null(Accelerometer_ST, msg_packet.acctemp);    
     doc["DTC"]                    = msg_packet.DTC;
 
     /* Make the JSON packet in the std::string format */
