@@ -1,20 +1,20 @@
 #include "tickerISR.h"
 
-Ticker tickerONCE, ticker5min, ticker1min, ticker30secs, ticker5secs, ticker1secs;
+TickerISRHandler TickerISR;
 
-/* Initialize all tickers to insert the messages in the circular buffer */
-void init_tickers()
+void TickerISRHandler::init_tickers()
 {
-  tickerONCE.once(1.0f, PIDs_once);           // one time
-  ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min
-  ticker1min.attach(60.0f, ticker_1min_ISR);
-  ticker30secs.attach(30.0f, ticker_30sec_ISR);
-  ticker5secs.attach(5.0f, ticker_5sec_ISR);
-  ticker1secs.attach(1.0f, ticker_1sec_ISR);
+  this->tickerONCE.once(1.0f, PIDs_once);           // one time
+  this->ticker5min.attach(300.0f, ticker_5min_ISR); // 300s == 5min
+  this->ticker1min.attach(60.0f, ticker_1min_ISR);
+  this->ticker30secs.attach(30.0f, ticker_30sec_ISR);
+  this->ticker5secs.attach(5.0f, ticker_5sec_ISR);
+  this->ticker1secs.attach(1.0f, ticker_1sec_ISR);
 }
 
 /*=========================== ISRs ====================================*/
-void PIDs_once()
+
+void TickerISRHandler::PIDs_once()
 {
   for (int i = MonitorStatus; i <= DPF_Temperature; i++)
     insert(i, false);
@@ -23,7 +23,7 @@ void PIDs_once()
   insert(DTC_mode_3, false);
 }
 
-void ticker_5min_ISR()
+void TickerISRHandler::ticker_5min_ISR()
 {
   insert(DistanceTraveledSinceCodeCleared);
   insert(DistanceTraveledMIL);
@@ -32,7 +32,7 @@ void ticker_5min_ISR()
   insert(FuelLevelInput);
 }
 
-void ticker_1min_ISR()
+void TickerISRHandler::ticker_1min_ISR()
 {
   insert(ControlModuleVoltage);
   insert(FuelPressure);
@@ -49,7 +49,7 @@ void ticker_1min_ISR()
   insert(LongTermFuel_Bank2);
 }
 
-void ticker_30sec_ISR()
+void TickerISRHandler::ticker_30sec_ISR()
 {
   // insert(GPS_ST);
   insert(EngineCollantTemp);
@@ -93,7 +93,7 @@ void ticker_30sec_ISR()
   // insert(DPF2);
 }
 
-void ticker_5sec_ISR()
+void TickerISRHandler::ticker_5sec_ISR()
 {
   insert(O2S1_WR_lambda2, false);
   insert(O2S2_WR_lambda2, false);
@@ -125,7 +125,7 @@ void ticker_5sec_ISR()
   insert(FuelRailPressure_dis, false);
 }
 
-void ticker_1sec_ISR()
+void TickerISRHandler::ticker_1sec_ISR()
 {
   // insert(Accelerometer_ST);
   insert(EngineRPM, false);

@@ -1,9 +1,8 @@
 #include "wdt.h"
 
-// example from: https://www.youtube.com/watch?v=yOwg1EMby2g&t=240s
+WDTHandler WDT;
 
-/* Config and Init the WDT */
-void set_wdt_timer()
+void WDTHandler::set_wdt_timer()
 {
   rtc_wdt_protect_off(); // Disable RTC WDT write protection
   rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
@@ -13,8 +12,7 @@ void set_wdt_timer()
   rtc_wdt_protect_on();
 }
 
-/* Reset WDT */
-void reset_rtc_wdt()
+void WDTHandler::reset_rtc_wdt()
 {
   esp_task_wdt_reset(); // Reset the ESP task watchdog timer
   rtc_wdt_feed();       // Feed the RTC WDT to reset its timer
