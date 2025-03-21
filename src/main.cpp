@@ -93,7 +93,7 @@ void loop() { WDT.reset_rtc_wdt(); }
 /* Core 1: Acquisition Threads */
 void CANprocess_Task(void *arg)
 {
-  static int circularbuffer_State = IDLE_ST;
+  static int current_circular_buffer_state = IDLE_ST;
 
   CAN.TestIF_StdExt();
   CAN.checkPID();
@@ -101,10 +101,10 @@ void CANprocess_Task(void *arg)
 
   while (1)
   {
-    circularbuffer_State = CircularBufferState.CircularBuffer_state();
+    CircularBufferState >> current_circular_buffer_state;
 
-    if (circularbuffer_State != IDLE_ST)
-      CAN.send_OBDmsg(circularbuffer_State, &packet);
+    if (current_circular_buffer_state != IDLE_ST)
+      CAN.send_OBDmsg(current_circular_buffer_state, &packet);
 
     vTaskDelay(1);
   }

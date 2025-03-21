@@ -29,6 +29,11 @@ public:
     */
     int CircularBuffer_state(void);
 
+    CircularBufferStateHandler &operator>>(int& st) {
+        st = CircularBuffer_state();
+        return *this;
+    } 
+
     /**
     * @brief Inserts a PID into the circular buffer  
     * @note Adds the given PID to the buffer based on its priority and type.  
